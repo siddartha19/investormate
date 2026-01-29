@@ -1,3 +1,5 @@
+<img width="920" height="290" alt="Screenshot 2025-06-25 at 7 43 49 PM" src="https://github.com/user-attachments/assets/9f9db564-9a4d-43c7-8bb6-38bc000894b2" />
+
 # InvestorMate 🤖📈
 
 [![PyPI version](https://badge.fury.io/py/investormate.svg)](https://badge.fury.io/py/investormate)
