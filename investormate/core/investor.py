@@ -6,9 +6,7 @@ AI-powered stock analysis using multiple providers (OpenAI, Anthropic, Gemini).
 from typing import Dict, List, Optional, Union
 import json
 
-from ..ai.openai_provider import OpenAIProvider
-from ..ai.anthropic_provider import AnthropicProvider
-from ..ai.gemini_provider import GeminiProvider
+# Lazy imports to avoid requiring all AI provider dependencies
 from ..ai.prompts import (
     STOCK_ANALYSIS_PROMPT,
     DOCUMENT_INSIGHTS_PROMPT,
@@ -57,13 +55,17 @@ class Investor:
         self.providers = {}
         
         # Initialize providers based on available API keys
+        # Lazy import to only require dependencies for providers being used
         if openai_api_key:
+            from ..ai.openai_provider import OpenAIProvider
             self.providers['openai'] = OpenAIProvider(openai_api_key)
         
         if anthropic_api_key:
+            from ..ai.anthropic_provider import AnthropicProvider
             self.providers['anthropic'] = AnthropicProvider(anthropic_api_key)
         
         if gemini_api_key:
+            from ..ai.gemini_provider import GeminiProvider
             self.providers['gemini'] = GeminiProvider(gemini_api_key)
         
         # Validate at least one provider is available
