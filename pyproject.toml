@@ -60,10 +60,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/investormate/investormate"
-Documentation = "https://github.com/investormate/investormate#readme"
-Repository = "https://github.com/investormate/investormate"
-"Bug Tracker" = "https://github.com/investormate/investormate/issues"
+Homepage = "https://github.com/siddartha19/investormate"
+Documentation = "https://github.com/siddartha19/investormate#readme"
+Repository = "https://github.com/siddartha19/investormate"
+"Bug Tracker" = "https://github.com/siddartha19/investormate/issues"
 
 [tool.setuptools]
 packages = ["investormate", "investormate.core", "investormate.ai", "investormate.data", "investormate.analysis", "investormate.documents", "investormate.utils"]
