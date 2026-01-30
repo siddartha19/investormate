@@ -17,6 +17,7 @@ from ..data.fetchers import (
 )
 from ..data.constants import get_ticker_format
 from ..data.parsers import extract_price_data, extract_company_info
+from ..data.earnings_transcripts import EarningsCallTranscripts
 from ..analysis.ratios import RatiosCalculator
 from ..analysis.indicators import IndicatorsHelper
 from ..analysis.scores import FinancialScores
@@ -48,6 +49,7 @@ class Stock:
         self._income_stmt = None
         self._cash_flow = None
         self._history_cache = {}
+        self._earnings_transcripts = None
         
     # Core Data Properties
     
@@ -203,6 +205,52 @@ class Stock:
         
         return self._history_cache[cache_key]
     
+    # Revenue Breakdown
+    
+    @property
+    def revenue_by_segment(self) -> Optional[Dict]:
+        """
+        Get revenue breakdown by business segment.
+        
+        Returns:
+            Dictionary with segment revenue data or None if not available
+        """
+        try:
+            import yfinance as yf
+            ticker = yf.Ticker(get_ticker_format(self.ticker))
+            
+            # Try to get segment data from financials
+            if hasattr(ticker, 'financials'):
+                # This may not be available for all stocks
+                # yfinance doesn't directly expose segment data in a standard way
+                # Return None for now - would need custom scraping
+                pass
+            
+            return None
+        except Exception:
+            return None
+    
+    @property
+    def revenue_by_geography(self) -> Optional[Dict]:
+        """
+        Get revenue breakdown by geographic region.
+        
+        Returns:
+            Dictionary with geographic revenue data or None if not available
+        """
+        try:
+            import yfinance as yf
+            ticker = yf.Ticker(get_ticker_format(self.ticker))
+            
+            # Try to get geographic data from financials
+            # This may not be available for all stocks
+            # yfinance doesn't directly expose geographic data in a standard way
+            # Return None for now - would need custom scraping
+            
+            return None
+        except Exception:
+            return None
+    
     # News & Filings
     
     @property
@@ -220,6 +268,25 @@ class Stock:
             return get_yfinance_ticker_filings(self.ticker)
         except Exception as e:
             raise DataFetchError(f"Failed to fetch filings: {str(e)}")
+    
+    # Earnings Call Transcripts
+    
+    @property
+    def earnings_transcripts(self) -> EarningsCallTranscripts:
+        """
+        Get earnings call transcripts handler.
+        
+        Returns:
+            EarningsCallTranscripts object for accessing transcripts
+            
+        Example:
+            >>> stock = Stock("AAPL")
+            >>> transcripts_list = stock.earnings_transcripts.get_transcripts_list()
+            >>> q4_transcript = stock.earnings_transcripts.get_transcript(2024, 4)
+        """
+        if self._earnings_transcripts is None:
+            self._earnings_transcripts = EarningsCallTranscripts(self.ticker)
+        return self._earnings_transcripts
     
     # Utility Methods
     
@@ -244,6 +311,7 @@ class Stock:
         self._income_stmt = None
         self._cash_flow = None
         self._history_cache = {}
+        self._earnings_transcripts = None
     
     def __repr__(self) -> str:
         """String representation."""

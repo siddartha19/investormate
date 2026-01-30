@@ -17,10 +17,12 @@ InvestorMate is the only Python package you need for comprehensive stock analysi
 - **AI-Powered Analysis** - Ask natural language questions about any stock using OpenAI, Claude, or Gemini
 - **Comprehensive Stock Data** - Real-time prices, financials, news, and SEC filings via yfinance
 - **60+ Technical Indicators** - SMA, EMA, RSI, MACD, Bollinger Bands, and more via pandas-ta
-- **Financial Ratios** - Auto-calculated P/E, ROE, debt ratios, and profitability metrics
+- **Advanced Financial Ratios** - 40+ ratios including ROIC, WACC, Equity Multiplier, and TTM metrics
+- **Earnings Call Transcripts** - Access earnings dates and transcript infrastructure (expandable)
 - **Stock Screening** - Find value stocks, growth stocks, or create custom screens
 - **Portfolio Analysis** - Track performance, risk metrics, and allocation
 - **Market Summaries** - Real-time data for US, Asian, European, crypto, and commodity markets
+- **Pretty Formatting** - Beautiful CLI output for financial statements and ratios
 
 ## 🚀 Quick Start
 
@@ -40,6 +42,8 @@ print(result)
 stock = Stock("AAPL")
 print(f"Price: ${stock.price}")
 print(f"P/E Ratio: {stock.ratios.pe}")
+print(f"ROIC: {stock.ratios.roic}")  # Advanced ratios
+print(f"TTM EPS: {stock.ratios.ttm_eps}")  # Trailing metrics
 print(f"RSI: {stock.indicators.rsi()}")
 ```
 
@@ -87,6 +91,7 @@ You only need one API key to use the AI features.
 
 ```python
 from investormate import Stock
+from investormate.utils import print_ratios_table
 
 stock = Stock("TSLA")
 
@@ -99,6 +104,22 @@ print(stock.sector)
 income_stmt = stock.income_statement
 balance_sheet = stock.balance_sheet
 cash_flow = stock.cash_flow
+
+# Advanced ratios and TTM metrics
+print(f"ROIC: {stock.ratios.roic}")
+print(f"WACC: {stock.ratios.wacc}")
+print(f"TTM Revenue: {stock.ratios.ttm_revenue}")
+print(f"TTM EPS: {stock.ratios.ttm_eps}")
+
+# Pretty print all ratios
+print_ratios_table(stock.ratios.all())
+
+# DuPont ROE Analysis
+dupont = stock.ratios.dupont_roe
+print(dupont)
+
+# Earnings transcripts (infrastructure ready)
+transcripts_list = stock.earnings_transcripts.get_transcripts_list()
 
 # Historical data
 df = stock.history(period="1y", interval="1d")
