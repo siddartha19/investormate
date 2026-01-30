@@ -20,6 +20,9 @@ from .core.screener import Screener
 from .core.portfolio import Portfolio
 from .core.market import Market
 
+# Analysis classes
+from .analysis.correlation import Correlation
+
 # Exceptions
 from .utils.exceptions import (
     InvestorMateError,
@@ -33,11 +36,14 @@ from .utils.exceptions import (
 
 __all__ = [
     "__version__",
+    # Core
     "Investor",
     "Stock",
     "Screener",
     "Portfolio",
     "Market",
+    # Analysis
+    "Correlation",
     # Exceptions
     "InvestorMateError",
     "InvalidTickerError",
