@@ -44,6 +44,7 @@ Stock(ticker: str)
 - `ratios` - RatiosCalculator instance
 - `scores` - FinancialScores instance
 - `indicators` - IndicatorsHelper instance
+- `sentiment` - SentimentAnalyzer instance (v0.2.0)
 
 **News & Filings:**
 - `news` - Latest news articles
@@ -348,6 +349,65 @@ Accessed via `Stock.indicators`.
 
 ---
 
+### Correlation (v0.2.0)
+
+```python
+from investormate import Correlation
+```
+
+Multi-stock correlation analysis for portfolio diversification.
+
+**Constructor:** `Correlation(tickers, period="1y", interval="1d")`
+
+**Methods:**
+- `matrix(method='pearson')` - Correlation matrix
+- `find_pairs(threshold=0.7)` - Find highly correlated pairs
+- `find_diversification_candidates(portfolio, universe, max_correlation=0.3)` - Find diversification candidates
+- `get_statistics()` - Summary statistics
+
+---
+
+### SentimentAnalyzer (v0.2.0)
+
+Accessed via `Stock.sentiment`.
+
+**Methods:**
+- `news(days=7)` - Analyze news sentiment
+- `get_sentiment_label(score)` - Convert score to label
+- `compare_sentiment(days_list)` - Compare across timeframes
+
+---
+
+### Backtest & Strategy (v0.2.0)
+
+```python
+from investormate import Backtest, Strategy
+```
+
+**Strategy** - Abstract base class with `initialize()` and `on_data(data)` methods. Trading: `buy()`, `sell()`, `sell_all()`.
+
+**Backtest** - Constructor: `Backtest(strategy, ticker, start_date, end_date, initial_capital=10000, commission=0.0)`
+
+**Methods:** `run()` returns BacktestResults with `total_return`, `sharpe_ratio`, `max_drawdown`, `win_rate`, `equity_curve`, `trades`, `summary()`.
+
+---
+
+### CustomStrategy (v0.2.0)
+
+```python
+from investormate import CustomStrategy
+```
+
+User-defined stock screening with function-based or builder pattern API.
+
+**Constructor:** `CustomStrategy(filter_func=None, rank_func=None, universe=None)`
+
+**Builder methods:** `add_filter(attribute, min, max)`, `rank_by(criteria)`, `apply(universe)`
+
+**Methods:** `run(limit=None)` - Returns list of {ticker, rank, name, price}
+
+---
+
 ## Exceptions
 
 ```python
@@ -387,7 +447,7 @@ def analyze_stocks(tickers: List[str]) -> Dict[str, float]:
 ## Complete Example
 
 ```python
-from investormate import Investor, Stock, Screener, Portfolio, Market
+from investormate import Investor, Stock, Screener, Portfolio, Market, Correlation, Backtest, Strategy, CustomStrategy
 import os
 
 # 1. Basic stock data
@@ -415,4 +475,16 @@ print(f"Portfolio: ${portfolio.value:,.2f}")
 # 6. Market data
 market = Market("US")
 print(market.summary)
+
+# 7. Correlation analysis (v0.2.0)
+corr = Correlation(["AAPL", "GOOGL", "MSFT"], period="1y")
+print(corr.matrix())
+
+# 8. Sentiment analysis (v0.2.0)
+sentiment = stock.sentiment.news(days=7)
+print(f"Sentiment: {sentiment['score']}")
+
+# 9. Custom screening (v0.2.0)
+strategy = CustomStrategy().add_filter("ratios.pe", min=10, max=25).apply(universe=["AAPL", "GOOGL"])
+print(strategy.run())
 ```

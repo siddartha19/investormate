@@ -15,12 +15,20 @@ InvestorMate combines the best of financial data, technical analysis, and AI to 
 - **Stock Screening** - Find value, growth, or dividend stocks
 - **Portfolio Analysis** - Track performance, risk metrics, and allocation
 - **Market Summaries** - Global market data at your fingertips
+- **Correlation Analysis** (v0.2.0) - Portfolio diversification, find correlated pairs
+- **Sentiment Analysis** (v0.2.0) - AI-powered news sentiment
+- **Backtesting** (v0.2.0) - Test strategies on historical data
+- **Custom Strategies** (v0.2.0) - User-defined screening logic
 
 ## Quick Links
 
 - [Quickstart Guide](quickstart.md) - Get started in 5 minutes
 - [API Reference](api_reference.md) - Complete API documentation
 - [AI Providers Guide](ai_providers.md) - Using OpenAI, Claude, and Gemini
+- [Correlation Analysis](correlation.md) - Portfolio diversification
+- [Sentiment Analysis](sentiment.md) - News sentiment
+- [Backtesting](backtesting.md) - Strategy backtesting
+- [Custom Strategies](custom_strategies.md) - Custom screening
 - [Examples](../examples/) - Code examples
 
 ## Installation

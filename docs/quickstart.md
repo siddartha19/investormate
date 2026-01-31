@@ -121,11 +121,64 @@ print(crypto.summary)
 # Other markets: "ASIA", "EUROPE", "CURRENCIES", "COMMODITIES"
 ```
 
+## v0.2.0 Features
+
+### Correlation Analysis
+
+```python
+from investormate import Correlation
+
+corr = Correlation(["AAPL", "GOOGL", "MSFT"], period="1y")
+print(corr.matrix())
+pairs = corr.find_pairs(threshold=0.7)
+```
+
+### Sentiment Analysis
+
+```python
+stock = Stock("AAPL")
+sentiment = stock.sentiment.news(days=7)
+print(f"Score: {sentiment['score']}, Bullish: {sentiment['bullish_percent']}%")
+```
+
+### Backtesting
+
+```python
+from investormate import Backtest, Strategy
+
+class MyStrategy(Strategy):
+    def initialize(self):
+        self.ma_period = 20
+    def on_data(self, data):
+        # Your strategy logic
+        pass
+
+bt = Backtest(MyStrategy, "AAPL", "2020-01-01", "2024-01-01")
+results = bt.run()
+print(results.summary())
+```
+
+### Custom Strategies
+
+```python
+from investormate import CustomStrategy
+
+strategy = (
+    CustomStrategy()
+    .add_filter("ratios.pe", min=10, max=25)
+    .add_filter("ratios.roe", min=0.15)
+    .rank_by("ratios.roe")
+    .apply(universe=["AAPL", "GOOGL", "MSFT"])
+)
+results = strategy.run()
+```
+
 ## Next Steps
 
 - Check out the [Examples](../examples/) directory for more code samples
 - Read the [AI Providers Guide](ai_providers.md) for details on using different AI models
 - See the [API Reference](api_reference.md) for complete documentation
+- Explore [Correlation](correlation.md), [Sentiment](sentiment.md), [Backtesting](backtesting.md), [Custom Strategies](custom_strategies.md) guides
 
 ## Need Help?
 
