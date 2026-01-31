@@ -6,9 +6,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python**
+**AI-Powered Stock Analysis in Python** — Correlation analysis, sentiment analysis, backtesting & custom strategies (v0.2.0)
 
-InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights.
+InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
 > "Ask any question about any stock and get instant AI-powered insights"
 

@@ -168,6 +168,12 @@ class Stock:
         df = self.history(period="1y", interval="1d")
         return IndicatorsHelper(df)
     
+    @property
+    def sentiment(self):
+        """Get sentiment analyzer for news sentiment analysis."""
+        from ..analysis.sentiment import SentimentAnalyzer
+        return SentimentAnalyzer(self.ticker, lambda: self.news)
+    
     # Historical Data
     
     def history(self, period: str = "1y", interval: str = "1d", 
