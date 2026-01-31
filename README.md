@@ -74,6 +74,13 @@ You only need one API key to use the AI features.
 - [AI Providers Guide](docs/ai_providers.md) - OpenAI, Claude, and Gemini setup
 - [Examples](examples/) - Working code examples
 
+## 🗺️ Roadmap & Contributing
+
+- **[ROADMAP.md](ROADMAP.md)** — Our vision to build a Bloomberg Terminal–grade package. See planned features, phases, and priorities.
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — Want to contribute? Start here for development setup, your first PR, and guidelines.
+
+New to open source? Check [CONTRIBUTING.md](CONTRIBUTING.md) for step-by-step guidance on making your first contribution.
+
 ## 🎯 Why InvestorMate?
 
 | Feature | InvestorMate | Other Solutions |
@@ -208,7 +215,11 @@ print(f"Allocation: {portfolio.allocation}")
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! See **[CONTRIBUTING.md](CONTRIBUTING.md)** for:
+
+- Development setup and first-time contributor guide
+- How to find work (roadmap, good first issues)
+- Code style, testing, and PR process
 
 ## 📄 License
 
