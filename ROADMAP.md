@@ -257,7 +257,19 @@ The roadmap is structured in five phases, from hardening the current release to 
 | Customizable sections | Include/exclude sections | `investor.generate_report("AAPL", sections=["valuation","risk"])` |
 | Comparison report | Multi-stock | `investor.generate_report(["AAPL","MSFT","GOOGL"])` |
 
-**Deliverables:** v0.8 (risk), v0.9 (screens + peers), v1.0 (reports + 1.0 release)
+### 3.5 Strategy Library Templates
+
+Predefined backtest strategies that users can run out-of-the-box or customize. Bridges the gap between basic backtesting and professional tools like Backtrader/Zipline.
+
+| Strategy | Description | API |
+|----------|-------------|-----|
+| Momentum | Price momentum, relative strength (e.g., 12-month momentum) | `from investormate.strategies import MomentumStrategy` |
+| Mean-Reversion | RSI, Bollinger Band, oversold/overbought reversion | `from investormate.strategies import MeanReversionStrategy` |
+| Factor Models | Value (P/E, P/B), quality (ROE, ROA), size, momentum factors | `from investormate.strategies import FactorStrategy` |
+| SMA Crossover | Dual moving average crossover (e.g., 50/200 day) | `from investormate.strategies import SMACrossoverStrategy` |
+| Customizable params | All strategies expose tunable parameters | `MomentumStrategy(lookback=12, top_n=10)` |
+
+**Deliverables:** v0.8 (risk), v0.9 (screens + peers + strategy library), v1.0 (reports + 1.0 release)
 
 ---
 
