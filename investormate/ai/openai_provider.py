@@ -81,7 +81,7 @@ class OpenAIProvider(AIProvider):
             # Try a minimal API call
             self.client.models.list()
             return True
-        except:
+        except Exception:
             return False
     
     @property

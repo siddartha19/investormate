@@ -82,7 +82,7 @@ class AnthropicProvider(AIProvider):
                 messages=[{"role": "user", "content": "Hi"}]
             )
             return True
-        except:
+        except Exception:
             return False
     
     @property

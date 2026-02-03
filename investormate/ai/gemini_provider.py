@@ -81,7 +81,7 @@ class GeminiProvider(AIProvider):
                 contents="Hi"
             )
             return True
-        except:
+        except Exception:
             return False
     
     @property

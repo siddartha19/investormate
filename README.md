@@ -83,14 +83,14 @@ New to open source? Check [CONTRIBUTING.md](CONTRIBUTING.md) for step-by-step gu
 
 ## 🎯 Why InvestorMate?
 
-| Feature | InvestorMate | Other Solutions |
-|---------|--------------|-----------------|
-| **Simplicity** | One package, simple API | Need 5+ packages |
-| **AI-Powered** | Built-in AI analysis | Manual analysis only |
-| **Provider Choice** | OpenAI, Claude, Gemini | Locked to one provider |
-| **Setup Time** | 2 lines of code | Hours of configuration |
-| **Data Format** | JSON-ready | Raw pandas DataFrames |
-| **Target Users** | Everyone | Enterprise only |
+| Feature             | InvestorMate            | Other Solutions        |
+| ------------------- | ----------------------- | ---------------------- |
+| **Simplicity**      | One package, simple API | Need 5+ packages       |
+| **AI-Powered**      | Built-in AI analysis    | Manual analysis only   |
+| **Provider Choice** | OpenAI, Claude, Gemini  | Locked to one provider |
+| **Setup Time**      | 2 lines of code         | Hours of configuration |
+| **Data Format**     | JSON-ready              | Raw pandas DataFrames  |
+| **Target Users**    | Everyone                | Enterprise only        |
 
 ## 💡 Examples
 

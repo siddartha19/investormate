@@ -189,6 +189,6 @@ def is_valid_url(url: str) -> bool:
     try:
         import validators
         return validators.url(url) is True
-    except:
+    except Exception:
         # Fallback to simple check
         return url.startswith('http://') or url.startswith('https://')

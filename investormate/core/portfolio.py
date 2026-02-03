@@ -43,7 +43,7 @@ class Portfolio:
                 info = get_yfinance_data(ticker)
                 price = info.get('currentPrice') or info.get('regularMarketPrice') or 0
                 total += price * shares
-            except:
+            except Exception:
                 continue
         return total
     
@@ -61,7 +61,7 @@ class Portfolio:
                 price = info.get('currentPrice') or info.get('regularMarketPrice') or 0
                 ticker_value = price * shares
                 allocations[ticker] = (ticker_value / total_value) * 100
-            except:
+            except Exception:
                 allocations[ticker] = 0.0
         
         return allocations
@@ -108,7 +108,7 @@ class Portfolio:
             # Annualize (252 trading days)
             sharpe = (mean_return / std_return) * np.sqrt(252)
             return sharpe
-        except:
+        except Exception:
             return None
     
     @property
@@ -125,7 +125,7 @@ class Portfolio:
             # Annualize
             annual_vol = daily_vol * np.sqrt(252)
             return annual_vol * 100  # As percentage
-        except:
+        except Exception:
             return None
     
     @property
@@ -148,7 +148,7 @@ class Portfolio:
                     sectors[sector] += ticker_value
                 else:
                     sectors[sector] = ticker_value
-            except:
+            except Exception:
                 continue
         
         # Convert to percentages
@@ -217,7 +217,7 @@ class Portfolio:
                 # Calculate daily returns
                 df['Returns'] = df['Close'].pct_change()
                 returns_data[ticker] = df['Returns']
-            except:
+            except Exception:
                 continue
         
         if not returns_data:

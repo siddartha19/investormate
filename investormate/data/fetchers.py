@@ -18,15 +18,18 @@ def get_yfinance_data(ticker_name: str) -> Dict:
         ticker_name: Stock ticker symbol
         
     Returns:
-        Dictionary with stock info (JSON-serializable)
+        Dictionary with stock info (JSON-serializable). Empty dict if no data.
     """
     ticker = yf.Ticker(get_ticker_format(ticker_name))
     info = ticker.info
+    if info is None or not isinstance(info, dict):
+        return {}
     # Convert any Timestamp objects to strings
-    for key, value in info.items():
+    result = dict(info)
+    for key, value in result.items():
         if isinstance(value, pd.Timestamp):
-            info[key] = value.strftime('%Y-%m-%d %H:%M:%S')
-    return info
+            result[key] = value.strftime('%Y-%m-%d %H:%M:%S')
+    return result
 
 
 def get_yfinance_balance_sheet_data(ticker_name: str) -> Dict:
@@ -37,10 +40,12 @@ def get_yfinance_balance_sheet_data(ticker_name: str) -> Dict:
         ticker_name: Stock ticker symbol
         
     Returns:
-        Dictionary with balance sheet data (JSON-serializable)
+        Dictionary with balance sheet data (JSON-serializable). Empty dict if no data.
     """
     ticker = yf.Ticker(get_ticker_format(ticker_name))
     df = ticker.balance_sheet
+    if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+        return {}
     # Create a new dictionary with string keys
     result = {}
     for col in df.columns:
@@ -63,10 +68,12 @@ def get_yfinance_income_statement_data(ticker_name: str) -> Dict:
         ticker_name: Stock ticker symbol
         
     Returns:
-        Dictionary with income statement data (JSON-serializable)
+        Dictionary with income statement data (JSON-serializable). Empty dict if no data.
     """
     ticker = yf.Ticker(get_ticker_format(ticker_name))
     df = ticker.incomestmt
+    if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+        return {}
     # Create a new dictionary with string keys
     result = {}
     for col in df.columns:
@@ -89,10 +96,12 @@ def get_yfinance_cash_flow_statement_data(ticker_name: str) -> Dict:
         ticker_name: Stock ticker symbol
         
     Returns:
-        Dictionary with cash flow data (JSON-serializable)
+        Dictionary with cash flow data (JSON-serializable). Empty dict if no data.
     """
     ticker = yf.Ticker(get_ticker_format(ticker_name))
     df = ticker.cash_flow
+    if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+        return {}
     # Create a new dictionary with string keys
     result = {}
     for col in df.columns:
@@ -237,10 +246,13 @@ def get_yfinance_stock_history(ticker_name: str, period: str = "1y", interval: s
         interval: Data interval (1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo)
         
     Returns:
-        Dictionary with historical OHLCV data
+        Dictionary with historical OHLCV data. Empty dict if no data.
     """
     ticker = yf.Ticker(get_ticker_format(ticker_name))
     df = ticker.history(period=period, interval=interval)
+    
+    if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+        return {}
     
     # Required columns for OHLCV data
     required_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
@@ -248,7 +260,7 @@ def get_yfinance_stock_history(ticker_name: str, period: str = "1y", interval: s
     # Check if all required columns exist
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        raise ValueError(f"Missing columns in historical data: {missing_columns}")
+        return {}
 
     # Extract only the required columns
     df_selected = df[required_columns]
@@ -275,10 +287,11 @@ def get_yfinance_ticker_news(ticker_name: str) -> list:
         ticker_name: Stock ticker symbol
         
     Returns:
-        List of news items
+        List of news items. Empty list if no data.
     """
     ticker = yf.Ticker(get_ticker_format(ticker_name))
-    return ticker.news
+    news = ticker.news
+    return list(news) if news else []
 
 
 def get_yfinance_ticker_filings(ticker_name: str) -> list:
@@ -293,7 +306,8 @@ def get_yfinance_ticker_filings(ticker_name: str) -> list:
     """
     if get_ticker_country(ticker_name) == "US":
         ticker = yf.Ticker(get_ticker_format(ticker_name))
-        return ticker.sec_filings
+        filings = getattr(ticker, 'sec_filings', None)
+        return list(filings) if filings else []
     else:
         # TODO: Implement this for Indian and other markets
         return []
@@ -324,7 +338,7 @@ def get_yfinance_market_summary_crypto() -> Dict:
     }
     
     summary = yf.Market("CRYPTOCURRENCIES")._fetch_json(summary_url, summary_params)
-    return summary
+    return summary if summary is not None else {}
 
 
 def get_yfinance_market_summary_us() -> Dict:
@@ -332,10 +346,11 @@ def get_yfinance_market_summary_us() -> Dict:
     Get US market summary.
     
     Returns:
-        Dictionary with US market data
+        Dictionary with US market data. Empty dict if no data.
     """
     markets = yf.Market("US")
-    return markets.summary
+    summary = getattr(markets, 'summary', None)
+    return summary if summary is not None else {}
 
 
 def get_yfinance_market_summary_asia() -> Dict:
@@ -343,10 +358,11 @@ def get_yfinance_market_summary_asia() -> Dict:
     Get Asian market summary.
     
     Returns:
-        Dictionary with Asian market data
+        Dictionary with Asian market data. Empty dict if no data.
     """
     markets = yf.Market("ASIA")
-    return markets.summary
+    summary = getattr(markets, 'summary', None)
+    return summary if summary is not None else {}
 
 
 def get_yfinance_market_summary_europe() -> Dict:
@@ -354,10 +370,11 @@ def get_yfinance_market_summary_europe() -> Dict:
     Get European market summary.
     
     Returns:
-        Dictionary with European market data
+        Dictionary with European market data. Empty dict if no data.
     """
     markets = yf.Market("EUROPE")
-    return markets.summary
+    summary = getattr(markets, 'summary', None)
+    return summary if summary is not None else {}
 
 
 def get_yfinance_market_summary_currency() -> Dict:
@@ -365,10 +382,11 @@ def get_yfinance_market_summary_currency() -> Dict:
     Get currency market summary.
     
     Returns:
-        Dictionary with currency market data
+        Dictionary with currency market data. Empty dict if no data.
     """
     markets = yf.Market("CURRENCIES")
-    return markets.summary
+    summary = getattr(markets, 'summary', None)
+    return summary if summary is not None else {}
 
 
 def get_yfinance_market_summary_commodities() -> Dict:
@@ -376,7 +394,8 @@ def get_yfinance_market_summary_commodities() -> Dict:
     Get commodities market summary.
     
     Returns:
-        Dictionary with commodities market data
+        Dictionary with commodities market data. Empty dict if no data.
     """
     markets = yf.Market("COMMODITIES")
-    return markets.summary
+    summary = getattr(markets, 'summary', None)
+    return summary if summary is not None else {}
