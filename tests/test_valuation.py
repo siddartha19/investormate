@@ -48,6 +48,17 @@ class TestValuationDCF:
         result = v.dcf(growth_rate=0.05, wacc=0.12)
         assert result["wacc_used"] == 0.12
 
+    def test_dcf_with_terminal_multiple(self):
+        """DCF with terminal_multiple uses exit multiple instead of perpetuity growth."""
+        info = {"freeCashflow": 100_000_000, "sharesOutstanding": 1_000_000}
+        v = Valuation("TEST", info=info, ratios=_make_ratios_mock(0.10))
+        result_perp = v.dcf(growth_rate=0.05, years=5, terminal_growth=0.02)
+        result_mult = v.dcf(growth_rate=0.05, years=5, terminal_multiple=15)
+        assert result_mult["fair_value_per_share"] is not None
+        assert result_mult["assumptions"]["terminal_multiple"] == 15
+        # With terminal multiple, result can differ from perpetuity
+        assert result_mult["fair_value_per_share"] != result_perp["fair_value_per_share"]
+
 
 class TestValuationComps:
     """Test comparable companies valuation."""
@@ -102,6 +113,23 @@ class TestValuationSummary:
         assert "current_price" in result
         assert "dcf_result" in result
         assert "comps_result" in result
+
+    def test_summary_returns_implied_upside_downside(self):
+        """Summary returns implied_upside_pct and implied_downside_pct vs current price."""
+        info = {
+            "freeCashflow": 100_000_000,
+            "sharesOutstanding": 1_000_000,
+            "currentPrice": 50.0,
+        }
+        v = Valuation("TEST", info=info, ratios=_make_ratios_mock(0.10))
+        result = v.summary(peers=None)
+        assert "implied_upside_pct" in result
+        assert "implied_downside_pct" in result
+        assert "fair_value_mid" in result
+        if result["fair_value_high"] and result["current_price"]:
+            assert result["implied_upside_pct"] is not None
+        if result["fair_value_low"] and result["current_price"]:
+            assert result["implied_downside_pct"] is not None
 
 
 class TestValuationSensitivity:

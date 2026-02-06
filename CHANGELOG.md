@@ -5,6 +5,16 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2026-02-06
+
+### Added
+- **DCF (issue #1)**: `stock.valuation.dcf()` now supports optional `terminal_multiple` (e.g. 15× final-year FCF) in addition to `terminal_growth`.
+- **Valuation summary**: `stock.valuation.summary()` now returns `implied_upside_pct`, `implied_downside_pct`, and `fair_value_mid` vs current price.
+- **Documentation**: New [docs/valuation.md](docs/valuation.md) with usage, parameters, and examples.
+
+### Changed
+- DCF `terminal_growth` is optional when `terminal_multiple` is set.
+
 ## [0.2.2] - 2026-02-06
 
 ### Added

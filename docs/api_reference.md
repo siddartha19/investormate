@@ -45,7 +45,7 @@ Stock(ticker: str)
 - `scores` - FinancialScores instance
 - `indicators` - IndicatorsHelper instance
 - `sentiment` - SentimentAnalyzer instance
-- `valuation` - Valuation instance (DCF, comps, summary) (v0.2.2)
+- `valuation` - Valuation instance (DCF, comps, summary) (v0.2.3)
 
 **News & Filings:**
 - `news` - Latest news articles

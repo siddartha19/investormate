@@ -72,7 +72,8 @@ class Valuation:
     def dcf(
         self,
         growth_rate: float = 0.05,
-        terminal_growth: float = 0.02,
+        terminal_growth: Optional[float] = 0.02,
+        terminal_multiple: Optional[float] = None,
         years: int = 5,
         wacc: Optional[float] = None,
     ) -> Dict[str, Any]:
@@ -80,12 +81,15 @@ class Valuation:
         Discounted Cash Flow (DCF) valuation with terminal value.
 
         Projects FCF for `years` at `growth_rate`, then applies terminal value
-        using perpetuity growth at `terminal_growth`. Discounts to present value
-        using WACC.
+        either as perpetuity growth (`terminal_growth`) or as exit multiple
+        (`terminal_multiple` × final-year FCF). Discounts to present value using WACC.
 
         Args:
             growth_rate: Annual FCF growth rate (e.g., 0.05 = 5%)
-            terminal_growth: Terminal perpetual growth rate (e.g., 0.02 = 2%)
+            terminal_growth: Terminal perpetual growth rate (e.g., 0.02 = 2%).
+                Ignored if terminal_multiple is set.
+            terminal_multiple: Optional exit multiple on final-year FCF (e.g., 15).
+                If set, terminal value = terminal_multiple × FCF in year `years`.
             years: Number of years to project (default 5)
             wacc: Discount rate. Uses stock's WACC from ratios if None.
 
@@ -111,6 +115,7 @@ class Valuation:
             "assumptions": {
                 "growth_rate": growth_rate,
                 "terminal_growth": terminal_growth,
+                "terminal_multiple": terminal_multiple,
                 "years": years,
             },
         }
@@ -127,12 +132,15 @@ class Valuation:
             pv_fcf += fcf / ((1 + wacc_used) ** i)
             fcf = fcf * (1 + growth_rate)
 
-        # Terminal value at end of year `years`: TV = FCF_n * (1 + g_term) / (WACC - g_term)
         fcf_last = fcf_series[-1]
-        if wacc_used <= terminal_growth:
-            terminal_value = 0.0
+        if terminal_multiple is not None and terminal_multiple > 0:
+            terminal_value = terminal_multiple * fcf_last
         else:
-            terminal_value = fcf_last * (1 + terminal_growth) / (wacc_used - terminal_growth)
+            g_term = terminal_growth if terminal_growth is not None else 0.02
+            if wacc_used <= g_term:
+                terminal_value = 0.0
+            else:
+                terminal_value = fcf_last * (1 + g_term) / (wacc_used - g_term)
         terminal_value_pv = terminal_value / ((1 + wacc_used) ** years)
 
         enterprise_value = pv_fcf + terminal_value_pv
@@ -289,13 +297,28 @@ class Valuation:
             else:
                 recommendation = "fair"
 
+        # Implied upside/downside vs current price (as decimal, e.g. 0.15 = 15%)
+        implied_upside_pct = None
+        implied_downside_pct = None
+        fair_value_mid = None
+        if current is not None and current > 0:
+            if fair_value_high is not None:
+                implied_upside_pct = round((fair_value_high - current) / current, 4)
+            if fair_value_low is not None:
+                implied_downside_pct = round((current - fair_value_low) / current, 4)
+            if fair_value_low is not None and fair_value_high is not None:
+                fair_value_mid = round((fair_value_low + fair_value_high) / 2, 2)
+
         return {
             "dcf_result": dcf_result,
             "comps_result": comps_result,
             "fair_value_low": fair_value_low,
             "fair_value_high": fair_value_high,
+            "fair_value_mid": fair_value_mid,
             "current_price": current,
             "recommendation": recommendation,
+            "implied_upside_pct": implied_upside_pct,
+            "implied_downside_pct": implied_downside_pct,
         }
 
     def sensitivity(

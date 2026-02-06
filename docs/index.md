@@ -15,7 +15,7 @@ InvestorMate combines the best of financial data, technical analysis, and AI to 
 - **Stock Screening** - Find value, growth, or dividend stocks
 - **Portfolio Analysis** - Track performance, risk metrics, and allocation
 - **Market Summaries** - Global market data at your fingertips
-- **Valuation** (v0.2.2) - DCF, comparable companies (P/E, EV/EBITDA, P/S), fair value summary & sensitivity
+- **Valuation** (v0.2.3) - DCF, comparable companies (P/E, EV/EBITDA, P/S), fair value summary & sensitivity
 - **Correlation Analysis** - Portfolio diversification, find correlated pairs
 - **Sentiment Analysis** - AI-powered news sentiment
 - **Backtesting** - Test strategies on historical data
@@ -29,6 +29,7 @@ InvestorMate combines the best of financial data, technical analysis, and AI to 
 - [Correlation Analysis](correlation.md) - Portfolio diversification
 - [Sentiment Analysis](sentiment.md) - News sentiment
 - [Backtesting](backtesting.md) - Strategy backtesting
+- [Valuation](valuation.md) - DCF, comps, fair value summary
 - [Custom Strategies](custom_strategies.md) - Custom screening
 - [Examples](../examples/) - Code examples
 

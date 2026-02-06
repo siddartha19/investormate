@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "investormate"
-version = "0.2.2"
+version = "0.2.3"
 description = "AI-powered stock analysis package combining data, technical indicators, and multi-provider AI analysis"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
 keywords = ["finance", "stocks", "ai", "analysis", "yfinance", "trading", "investment", "technical-analysis"]
 authors = [
-    {name = "InvestorMate Contributors"}
+    {name = "Chandu Siddartha"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -64,6 +64,7 @@ Homepage = "https://github.com/siddartha19/investormate"
 Documentation = "https://github.com/siddartha19/investormate#readme"
 Repository = "https://github.com/siddartha19/investormate"
 "Bug Tracker" = "https://github.com/siddartha19/investormate/issues"
+Author = "https://github.com/siddartha19"
 
 [tool.setuptools.packages.find]
 where = ["."]
