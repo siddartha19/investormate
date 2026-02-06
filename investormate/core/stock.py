@@ -21,6 +21,7 @@ from ..data.earnings_transcripts import EarningsCallTranscripts
 from ..analysis.ratios import RatiosCalculator
 from ..analysis.indicators import IndicatorsHelper
 from ..analysis.scores import FinancialScores
+from ..analysis.valuation import Valuation
 from ..utils.validators import validate_ticker, validate_period, validate_interval
 from ..utils.exceptions import DataFetchError
 
@@ -190,12 +191,13 @@ class Stock:
         Returns:
             DataFrame with OHLCV data
         """
-        # Create cache key
+        # Validate period/interval at entry (Phase 1.1 input validation)
+        period = validate_period(period)
+        interval = validate_interval(interval)
+
         cache_key = f"{period}_{interval}_{start}_{end}"
         
         if cache_key not in self._history_cache:
-            period = validate_period(period)
-            interval = validate_interval(interval)
             
             try:
                 data_dict = get_yfinance_stock_history(self.ticker, period, interval)
@@ -277,6 +279,29 @@ class Stock:
     
     # Earnings Call Transcripts
     
+    @property
+    def valuation(self) -> Valuation:
+        """
+        Get valuation module (DCF, comparable companies, fair value summary).
+
+        Returns:
+            Valuation instance
+
+        Example:
+            >>> stock = Stock("AAPL")
+            >>> dcf = stock.valuation.dcf(growth_rate=0.05)
+            >>> comps = stock.valuation.comps(peers=["MSFT", "GOOGL"])
+            >>> summary = stock.valuation.summary(peers=["MSFT", "GOOGL"])
+        """
+        return Valuation(
+            self.ticker,
+            info=self.info,
+            ratios=self.ratios,
+            balance_sheet=self.balance_sheet,
+            income_stmt=self.income_statement,
+            cash_flow=self.cash_flow,
+        )
+
     @property
     def earnings_transcripts(self) -> EarningsCallTranscripts:
         """

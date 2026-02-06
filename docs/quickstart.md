@@ -25,6 +25,12 @@ print(f"Sector: {stock.sector}")
 print(f"P/E Ratio: {stock.ratios.pe}")
 print(f"ROE: {stock.ratios.roe}")
 print(f"Debt-to-Equity: {stock.ratios.debt_to_equity}")
+
+# Valuation (DCF & peer comps)
+dcf = stock.valuation.dcf(growth_rate=0.05)
+summary = stock.valuation.summary(peers=["MSFT", "GOOGL"])
+print(f"DCF fair value: ${dcf.get('fair_value_per_share')}")
+print(f"Verdict: {summary.get('recommendation')}")
 ```
 
 ## AI-Powered Analysis

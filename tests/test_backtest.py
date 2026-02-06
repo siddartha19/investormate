@@ -6,6 +6,7 @@ import pytest
 import pandas as pd
 from unittest.mock import Mock, patch
 from investormate.backtest import Backtest, Strategy, BacktestEngine, BacktestResults
+from investormate.utils.exceptions import ValidationError
 
 
 class SimpleStrategy(Strategy):
@@ -156,3 +157,23 @@ class TestBacktest:
         assert "Backtest" in repr_str
         assert "AAPL" in repr_str
         assert "SimpleStrategy" in repr_str
+
+    def test_backtest_invalid_date_range_raises(self):
+        """Test Backtest raises ValidationError when start_date > end_date."""
+        with pytest.raises(ValidationError, match="start_date.*before or equal to end_date"):
+            Backtest(
+                strategy=SimpleStrategy,
+                ticker="AAPL",
+                start_date="2023-12-31",
+                end_date="2023-01-01",
+            )
+
+    def test_backtest_invalid_date_format_raises(self):
+        """Test Backtest raises ValidationError for invalid date format."""
+        with pytest.raises(ValidationError):
+            Backtest(
+                strategy=SimpleStrategy,
+                ticker="AAPL",
+                start_date="01-01-2023",
+                end_date="2023-12-31",
+            )

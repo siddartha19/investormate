@@ -9,6 +9,7 @@ import yfinance as yf
 
 from ..data.constants import get_ticker_format
 from ..utils.exceptions import DataFetchError
+from ..utils.validators import validate_period, validate_interval
 
 
 class Correlation:
@@ -44,10 +45,10 @@ class Correlation:
         """
         if not tickers or len(tickers) < 2:
             raise ValueError("At least 2 tickers are required for correlation analysis")
-        
+
         self.tickers = tickers
-        self.period = period
-        self.interval = interval
+        self.period = validate_period(period)
+        self.interval = validate_interval(interval)
         self._returns = None
         self._prices = None
     

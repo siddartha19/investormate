@@ -3,6 +3,7 @@ User-friendly Backtest wrapper class.
 """
 
 from typing import Type
+from ..utils.validators import validate_date_range
 from .engine import BacktestEngine
 from .results import BacktestResults
 from .strategy import Strategy
@@ -51,11 +52,13 @@ class Backtest:
             end_date: End date (YYYY-MM-DD)
             initial_capital: Starting capital (default: $10,000)
             commission: Commission rate per trade (default: 0.0, e.g., 0.001 for 0.1%)
+
+        Raises:
+            ValidationError: If start_date/end_date are invalid or start_date > end_date
         """
+        self.start_date, self.end_date = validate_date_range(start_date, end_date)
         self.strategy = strategy
         self.ticker = ticker
-        self.start_date = start_date
-        self.end_date = end_date
         self.initial_capital = initial_capital
         self.commission = commission
         

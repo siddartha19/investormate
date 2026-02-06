@@ -44,7 +44,8 @@ Stock(ticker: str)
 - `ratios` - RatiosCalculator instance
 - `scores` - FinancialScores instance
 - `indicators` - IndicatorsHelper instance
-- `sentiment` - SentimentAnalyzer instance (v0.2.0)
+- `sentiment` - SentimentAnalyzer instance
+- `valuation` - Valuation instance (DCF, comps, summary) (v0.2.2)
 
 **News & Filings:**
 - `news` - Latest news articles
@@ -71,6 +72,28 @@ Add technical indicators to DataFrame.
 - `indicators` - List of indicator names (e.g., ["sma_20", "rsi_14"])
 
 **Returns:** DataFrame with indicators added
+
+---
+
+### Valuation (stock.valuation)
+
+Valuation module for DCF, comparable companies, and fair value summary. Access via `stock.valuation`.
+
+**dcf(growth_rate=0.05, terminal_growth=0.02, years=5, wacc=None)**
+
+Discounted Cash Flow with terminal value. Returns dict: `fair_value_per_share`, `enterprise_value`, `dcf_value`, `terminal_value_pv`, `fcf_series`, `wacc_used`, `assumptions`.
+
+**comps(peers=None)**
+
+Comparable companies: peer multiples (P/E, EV/EBITDA, P/S) and implied value per share. `peers` is a list of ticker symbols (e.g., `["MSFT", "GOOGL"]`). Returns dict: `peer_multiples`, `median_pe`, `median_ev_ebitda`, `median_ps`, `implied_value_pe`, `implied_value_ev_ebitda`, `implied_value_ps`, `current_price`.
+
+**summary(peers=None, growth_rate=0.05, terminal_growth=0.02, years=5)**
+
+Combined fair value from DCF and comps. Returns dict: `dcf_result`, `comps_result`, `fair_value_low`, `fair_value_high`, `current_price`, `recommendation` (undervalued/fair/overvalued).
+
+**sensitivity(growth_rates=None, wacc_rates=None, years=5, terminal_growth=0.02)**
+
+DCF sensitivity table (2D: growth × WACC → fair value). Returns dict: `table`, `current_price`, `min_value`, `max_value`.
 
 ---
 

@@ -6,6 +6,8 @@ from investormate.utils.validators import (
     validate_api_key,
     validate_period,
     validate_interval,
+    validate_date,
+    validate_date_range,
 )
 from investormate.utils.exceptions import InvalidTickerError, APIKeyError, ValidationError
 
@@ -55,3 +57,29 @@ def test_validate_interval():
     
     with pytest.raises(ValidationError):
         validate_interval("invalid")
+
+
+def test_validate_date():
+    """Test date validation (YYYY-MM-DD)."""
+    assert validate_date("2024-01-15") == "2024-01-15"
+    assert validate_date("  2023-12-31  ") == "2023-12-31"
+    
+    with pytest.raises(ValidationError):
+        validate_date("")
+    with pytest.raises(ValidationError):
+        validate_date("01-15-2024")
+    with pytest.raises(ValidationError):
+        validate_date("2024-13-01")
+    with pytest.raises(ValidationError):
+        validate_date("not-a-date")
+
+
+def test_validate_date_range():
+    """Test date range validation."""
+    assert validate_date_range("2023-01-01", "2023-12-31") == ("2023-01-01", "2023-12-31")
+    assert validate_date_range("2024-06-15", "2024-06-15") == ("2024-06-15", "2024-06-15")
+    
+    with pytest.raises(ValidationError):
+        validate_date_range("2023-12-31", "2023-01-01")
+    with pytest.raises(ValidationError):
+        validate_date_range("invalid", "2023-12-31")

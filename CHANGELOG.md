@@ -5,6 +5,24 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-02-06
+
+### Added
+- **Valuation module (Phase 1.2)**: New `stock.valuation` API for DCF, comparable companies, and fair value summary.
+  - `stock.valuation.dcf(growth_rate, terminal_growth, years, wacc)` — Discounted Cash Flow with terminal value.
+  - `stock.valuation.comps(peers=[...])` — Peer multiples (P/E, EV/EBITDA, P/S) and implied value per share.
+  - `stock.valuation.summary(peers=[...])` — Combined fair value range and recommendation (undervalued/fair/overvalued).
+  - `stock.valuation.sensitivity(growth_rates, wacc_rates)` — DCF sensitivity table.
+- **Input validation (Phase 1.1 P1)**: Validate period/interval in Stock, Correlation, and Backtest.
+  - `Stock.history()` now validates period and interval at entry (before cache lookup).
+  - `Correlation` validates period and interval in `__init__` via shared validators.
+  - `Backtest` validates start_date and end_date (YYYY-MM-DD format and start ≤ end); new `validate_date` and `validate_date_range` in `investormate.utils.validators`.
+
+### Changed
+- Stock: period/interval validation runs on every `history()` call for consistent errors.
+- Correlation: uses `validate_period` and `validate_interval` from validators.
+- Backtest: raises `ValidationError` for invalid or reversed date ranges.
+
 ## [0.2.1] - 2026-02-03
 
 ### Added

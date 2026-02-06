@@ -2,6 +2,8 @@
 
 > **Vision:** A single Python package that powers professional-grade financial research, analysis, and decision-making—the engine behind tools that rival Bloomberg Terminal in capability and depth.
 
+**Recent progress (v0.2.2):** Input validation for period/interval (Stock, Correlation) and date range (Backtest); Valuation module with DCF, comparable companies (comps), fair value summary, and sensitivity table. See [CHANGELOG.md](CHANGELOG.md).
+
 ---
 
 ## Table of Contents

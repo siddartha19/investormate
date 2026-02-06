@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python** — Correlation analysis, sentiment analysis, backtesting & custom strategies (v0.2.0)
+**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.2.2)
 
 InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
@@ -18,6 +18,7 @@ InvestorMate is the only Python package you need for comprehensive stock analysi
 - **Comprehensive Stock Data** - Real-time prices, financials, news, and SEC filings via yfinance
 - **60+ Technical Indicators** - SMA, EMA, RSI, MACD, Bollinger Bands, and more via pandas-ta
 - **Advanced Financial Ratios** - 40+ ratios including ROIC, WACC, Equity Multiplier, and TTM metrics
+- **Valuation** - DCF (Discounted Cash Flow), comparable companies (P/E, EV/EBITDA, P/S), fair value summary & sensitivity table
 - **Earnings Call Transcripts** - Access earnings dates and transcript infrastructure (expandable)
 - **Stock Screening** - Find value stocks, growth stocks, or create custom screens
 - **Portfolio Analysis** - Track performance, risk metrics, and allocation
@@ -118,6 +119,13 @@ print(f"WACC: {stock.ratios.wacc}")
 print(f"TTM Revenue: {stock.ratios.ttm_revenue}")
 print(f"TTM EPS: {stock.ratios.ttm_eps}")
 
+# Valuation (DCF, comps, fair value summary)
+dcf = stock.valuation.dcf(growth_rate=0.05)
+comps = stock.valuation.comps(peers=["MSFT", "GOOGL"])
+summary = stock.valuation.summary(peers=["MSFT", "GOOGL"])
+print(f"DCF fair value: ${dcf.get('fair_value_per_share')}")
+print(f"Summary: {summary.get('recommendation')}")
+
 # Pretty print all ratios
 print_ratios_table(stock.ratios.all())
 
@@ -211,6 +219,32 @@ portfolio = Portfolio({
 print(f"Total Value: ${portfolio.value:,.2f}")
 print(f"Sharpe Ratio: {portfolio.sharpe_ratio:.2f}")
 print(f"Allocation: {portfolio.allocation}")
+```
+
+### Valuation (DCF & Comps)
+
+```python
+from investormate import Stock
+
+stock = Stock("AAPL")
+
+# DCF with terminal value
+dcf = stock.valuation.dcf(growth_rate=0.05, terminal_growth=0.02, years=5)
+print(f"DCF fair value: ${dcf.get('fair_value_per_share')}")
+
+# Comparable companies (peer multiples)
+comps = stock.valuation.comps(peers=["MSFT", "GOOGL", "META"])
+print(f"Median P/E: {comps.get('median_pe')}")
+print(f"Implied value (P/E): ${comps.get('implied_value_pe')}")
+
+# Combined fair value summary
+summary = stock.valuation.summary(peers=["MSFT", "GOOGL"])
+print(f"Range: ${summary['fair_value_low']} - ${summary['fair_value_high']}")
+print(f"Verdict: {summary['recommendation']}")
+
+# Sensitivity table (growth vs WACC)
+sens = stock.valuation.sensitivity()
+print(sens["table"])
 ```
 
 ## 🤝 Contributing
