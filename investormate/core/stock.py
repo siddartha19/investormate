@@ -202,9 +202,9 @@ class Stock:
             try:
                 data_dict = get_yfinance_stock_history(self.ticker, period, interval)
                 
-                # Convert dict to DataFrame
+                # Convert dict to DataFrame; normalize to UTC to avoid mixed-timezone ValueError
                 df = pd.DataFrame.from_dict(data_dict, orient='index')
-                df.index = pd.to_datetime(df.index)
+                df.index = pd.to_datetime(df.index, utc=True)
                 df = df.sort_index()
                 
                 self._history_cache[cache_key] = df

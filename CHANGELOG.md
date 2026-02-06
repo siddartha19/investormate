@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Valuation summary**: `stock.valuation.summary()` now returns `implied_upside_pct`, `implied_downside_pct`, and `fair_value_mid` vs current price.
 - **Documentation**: New [docs/valuation.md](docs/valuation.md) with usage, parameters, and examples.
 
+### Fixed
+- **Mixed timezone error (issue #2)**: `Stock.history()` no longer raises `ValueError: Mixed timezones detected` when yfinance returns timestamps in mixed timezones; the index is now normalized to UTC via `pd.to_datetime(..., utc=True)`.
+
 ### Changed
 - DCF `terminal_growth` is optional when `terminal_multiple` is set.
 
