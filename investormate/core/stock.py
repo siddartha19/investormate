@@ -177,41 +177,73 @@ class Stock:
     
     # Historical Data
     
-    def history(self, period: str = "1y", interval: str = "1d", 
-                start: Optional[str] = None, end: Optional[str] = None) -> pd.DataFrame:
+    def history(
+        self,
+        period: str = "1y",
+        interval: str = "1d",
+        start: Optional[str] = None,
+        end: Optional[str] = None,
+        adjusted: bool = True,
+        source_trace: bool = False,
+    ):
         """
         Get historical price data.
-        
+
         Args:
             period: Time period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
             interval: Data interval (1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo)
             start: Start date (YYYY-MM-DD) - alternative to period
             end: End date (YYYY-MM-DD) - alternative to period
-            
+            adjusted: If True (default), dividend- and split-adjusted prices. If False, raw prices.
+            source_trace: If True, return a result object with .data and .trace instead of a DataFrame.
+
         Returns:
-            DataFrame with OHLCV data
+            DataFrame with OHLCV data, or when source_trace=True a HistoryResult with .data and .trace.
         """
         # Validate period/interval at entry (Phase 1.1 input validation)
         period = validate_period(period)
         interval = validate_interval(interval)
 
-        cache_key = f"{period}_{interval}_{start}_{end}"
-        
+        cache_key = f"{period}_{interval}_{start}_{end}_{adjusted}"
         if cache_key not in self._history_cache:
-            
             try:
-                data_dict = get_yfinance_stock_history(self.ticker, period, interval)
-                
-                # Convert dict to DataFrame; normalize to UTC to avoid mixed-timezone ValueError
-                df = pd.DataFrame.from_dict(data_dict, orient='index')
+                out = get_yfinance_stock_history(
+                    self.ticker,
+                    period,
+                    interval,
+                    auto_adjust=adjusted,
+                    return_trace=source_trace,
+                )
+                if source_trace:
+                    data_dict, trace = out
+                else:
+                    data_dict, trace = out, None
+                df = pd.DataFrame.from_dict(data_dict, orient="index")
                 df.index = pd.to_datetime(df.index, utc=True)
                 df = df.sort_index()
-                
-                self._history_cache[cache_key] = df
+                if source_trace and trace is not None:
+                    trace["transform_steps"] = ["normalize_timestamps_utc", "sort_index"]
+                    trace["raw_shape"] = (len(data_dict), 5)
+                    self._history_cache[cache_key] = (df, trace)
+                else:
+                    self._history_cache[cache_key] = (df, None)
             except Exception as e:
                 raise DataFetchError(f"Failed to fetch historical data: {str(e)}")
-        
-        return self._history_cache[cache_key]
+
+        cached = self._history_cache[cache_key]
+        df, trace = cached if isinstance(cached, tuple) else (cached, None)
+
+        if source_trace:
+            from .history_result import HistoryResult
+            return HistoryResult(
+                data=df,
+                trace=trace
+                or {
+                    "provider": "yfinance",
+                    "transform_steps": ["normalize_timestamps_utc", "sort_index"],
+                },
+            )
+        return df
     
     # Revenue Breakdown
     

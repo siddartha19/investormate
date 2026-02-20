@@ -236,46 +236,56 @@ def get_yfinance_growth_estimates(ticker_name: str) -> Optional[Dict]:
     return None
 
 
-def get_yfinance_stock_history(ticker_name: str, period: str = "1y", interval: str = "1d") -> Dict:
+def get_yfinance_stock_history(
+    ticker_name: str,
+    period: str = "1y",
+    interval: str = "1d",
+    auto_adjust: bool = True,
+    return_trace: bool = False,
+):
     """
     Get historical stock price data (OHLCV).
-    
+
     Args:
         ticker_name: Stock ticker symbol
         period: Time period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
         interval: Data interval (1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo)
-        
+        auto_adjust: If True (default), prices are dividend- and split-adjusted. If False, raw prices.
+        return_trace: If True, return (result_dict, trace_dict) for data provenance; else result_dict only.
+
     Returns:
-        Dictionary with historical OHLCV data. Empty dict if no data.
+        Dictionary with historical OHLCV data (empty dict if no data), or when return_trace=True
+        a tuple (result_dict, trace_dict) with trace containing provider and raw_shape.
     """
     ticker = yf.Ticker(get_ticker_format(ticker_name))
-    df = ticker.history(period=period, interval=interval)
-    
+    df = ticker.history(period=period, interval=interval, auto_adjust=auto_adjust)
+
     if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+        if return_trace:
+            return {}, {"provider": "yfinance", "raw_shape": (0, 0)}
         return {}
-    
-    # Required columns for OHLCV data
-    required_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
-    
-    # Check if all required columns exist
+
+    required_columns = ["Open", "High", "Low", "Close", "Volume"]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
+        if return_trace:
+            return {}, {"provider": "yfinance", "raw_shape": (0, 0)}
         return {}
 
-    # Extract only the required columns
     df_selected = df[required_columns]
-
-    # Convert the data to a dictionary format with dates as keys
     result = {}
     for idx, row in df_selected.iterrows():
         date_str = str(idx)
         result[date_str] = {
-            'Open': float(row['Open']) if pd.notnull(row['Open']) else None,
-            'High': float(row['High']) if pd.notnull(row['High']) else None,
-            'Low': float(row['Low']) if pd.notnull(row['Low']) else None,
-            'Close': float(row['Close']) if pd.notnull(row['Close']) else None,
-            'Volume': float(row['Volume']) if pd.notnull(row['Volume']) else None
+            "Open": float(row["Open"]) if pd.notnull(row["Open"]) else None,
+            "High": float(row["High"]) if pd.notnull(row["High"]) else None,
+            "Low": float(row["Low"]) if pd.notnull(row["Low"]) else None,
+            "Close": float(row["Close"]) if pd.notnull(row["Close"]) else None,
+            "Volume": float(row["Volume"]) if pd.notnull(row["Volume"]) else None,
         }
+    if return_trace:
+        trace = {"provider": "yfinance", "raw_shape": (len(result), 5)}
+        return result, trace
     return result
 
 

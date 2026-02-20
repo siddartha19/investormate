@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.2.3)
+**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.2.5)
 
 InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
@@ -72,6 +72,7 @@ You only need one API key to use the AI features.
 
 - [Quickstart Guide](docs/quickstart.md) - Get started in 5 minutes
 - [API Reference](docs/api_reference.md) - Complete API documentation
+- [Data Policy](docs/data_policy.md) - Price adjustment, NaN handling, and data provenance
 - [AI Providers Guide](docs/ai_providers.md) - OpenAI, Claude, and Gemini setup
 - [Examples](examples/) - Working code examples
 

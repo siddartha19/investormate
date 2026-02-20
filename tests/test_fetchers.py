@@ -95,6 +95,48 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
+    def test_get_yfinance_stock_history_return_trace_returns_tuple(self, mock_ticker_cls):
+        mock_ticker = MagicMock()
+        mock_df = pd.DataFrame(
+            {
+                "Open": [100.0],
+                "High": [101.0],
+                "Low": [99.0],
+                "Close": [100.5],
+                "Volume": [1e6],
+            },
+            index=pd.DatetimeIndex([pd.Timestamp("2024-01-02")]),
+        )
+        mock_ticker.history.return_value = mock_df
+        mock_ticker_cls.return_value = mock_ticker
+        result = get_yfinance_stock_history("TICK", return_trace=True)
+        assert isinstance(result, tuple)
+        data_dict, trace = result
+        assert isinstance(data_dict, dict)
+        assert trace["provider"] == "yfinance"
+        assert "raw_shape" in trace
+
+    @patch("investormate.data.fetchers.yf.Ticker")
+    def test_get_yfinance_stock_history_passes_auto_adjust(self, mock_ticker_cls):
+        mock_ticker = MagicMock()
+        mock_df = pd.DataFrame(
+            {
+                "Open": [100.0],
+                "High": [101.0],
+                "Low": [99.0],
+                "Close": [100.5],
+                "Volume": [1e6],
+            },
+            index=pd.DatetimeIndex([pd.Timestamp("2024-01-02")]),
+        )
+        mock_ticker.history.return_value = mock_df
+        mock_ticker_cls.return_value = mock_ticker
+        get_yfinance_stock_history("TICK", auto_adjust=False)
+        mock_ticker.history.assert_called_once()
+        call_kw = mock_ticker.history.call_args[1]
+        assert call_kw["auto_adjust"] is False
+
+    @patch("investormate.data.fetchers.yf.Ticker")
     def test_get_yfinance_ticker_news_returns_empty_list_when_news_none(self, mock_ticker_cls):
         mock_ticker = MagicMock()
         mock_ticker.news = None

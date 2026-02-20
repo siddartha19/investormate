@@ -2,7 +2,7 @@
 
 > **Vision:** A single Python package that powers professional-grade financial research, analysis, and decision-making—the engine behind tools that rival Bloomberg Terminal in capability and depth.
 
-**Recent progress (v0.2.3):** DCF enhancement: `terminal_multiple` option, implied upside/downside in summary, and [valuation docs](docs/valuation.md). See [CHANGELOG.md](CHANGELOG.md).
+**Recent progress (v0.2.5):** Data policy doc, source trace for `Stock.history(source_trace=True)`, explicit `adjusted` parameter for history and backtest, pytest coverage optional, yfinance pin. See [CHANGELOG.md](CHANGELOG.md).
 
 > **Inspiration:** This roadmap incorporates best-in-class ideas from the systematic trading ecosystem — including tools like [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt), [quantstats](https://github.com/ranaroussi/quantstats), [vectorbt](https://github.com/polakowo/vectorbt), [QLib](https://github.com/microsoft/qlib), [OpenBB](https://github.com/OpenBB-finance/OpenBBTerminal), and [40+ academic trading strategies](https://github.com/paperswithbacktest/awesome-systematic-trading). The goal: one package that absorbs the best of all of them.
 
@@ -45,11 +45,14 @@ The roadmap is structured in five phases, from hardening the current release to 
 
 1. **One package, one import** — No need to juggle yfinance, pandas-ta, Alpha Vantage, PyPortfolioOpt, quantstats, etc.
 2. **Data-agnostic** — Pluggable backends; logic independent of data source.
-3. **AI-first** — Every feature designed to work with LLM summarization and Q&A.
-4. **Quant-ready** — Academic strategies, portfolio optimization, and factor models out of the box.
-5. **Professional-grade** — Suitable for quant research, fund analysis, and fintech apps.
-6. **Open core** — Core free; premium data/features via optional integrations.
-7. **Pythonic** — Clean API, type hints, async where useful, Jupyter-friendly.
+3. **Feature-first** — Primary job is clean, consistent feature matrices and normalized data; users can plug into any backtesting engine (vectorbt, zipline, etc.). We do not aim to be a full backtesting framework.
+4. **Modular layers** — Fundamentals, TA, and portfolio can be used independently. Optional capabilities (TA, AI, optimization) via `extras_require`; core stays minimal so you don't pull 50 deps for a few ratios.
+5. **AI-first** — Every feature designed to work with LLM summarization and Q&A.
+6. **Quant-ready** — Academic strategies, portfolio optimization, and factor models out of the box.
+7. **Professional-grade** — Suitable for quant research, fund analysis, and fintech apps.
+8. **Open core** — Core free; premium data/features via optional integrations.
+9. **Pythonic** — Clean API, type hints, async where useful, Jupyter-friendly.
+10. **Correctness over convenience** — Prefer failing loudly on bad or ambiguous data over returning clean-looking but wrong results (e.g. no silent forward-fill on delisted tickers).
 
 ---
 
@@ -174,14 +177,28 @@ The roadmap is structured in five phases, from hardening the current release to 
 - Migration guide for v0.2 → v0.3
 - Jupyter quickstart notebook
 - Changelog discipline (Keep a Changelog)
+- **Debug / source trace** — `debug=True` or `source_trace=True` (e.g. on Stock or data fetchers) to expose: raw payload, data source, and transform steps applied. Makes the abstraction layer inspectable instead of a black box; documented in API reference and a short "Data provenance" section.
 
-**Deliverables:** v0.3 (robustness), v0.4 (valuation)
+### 1.4 Data Correctness & Consistency *(Community feedback: "boring plumbing" first)*
+
+> *Systematic users consistently cite silent NaN handling, misaligned dates, and inconsistent dividend/split adjustments as what burns them. This section addresses that before expanding features.*
+
+| Task | Description | Priority |
+|------|-------------|----------|
+| NaN policy | No silent forward-fill; explicit fill/error behavior. Document when and how NaNs are propagated or raised. | P0 |
+| Splits & dividends | Single, documented adjustment policy across all price-derived series (e.g. all total-return adjusted, or explicit `adjusted=False` option). Same semantics across endpoints. | P0 |
+| Delisted / missing data | No silent fill that produces "clean" wrong series. Optional strict mode: error or flag instead of returning misleading data. | P1 |
+| Date alignment | When multiple providers are added, same date semantics and alignment rules; document in Data layer. | P1 |
+
+**Principle:** Fail loudly on ambiguous or bad data rather than returning plausible-but-wrong outputs. Phase 4.7 (Data Quality & Validation) builds on this with advanced checks (confidence scores, outlier detection).
+
+**Deliverables:** v0.3 (robustness), v0.4 (valuation + data correctness foundations)
 
 ---
 
 ## Phase 2: Professional Data (v0.5–0.7)
 
-**Goal:** Multi-source data, caching, macro data, and regulatory content.
+**Goal:** Multi-source data, caching, macro data, and regulatory content. **Modular installs:** `pip install investormate` (core), `investormate[ta]`, `investormate[ai]`, `investormate[optimization]`, etc., with clear docs so core stays minimal and optional features are opt-in.
 
 **Timeline:** 3–4 months
 
@@ -194,6 +211,16 @@ The roadmap is structured in five phases, from hardening the current release to 
 | Alpha Vantage provider | Optional, API key required |
 | Fallback chain | Primary → secondary on failure |
 | Unified response schema | Normalized dict/DataFrame across providers |
+
+**Backtest-safe data semantics** *(Community feedback: restatements, point-in-time, survivorship bias.)* Document and enforce where feasible so backtests and screens aren't invalidated by subtle data issues:
+
+| Concern | Approach |
+|---------|----------|
+| **Restatements** | Document whether fundamentals use as-reported vs. restated figures; document in API and data-assumptions doc. |
+| **Point-in-time** | Explicit "latest available" vs. "as-of-date" (point-in-time) fundamentals; document which endpoints guarantee which; support for point-in-time where provider allows. |
+| **Survivorship bias** | Document whether screens/backtest universes include delisted names; option to include/exclude; document in backtest and screening docs. |
+
+Versioned data snapshots and clear separation between "latest" and "point-in-time" are part of the data layer design.
 
 ### 2.2 Caching & Performance
 
@@ -325,11 +352,14 @@ The roadmap is structured in five phases, from hardening the current release to 
 | Customizable sections | Include/exclude sections | `investor.generate_report("AAPL", sections=["valuation","risk"])` |
 | Comparison report | Multi-stock | `investor.generate_report(["AAPL","MSFT","GOOGL"])` |
 
-### 3.5 Academic Strategy Library *(EXPANDED)*
+### 3.5 Academic Strategy Library & Feature Export *(EXPANDED)*
 
 > *Inspired by [40+ strategies from paperswithbacktest](https://github.com/paperswithbacktest/awesome-systematic-trading) — each backed by academic research with published Sharpe ratios.*
 
-Predefined backtest strategies that users can run out-of-the-box or customize. Bridges the gap between basic backtesting and professional tools like Backtrader/Zipline.
+**Positioning:** InvestorMate focuses on **clean feature matrices and signals**; we do not aim to replace vectorbt, zipline, or Backtrader. Strategy templates demonstrate how to use our outputs in your own backtester. Export utilities (e.g. feature/signal DataFrames in a format ready for vectorbt or zipline) make it dead simple to get from InvestorMate data → your engine.
+
+- **Strategy templates** — Predefined logic (momentum, mean-reversion, factor) that produce signals/weights; runnable with our minimal backtest runner for quick checks, or **export signals for use in vectorbt/zipline/Backtrader**.
+- **Academic citations** — Each strategy documents paper, Sharpe, and rebalancing; use them as feature/signal recipes rather than as a full backtesting framework.
 
 #### Core Strategy Templates
 
@@ -358,7 +388,7 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 | Asset Class Trend-Following | 0.502 | Multi-asset | [Faber](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=962461) | `from investormate.strategies import AssetClassTrendStrategy` |
 | FED Model | 0.369 | Bonds/Equities | [Estrada](https://www.researchgate.net/publication/228267011_The_FED_Model_and_Expected_Asset_Returns) | `from investormate.strategies import FEDModelStrategy` |
 
-**Why:** These aren't toy examples — they're published, peer-reviewed strategies with real performance data. Each one comes with a paper citation, giving InvestorMate academic credibility that no other Python finance package offers.
+**Why:** These aren't toy examples — they're published, peer-reviewed strategies with real performance data. Each one comes with a paper citation. The value is in **reproducible feature/signal definitions** and easy export to your backtesting engine, not in competing with dedicated backtest frameworks.
 
 ### 3.6 ML-Powered Alpha Signals *(NEW)*
 
@@ -487,27 +517,29 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 
 ### 4.7 Data Quality & Validation
 
+*Builds on Phase 1 (Data Correctness & Consistency) and Phase 2 (Backtest-safe data semantics).*
+
 | Feature | Description |
 |---------|-------------|
 | Data freshness | Last update timestamp per field |
 | Confidence scores | Reliability indicator for key metrics |
 | Outlier detection | Flag suspicious values |
-| NaN handling | Explicit handling and documentation |
-| Data lineage | Source and timestamp for each value |
+| NaN handling | Explicit handling and documentation (foundation in Phase 1.4) |
+| Data lineage | Source and timestamp for each value; supports `debug=True` / `source_trace=True` |
+| Restatements & point-in-time | Document and optionally enforce as-reported vs restated; latest vs point-in-time semantics (see Phase 2.1) |
+| Survivorship bias | Document universe construction; options for including/excluding delisted names in screens and backtest exports |
 
-### 4.8 Vectorized Backtesting Engine *(NEW)*
+### 4.8 Backtest Export & Minimal Engine *(Reframed)*
 
-> *Inspired by [vectorbt (4k+ stars)](https://github.com/polakowo/vectorbt) — 100-1000x faster than event-driven backtesting.*
+> *Community feedback: keep backtesting intentionally minimal; let users bring their own engine (vectorbt, zipline). Focus on making it dead simple to get clean feature matrices out.*
 
 | Feature | Description | API |
 |---------|-------------|-----|
-| Vectorized engine | NumPy/Numba-accelerated backtesting | `backtest.run(strategy, engine="vectorized")` |
-| Parameter optimization | Grid search over strategy parameters | `backtest.optimize(strategy, params={...})` |
-| Walk-forward analysis | Rolling train/test splits | `backtest.walk_forward(strategy, n_splits=5)` |
-| Multi-asset backtesting | Portfolio-level strategy testing | `backtest.run(strategy, tickers=["AAPL","MSFT","GOOGL"])` |
-| Optimization heatmap | Visualize performance across parameter space | `optimization_result.heatmap()` |
+| **Export for external engines** | Feature/signal DataFrames in formats ready for vectorbt, zipline, or Backtrader | `backtest.export_for_vectorbt(signals)` / `export_signals(format="zipline")` |
+| **Minimal backtest runner** | Lightweight runner for sanity checks and strategy development; not a full vectorized framework | `backtest.run(strategy, engine="simple")` |
+| Optional: vectorized path | If we add a faster path (NumPy/Numba), position it as "quick iteration" only; serious work stays in vectorbt/zipline | `backtest.run(strategy, engine="vectorized")` (optional, not a priority) |
 
-**Why:** vectorbt's 4k+ stars prove the demand. Fast backtesting enables parameter optimization and walk-forward analysis, which are critical for serious quant work. This complements the existing event-driven engine rather than replacing it.
+**Why:** Competing with vectorbt or zipline is a different project. InvestorMate's edge is **correct, normalized data and feature matrices**; the moment we nail that plumbing, export to the user's chosen backtester is the right scope.
 
 **Deliverables:** v1.1–v1.5 (incremental), v2.0 (major release)
 
@@ -578,6 +610,8 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 ## Technical Specifications
 
 ### Dependency Strategy
+
+**Core install stays minimal** — `pip install investormate` pulls only pandas, numpy, requests (and default data provider). Optional capabilities via extras: `investormate[ta]`, `investormate[ai]`, `investormate[optimization]`, etc., so users don't pull 50 deps for a few ratios.
 
 | Category | Approach |
 |----------|----------|
@@ -699,4 +733,5 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 ---
 
 *Last updated: February 2026*
-*This roadmap is a living document. Priorities may shift based on community feedback and resource availability.*
+
+*This roadmap is a living document. Priorities may shift based on community feedback and resource availability. The Feb 2026 update incorporated systematic-trading community feedback: data correctness and consistency as Phase 1 foundation, modular installs and backtest-safe data semantics in Phase 2, debug/source-trace for transparency, backtesting scoped to feature export + minimal engine (not a full vectorbt/zipline competitor), and explicit restatements / point-in-time / survivorship bias in data quality.*

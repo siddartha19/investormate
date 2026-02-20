@@ -28,6 +28,9 @@ from .analysis.sentiment import SentimentAnalyzer
 # Backtesting classes
 from .backtest import Backtest, Strategy, BacktestEngine, BacktestResults
 
+# Data provenance (Stock.history(source_trace=True))
+from .core.history_result import HistoryResult
+
 # Exceptions
 from .utils.exceptions import (
     InvestorMateError,
@@ -56,6 +59,7 @@ __all__ = [
     "Strategy",
     "BacktestEngine",
     "BacktestResults",
+    "HistoryResult",
     # Exceptions
     "InvestorMateError",
     "InvalidTickerError",

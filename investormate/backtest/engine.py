@@ -31,10 +31,11 @@ class BacktestEngine:
         end_date: str,
         initial_capital: float = 10000,
         commission: float = 0.0,
+        adjusted: bool = True,
     ):
         """
         Initialize backtest engine.
-        
+
         Args:
             strategy_class: Strategy class (not instance)
             ticker: Stock ticker symbol
@@ -42,6 +43,7 @@ class BacktestEngine:
             end_date: End date (YYYY-MM-DD)
             initial_capital: Starting capital
             commission: Commission rate (e.g., 0.001 for 0.1%)
+            adjusted: If True (default), use dividend- and split-adjusted prices for backtest.
         """
         self.strategy_class = strategy_class
         self.ticker = ticker
@@ -49,6 +51,7 @@ class BacktestEngine:
         self.end_date = end_date
         self.initial_capital = initial_capital
         self.commission = commission
+        self.adjusted = adjusted
         
         # State variables
         self.cash = initial_capital
@@ -84,7 +87,11 @@ class BacktestEngine:
             from ..data.constants import get_ticker_format
             
             ticker_obj = yf.Ticker(get_ticker_format(self.ticker))
-            df = ticker_obj.history(start=self.start_date, end=self.end_date)
+            df = ticker_obj.history(
+                start=self.start_date,
+                end=self.end_date,
+                auto_adjust=self.adjusted,
+            )
             
             if df.empty:
                 raise DataFetchError(f"No data found for {self.ticker} between {self.start_date} and {self.end_date}")

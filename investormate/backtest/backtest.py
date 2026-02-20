@@ -40,11 +40,12 @@ class Backtest:
         start_date: str,
         end_date: str,
         initial_capital: float = 10000,
-        commission: float = 0.0
+        commission: float = 0.0,
+        adjusted: bool = True,
     ):
         """
         Initialize backtest.
-        
+
         Args:
             strategy: Strategy class (not instance)
             ticker: Stock ticker symbol
@@ -52,6 +53,7 @@ class Backtest:
             end_date: End date (YYYY-MM-DD)
             initial_capital: Starting capital (default: $10,000)
             commission: Commission rate per trade (default: 0.0, e.g., 0.001 for 0.1%)
+            adjusted: If True (default), use dividend- and split-adjusted prices.
 
         Raises:
             ValidationError: If start_date/end_date are invalid or start_date > end_date
@@ -61,13 +63,14 @@ class Backtest:
         self.ticker = ticker
         self.initial_capital = initial_capital
         self.commission = commission
-        
+        self.adjusted = adjusted
+
         self._results = None
-    
+
     def run(self) -> BacktestResults:
         """
         Run the backtest.
-        
+
         Returns:
             BacktestResults object with performance metrics
         """
@@ -78,7 +81,8 @@ class Backtest:
             start_date=self.start_date,
             end_date=self.end_date,
             initial_capital=self.initial_capital,
-            commission=self.commission
+            commission=self.commission,
+            adjusted=self.adjusted,
         )
         
         # Run backtest

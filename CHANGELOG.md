@@ -5,6 +5,20 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5] - 2026-02-20
+
+### Added
+- **Source trace for history (Phase 1.3)**: `Stock.history(..., source_trace=True)` returns a `HistoryResult` object with `.data` (DataFrame) and `.trace` (dict with `provider`, `transform_steps`, `raw_shape`) for data provenance. Default remains a DataFrame; no breaking changes.
+- **Explicit `adjusted` parameter**: `Stock.history(..., adjusted=True|False)` and `get_yfinance_stock_history(..., auto_adjust=...)` control dividend/split-adjusted vs raw prices. `Backtest` and `BacktestEngine` accept `adjusted=True` (default) for consistent backtest data.
+- **Data policy documentation**: New [docs/data_policy.md](docs/data_policy.md) describing price adjustment, NaN handling (no forward-fill), delisted/missing data, and data provenance (source_trace). Linked from README.
+
+### Changed
+- **Pytest configuration**: Coverage is no longer required by default. Run `pytest` without pytest-cov; use `pytest --cov=investormate --cov-report=term-missing` when you need coverage.
+- **Dependency pinning**: yfinance constrained to `>=0.2.40,<0.3.0` for stability.
+
+### Documentation
+- Data policy (adjustment, NaN, no forward-fill) and data provenance (source_trace) documented in [docs/data_policy.md](docs/data_policy.md).
+
 ## [0.2.3] - 2026-02-06
 
 ### Added
