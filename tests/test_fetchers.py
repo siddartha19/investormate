@@ -151,3 +151,12 @@ class TestFetcherNullSafety:
         mock_market_cls.return_value = mock_market
         result = get_yfinance_market_summary_us()
         assert result == {}
+
+    @patch("investormate.data.fetchers.yf.Ticker")
+    def test_get_yfinance_stock_history_raises_on_network_failure(self, mock_ticker_cls):
+        """When Ticker.history() raises (e.g. network failure), exception propagates (Phase 1.1 P2)."""
+        mock_ticker = MagicMock()
+        mock_ticker.history.side_effect = Exception("network error")
+        mock_ticker_cls.return_value = mock_ticker
+        with pytest.raises(Exception, match="network error"):
+            get_yfinance_stock_history("TICK", period="5d", interval="1d")

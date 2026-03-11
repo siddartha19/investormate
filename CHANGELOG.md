@@ -5,6 +5,11 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] - 2026-03-11
+
+### Added
+- **Error tests (Phase 1.1 P2)**: Tests for invalid ticker and network failure in fetchers; public API (e.g. Stock.history) behavior with invalid/missing data is now covered. `test_stock_history.py`: empty data returns empty DataFrame/HistoryResult; fetcher exception raises DataFetchError. `test_fetchers.py`: Ticker.history() raising propagates.
+
 ## [0.2.5] - 2026-02-20
 
 ### Added
