@@ -5,6 +5,20 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7] - 2026-03-24
+
+### Added
+- **Full Beneish M-Score (Phase 2.5)**: Eight-variable Beneish (1999) model when two overlapping fiscal periods exist in balance sheet, income statement, and cash flow (`FinancialScores.beneish_m_score_detail()`). `beneish_m_score()` uses the full model when data suffices; otherwise a documented proxy. `all_scores()` includes Beneish indices and periods when available.
+- **Portfolio risk metrics (Phase 3.1)**: `sortino_ratio`, `calmar_ratio`, `max_drawdown`, `beta(benchmark="SPY")`, `drawdown_series()`. Sharpe and volatility now use **value-weighted** daily returns (6-month window) for consistency.
+- **Magic Formula screen (Phase 3.2)**: `Screener.magic_formula(top_n=30, min_market_cap=...)` — dual rank on ROIC (NOPAT / invested capital) and earnings yield (EBIT / EV).
+- **Batch stocks (Phase 2.2)**: `Stock.batch(tickers, skip_invalid=True)` builds multiple `Stock` instances with optional skip + `UserWarning` on invalid symbols.
+- **Peer comparison (Phase 3.3)**: `Stock.peers` (same sector within `MAJOR_US_TICKERS`) and `Stock.compare_with(peers=None)` for a metrics table across subject and peers.
+- **Tests**: `test_scores_beneish`, `test_portfolio_metrics`, `test_screener_magic`, `test_stock_batch`, `test_peer_comparison`.
+- **Examples**: `examples/magic_formula.py`, `examples/portfolio_risk.py`, `examples/peer_comparison.py`.
+
+### Documentation
+- README, ROADMAP (recent progress + current-state table), and [docs/api_reference.md](docs/api_reference.md) updated for v0.2.7 APIs.
+
 ## [0.2.6] - 2026-03-11
 
 ### Added

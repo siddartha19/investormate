@@ -2,7 +2,7 @@
 
 > **Vision:** A single Python package that powers professional-grade financial research, analysis, and decision-making—the engine behind tools that rival Bloomberg Terminal in capability and depth.
 
-**Recent progress (v0.2.5):** Data policy doc, source trace for `Stock.history(source_trace=True)`, explicit `adjusted` parameter for history and backtest, pytest coverage optional, yfinance pin. See [CHANGELOG.md](CHANGELOG.md).
+**Recent progress (v0.2.7):** Full eight-variable **Beneish M-Score** (when multi-period statements exist), portfolio **Sortino / Calmar / max drawdown / beta**, **Magic Formula** screen, **`Stock.batch`**, **`stock.peers`** + **`compare_with()`**. See [CHANGELOG.md](CHANGELOG.md).
 
 > **Inspiration:** This roadmap incorporates best-in-class ideas from the systematic trading ecosystem — including tools like [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt), [quantstats](https://github.com/ranaroussi/quantstats), [vectorbt](https://github.com/polakowo/vectorbt), [QLib](https://github.com/microsoft/qlib), [OpenBB](https://github.com/OpenBB-finance/OpenBBTerminal), and [40+ academic trading strategies](https://github.com/paperswithbacktest/awesome-systematic-trading). The goal: one package that absorbs the best of all of them.
 
@@ -65,10 +65,10 @@ The roadmap is structured in five phases, from hardening the current release to 
 | **Data** | yfinance only, single source | ⚠️ Fragile |
 | **Fundamentals** | 40+ ratios, TTM, DuPont, ROIC, WACC | ✅ Solid |
 | **Technicals** | 60+ indicators (pandas-ta) | ✅ Solid |
-| **Scores** | Piotroski, Altman Z, Beneish M (simplified) | ⚠️ Partial |
+| **Scores** | Piotroski, Altman Z, Beneish M (full 8-variable when 2 periods + CF; else proxy) | ✅ Solid |
 | **AI** | Multi-provider (OpenAI, Claude, Gemini) | ✅ Solid |
-| **Screening** | Value, growth, dividend, custom | ✅ Solid |
-| **Portfolio** | Allocation, Sharpe, sector mix | ⚠️ Basic |
+| **Screening** | Value, growth, dividend, custom, Magic Formula (v0.2.7) | ✅ Solid |
+| **Portfolio** | Allocation, value-weighted Sharpe/vol, Sortino, Calmar, max DD, beta, sector mix (v0.2.7) | ✅ Solid |
 | **Backtesting** | Strategy framework, RSI example | ✅ Solid |
 | **Correlation** | Matrix, pairs, diversification | ✅ Solid |
 | **Sentiment** | News sentiment via AI | ✅ Solid |
@@ -86,12 +86,12 @@ The roadmap is structured in five phases, from hardening the current release to 
 
 - **Data:** Single source, no fallbacks, no real-time, no macro/economic data, limited global coverage
 - **Optimization:** No portfolio optimization (efficient frontier, HRP, risk parity, Black-Litterman)
-- **Performance Metrics:** Only Sharpe + volatility; missing Sortino, Calmar, Omega, tearsheets, drawdown analysis
+- **Performance Metrics:** Sortino, Calmar, max drawdown, beta added (v0.2.7); still missing Omega, full tearsheets, richer drawdown analytics
 - **Strategies:** 1 example strategy vs. 40+ proven academic strategies available in the ecosystem
 - **Regulatory:** No direct SEC Edgar, no 10-K/10-Q parsing
 - **Earnings:** No transcripts, limited surprise/estimate data
 - **Risk:** No VaR, Monte Carlo, factor exposure
-- **Screening:** No Magic Formula, CAN SLIM, or institutional screens
+- **Screening:** Magic Formula shipped (v0.2.7); CAN SLIM and other institutional screens still open
 - **Forecasting:** No time series forecasting (Prophet, ARIMA)
 - **ML:** No factor models, alpha signals, or ML-driven predictions
 - **Options:** No pricing (Black-Scholes), Greeks, or strategy builders
@@ -228,7 +228,7 @@ Versioned data snapshots and clear separation between "latest" and "point-in-tim
 |---------|-------------|
 | In-memory cache | TTL-based (e.g., 5 min for quotes, 1 hr for financials) |
 | Cache invalidation | Manual `stock.refresh()` or TTL |
-| Batch fetching | `Stock.batch(["AAPL","MSFT","GOOGL"])` for efficiency |
+| Batch fetching | **Done (v0.2.7):** `Stock.batch(["AAPL","MSFT","GOOGL"])`. TTL cache / rate limiting still planned. |
 | Rate limiting | Configurable delays for API sources |
 
 ### 2.3 SEC Edgar Integration
@@ -252,7 +252,7 @@ Versioned data snapshots and clear separation between "latest" and "point-in-tim
 
 ### 2.5 Full Beneish M-Score
 
-- Implement full 8-variable Beneish M-Score
+- ~~Implement full 8-variable Beneish M-Score~~ **Done (v0.2.7)** — `beneish_m_score_detail()`; requires two overlapping statement periods from yfinance; see docstring for line-item caveats.
 - Use historical financials (2+ years)
 - Document data requirements and limitations
 
@@ -327,7 +327,7 @@ Versioned data snapshots and clear separation between "latest" and "point-in-tim
 
 | Screen | Description | API |
 |--------|-------------|-----|
-| Magic Formula | Greenblatt (ROIC + Earnings Yield) | `screener.magic_formula(top_n=50)` |
+| Magic Formula | Greenblatt (ROIC + Earnings Yield) | `screener.magic_formula(top_n=50)` — **shipped v0.2.7** |
 | CAN SLIM | O'Neil criteria | `screener.can_slim()` |
 | Dividend Aristocrats | 25+ years dividend growth | `screener.dividend_aristocrats()` |
 | Quality + Momentum | ROE, ROA, momentum | `screener.quality_momentum()` |
@@ -338,7 +338,8 @@ Versioned data snapshots and clear separation between "latest" and "point-in-tim
 
 | Feature | Description | API |
 |---------|-------------|-----|
-| Auto peer selection | By sector/industry | `investor.compare_peers("AAPL", auto_peers=True)` |
+| Auto peer selection | By sector (major US ticker universe) | **`Stock.peers` + `stock.compare_with()` (v0.2.7)** |
+| Auto peer selection | By sector/industry | `investor.compare_peers("AAPL", auto_peers=True)` (planned) |
 | Custom peer comparison | User-defined list | `investor.compare_peers("AAPL", peers=["MSFT","GOOGL"])` |
 | Peer valuation table | Multiples, growth, margins | `stock.valuation.peer_table()` |
 | Sector percentile | Rank vs. sector | `stock.valuation.sector_percentile()` |

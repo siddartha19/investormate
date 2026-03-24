@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.2.5)
+**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.2.7)
 
 InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
@@ -20,8 +20,10 @@ InvestorMate is the only Python package you need for comprehensive stock analysi
 - **Advanced Financial Ratios** - 40+ ratios including ROIC, WACC, Equity Multiplier, and TTM metrics
 - **Valuation** - DCF (Discounted Cash Flow), comparable companies (P/E, EV/EBITDA, P/S), fair value summary & sensitivity table
 - **Earnings Call Transcripts** - Access earnings dates and transcript infrastructure (expandable)
-- **Stock Screening** - Find value stocks, growth stocks, or create custom screens
-- **Portfolio Analysis** - Track performance, risk metrics, and allocation
+- **Stock Screening** - Value, growth, dividend, custom filters, and **Magic Formula** (ROIC + EBIT/EV ranks)
+- **Portfolio Analysis** - Value-weighted performance, Sharpe/Sortino, Calmar, max drawdown, beta vs benchmark, sector mix
+- **Beneish M-Score** - Full eight-variable model when multi-period statements are available (manipulation risk)
+- **Batch & peers** - `Stock.batch([...])` for many tickers; `stock.peers` and `stock.compare_with()` for peer tables
 - **Market Summaries** - Real-time data for US, Asian, European, crypto, and commodity markets
 - **Pretty Formatting** - Beautiful CLI output for financial statements and ratios
 
@@ -46,6 +48,13 @@ print(f"P/E Ratio: {stock.ratios.pe}")
 print(f"ROIC: {stock.ratios.roic}")  # Advanced ratios
 print(f"TTM EPS: {stock.ratios.ttm_eps}")  # Trailing metrics
 print(f"RSI: {stock.indicators.rsi()}")
+
+# Batch load tickers (skips bad symbols with a warning)
+stocks = Stock.batch(["AAPL", "MSFT", "GOOGL"], skip_invalid=True)
+
+# Beneish detail (8 indices when statements allow)
+detail = stock.scores.beneish_m_score_detail()
+print(detail.get("indices"), detail.get("score"))
 ```
 
 ## 📦 Installation
@@ -203,6 +212,10 @@ results = screener.filter(
     roe_min=15,
     sector="Technology"
 )
+
+# Magic Formula (ROIC + earnings yield ranks) — set your own universe
+magic = screener.magic_formula(top_n=20, min_market_cap=300_000_000)
+print(magic)
 ```
 
 ### Portfolio Analysis
@@ -219,7 +232,20 @@ portfolio = Portfolio({
 
 print(f"Total Value: ${portfolio.value:,.2f}")
 print(f"Sharpe Ratio: {portfolio.sharpe_ratio:.2f}")
+print(f"Sortino: {portfolio.sortino_ratio}, Calmar: {portfolio.calmar_ratio}")
+print(f"Max drawdown %: {portfolio.max_drawdown}, Beta vs SPY: {portfolio.beta()}")
 print(f"Allocation: {portfolio.allocation}")
+```
+
+### Peer comparison
+
+```python
+from investormate import Stock
+
+stock = Stock("AAPL")
+print(stock.peers[:5])
+table = stock.compare_with(peers=["MSFT", "GOOGL", "META"])
+print(table["metrics"])
 ```
 
 ### Valuation (DCF & Comps)

@@ -21,6 +21,12 @@ Stock(ticker: str)
 **Parameters:**
 - `ticker` (str): Stock ticker symbol (e.g., "AAPL", "GOOGL", "RELIANCE")
 
+#### Class methods
+
+**batch(tickers, skip_invalid=True)** (v0.2.7)
+
+Construct multiple `Stock` instances. Invalid tickers emit `UserWarning` and are skipped when `skip_invalid=True`.
+
 #### Properties
 
 **Price & Market Data:**
@@ -34,6 +40,7 @@ Stock(ticker: str)
 - `sector` - Business sector
 - `industry` - Specific industry
 - `description` - Company description
+- `peers` - Auto-detected peer tickers (same sector within `MAJOR_US_TICKERS`; network calls) (v0.2.7)
 
 **Financial Statements:**
 - `balance_sheet` - Balance sheet data
@@ -72,6 +79,10 @@ Add technical indicators to DataFrame.
 - `indicators` - List of indicator names (e.g., ["sma_20", "rsi_14"])
 
 **Returns:** DataFrame with indicators added
+
+**compare_with(peers=None)** (v0.2.7)
+
+Compare valuation and quality metrics vs explicit `peers` or auto `stock.peers`. Returns dict: `subject`, `peers_compared`, `metrics` (per-ticker snapshot: P/E, P/B, ROE, margins, growth, market cap).
 
 ---
 
@@ -219,6 +230,10 @@ Custom screening with flexible criteria.
 - `debt_to_equity_max`
 - `sector`, `industry`
 
+**magic_formula(top_n=30, min_market_cap=300_000_000)** (v0.2.7)
+
+Joel Greenblatt–style screen: rank by ROIC (NOPAT / invested capital) and earnings yield (EBIT / EV), sum ranks, return best `top_n` tickers.
+
 ---
 
 ### Portfolio
@@ -247,12 +262,23 @@ Portfolio(
 - `value` - Total portfolio value
 - `allocation` - Allocation percentages by ticker
 - `returns` - Total return % (requires cost_basis)
-- `sharpe_ratio` - Sharpe ratio
+- `sharpe_ratio` - Sharpe ratio (value-weighted daily returns, 6-month window)
+- `sortino_ratio` - Sortino ratio (v0.2.7)
+- `calmar_ratio` - Calmar ratio (annualized return / max drawdown) (v0.2.7)
+- `max_drawdown` - Max peak-to-trough drawdown % (v0.2.7)
 - `volatility` - Annualized volatility
 - `sector_allocation` - Allocation by sector
 - `concentration` - Portfolio concentration index
 
 #### Methods
+
+**beta(benchmark="SPY")** (v0.2.7)
+
+Portfolio beta vs benchmark from aligned daily returns.
+
+**drawdown_series()** (v0.2.7)
+
+Series of drawdown vs running peak (for charts / diagnostics).
 
 **add(ticker, shares, cost_per_share=None)**
 
@@ -329,8 +355,9 @@ Accessed via `Stock.scores`.
 **Methods:**
 - `piotroski_score()` - Returns (score, breakdown)
 - `altman_z_score()` - Returns (score, interpretation)
-- `beneish_m_score()` - Returns (score, interpretation)
-- `all_scores()` - Get all scores
+- `beneish_m_score()` - Returns (score, interpretation); uses full eight-variable Beneish (1999) when two periods of statements + cash flow are available, else a documented proxy
+- `beneish_m_score_detail()` (v0.2.7) - Dict with `score`, `interpretation`, `indices` (DSRI, GMI, AQI, SGI, DEPI, SGAI, TATA, LVGI), `periods_used`, `method`, `note`
+- `all_scores()` - Get all scores (Beneish entry includes indices when available)
 
 ### IndicatorsHelper
 

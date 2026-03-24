@@ -3,7 +3,9 @@ Stock class for InvestorMate.
 Main interface for accessing stock data, ratios, and indicators.
 """
 
-from typing import Dict, Optional
+import warnings
+from typing import Any, Dict, List, Optional
+
 import pandas as pd
 
 from ..data.fetchers import (
@@ -15,7 +17,7 @@ from ..data.fetchers import (
     get_yfinance_ticker_news,
     get_yfinance_ticker_filings,
 )
-from ..data.constants import get_ticker_format
+from ..data.constants import MAJOR_US_TICKERS, get_ticker_format
 from ..data.parsers import extract_price_data, extract_company_info
 from ..data.earnings_transcripts import EarningsCallTranscripts
 from ..analysis.ratios import RatiosCalculator
@@ -36,6 +38,40 @@ class Stock:
         >>> print(stock.ratios.pe)
         >>> print(stock.indicators.rsi())
     """
+
+    @classmethod
+    def batch(
+        cls,
+        tickers: List[str],
+        *,
+        skip_invalid: bool = True,
+    ) -> List["Stock"]:
+        """
+        Build multiple ``Stock`` instances from tickers.
+
+        Args:
+            tickers: Ticker symbols.
+            skip_invalid: If True, skip tickers that fail validation or init;
+                emits a ``UserWarning`` per skipped symbol. If False, the first
+                error is raised.
+
+        Returns:
+            List of successfully constructed ``Stock`` objects (may be shorter
+            than ``tickers`` when ``skip_invalid`` is True).
+        """
+        stocks: List[Stock] = []
+        for raw in tickers:
+            try:
+                stocks.append(cls(raw))
+            except Exception as exc:
+                if not skip_invalid:
+                    raise
+                warnings.warn(
+                    f"Skipping ticker {raw!r}: {exc}",
+                    UserWarning,
+                    stacklevel=2,
+                )
+        return stocks
     
     def __init__(self, ticker: str):
         """
@@ -103,6 +139,84 @@ class Stock:
     def industry(self) -> Optional[str]:
         """Get company industry."""
         return extract_company_info(self.info).get('industry')
+
+    @property
+    def peers(self) -> List[str]:
+        """
+        Auto-detect peer tickers in the same sector (from ``MAJOR_US_TICKERS``).
+
+        Fetches brief info for candidates; may be slow. Returns up to 12 peers
+        excluding this ticker. Empty if sector is unknown or no matches.
+        """
+        my_sector = self.sector
+        if not my_sector:
+            return []
+
+        peers: List[str] = []
+        for candidate in MAJOR_US_TICKERS:
+            if candidate.upper() == self.ticker.upper():
+                continue
+            try:
+                info = get_yfinance_data(candidate)
+                if info.get("sector") == my_sector:
+                    peers.append(candidate)
+            except Exception:
+                continue
+            if len(peers) >= 12:
+                break
+        return peers
+
+    def compare_with(self, peers: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        Compare key valuation and quality metrics vs peers.
+
+        Args:
+            peers: Explicit peer list; if omitted, uses :py:attr:`peers`.
+
+        Returns:
+            Dict with ``subject``, ``peers_compared``, and ``metrics`` (per ticker).
+        """
+        peer_list = list(peers) if peers is not None else self.peers
+        ordered: List[str] = [self.ticker]
+        seen = {self.ticker.upper()}
+        for p in peer_list:
+            u = p.upper()
+            if u in seen:
+                continue
+            seen.add(u)
+            ordered.append(p)
+            if len(ordered) >= 16:
+                break
+
+        def _metrics_row(st: "Stock") -> Dict[str, Any]:
+            inf = st.info
+            return {
+                "name": st.name,
+                "sector": st.sector,
+                "pe": inf.get("trailingPE") or inf.get("forwardPE"),
+                "pb": inf.get("priceToBook"),
+                "ps": inf.get("priceToSalesTrailing12Months"),
+                "roe": inf.get("returnOnEquity"),
+                "roa": inf.get("returnOnAssets"),
+                "profit_margin": inf.get("profitMargins"),
+                "gross_margin": inf.get("grossMargins"),
+                "revenue_growth": inf.get("revenueGrowth"),
+                "earnings_growth": inf.get("earningsGrowth"),
+                "market_cap": inf.get("marketCap"),
+            }
+
+        metrics: Dict[str, Dict[str, Any]] = {self.ticker: _metrics_row(self)}
+        for sym in ordered[1:]:
+            try:
+                metrics[sym] = _metrics_row(Stock(sym))
+            except Exception:
+                continue
+
+        return {
+            "subject": self.ticker,
+            "peers_compared": list(metrics.keys()),
+            "metrics": metrics,
+        }
     
     @property
     def description(self) -> Optional[str]:
