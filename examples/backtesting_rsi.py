@@ -36,7 +36,7 @@ class RSIStrategy(Strategy):
         """
         try:
             # Calculate RSI
-            rsi_series = data.indicators.rsi(length=self.rsi_period)
+            rsi_series = data.indicators.rsi(self.rsi_period)
             
             if rsi_series is None or len(rsi_series) == 0:
                 return
@@ -122,7 +122,7 @@ def run_comparison():
             
             def on_data(self, data):
                 try:
-                    rsi_series = data.indicators.rsi(length=self.rsi_period)
+                    rsi_series = data.indicators.rsi(self.rsi_period)
                     if rsi_series is None or len(rsi_series) == 0:
                         return
                     current_rsi = rsi_series.iloc[-1]
