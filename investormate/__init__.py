@@ -4,7 +4,7 @@ InvestorMate - AI-Powered Stock Analysis Package
 InvestorMate is an all-in-one Python package for stock analysis that combines:
 - AI-powered analysis (OpenAI, Anthropic Claude, Google Gemini)
 - Stock data fetching (yfinance wrapper)
-- Technical indicators (60+ indicators via pandas-ta)
+- Technical indicators (20+ indicators, native numpy/pandas)
 - Financial ratios and metrics (auto-calculated)
 - Stock screening capabilities
 - Portfolio analysis

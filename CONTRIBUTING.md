@@ -69,7 +69,6 @@ pip install -e ".[all,dev]"
 This installs:
 - Core package (editable)
 - AI providers (openai, anthropic, google-genai)
-- Technical analysis (pandas-ta)
 - Dev tools (pytest, pytest-cov, black, flake8, build)
 
 ### 4. Verify Setup

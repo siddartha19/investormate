@@ -10,7 +10,7 @@ InvestorMate combines the best of financial data, technical analysis, and AI to 
 
 - **AI-Powered Analysis** - Ask natural language questions about any stock
 - **Comprehensive Data** - Real-time prices, financials, news, SEC filings
-- **60+ Technical Indicators** - SMA, EMA, RSI, MACD, Bollinger Bands, and more
+- **20+ Technical Indicators** - SMA, EMA, RSI, MACD, Bollinger Bands, ATR, ADX, and more (native)
 - **Financial Ratios** - Auto-calculated P/E, ROE, debt ratios, profitability metrics
 - **Stock Screening** - Find value, growth, or dividend stocks
 - **Portfolio Analysis** - Track performance, risk metrics, and allocation
@@ -80,9 +80,8 @@ print(result['answer'])
 
 InvestorMate is built on top of:
 - **yfinance** - Stock data
-- **pandas-ta** - Technical indicators
-- **OpenAI/Anthropic/Gemini** - AI analysis
-- **pandas & numpy** - Data processing
+- **pandas & numpy** - Data processing and native technical indicators
+- **OpenAI/Anthropic/Gemini** - AI analysis (optional)
 
 ## Support & Community
 

@@ -5,6 +5,17 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.8] - 2026-03-29
+
+### Changed
+- **Native technical indicators**: Replaced `pandas-ta` dependency with pure numpy/pandas implementations for all 20 indicators (SMA, EMA, WMA, RSI, MACD, Stochastic, CCI, Williams %R, Momentum, ROC, Bollinger Bands, ATR, Keltner Channels, Donchian Channels, OBV, A/D, ADX, VWAP, SuperTrend, Ichimoku). `pandas-ta` was removed from PyPI and caused `pip install investormate[all]` to fail with a `ResolutionImpossible` error.
+
+### Removed
+- **`pandas-ta` dependency**: Removed from `[all]` and `[ta]` extras in `pyproject.toml`. Technical indicators now work out of the box with zero optional dependencies.
+
+### Added
+- **Tests**: `test_indicators.py` — 25 tests covering all native indicator implementations.
+
 ## [0.2.7] - 2026-03-24
 
 ### Added
