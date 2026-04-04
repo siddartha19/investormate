@@ -53,6 +53,7 @@ Construct multiple `Stock` instances. Invalid tickers emit `UserWarning` and are
 - `indicators` - IndicatorsHelper instance
 - `sentiment` - SentimentAnalyzer instance
 - `valuation` - Valuation instance (DCF, comps, summary) (v0.2.3)
+- `earnings` - EarningsAnalyzer (calendar, estimates, surprise history) (v0.3.0)
 
 **News & Filings:**
 - `news` - Latest news articles
@@ -83,6 +84,17 @@ Add technical indicators to DataFrame.
 **compare_with(peers=None)** (v0.2.7)
 
 Compare valuation and quality metrics vs explicit `peers` or auto `stock.peers`. Returns dict: `subject`, `peers_compared`, `metrics` (per-ticker snapshot: P/E, P/B, ROE, margins, growth, market cap).
+
+**refresh()** (v0.3.0)
+
+Clears instance-level caches and invalidates the process-wide fetch cache for this ticker (see [caching.md](caching.md)).
+
+### EarningsAnalyzer (stock.earnings) (v0.3.0)
+
+- `calendar()` — Earnings calendar table + quote timestamps.
+- `surprise_history()` — List of dicts with `eps_actual`, `eps_estimate`, `surprise_percent`.
+- `estimates()` — Dict with `earnings` and `revenue` estimate tables (or None).
+- `eps_trend()`, `eps_revisions()`, `growth_estimates()` — Optional tables from yfinance.
 
 ---
 
@@ -234,6 +246,14 @@ Custom screening with flexible criteria.
 
 Joel Greenblatt–style screen: rank by ROIC (NOPAT / invested capital) and earnings yield (EBIT / EV), sum ranks, return best `top_n` tickers.
 
+**can_slim(top_n=20, min_score=3)** (v0.3.0)
+
+Simplified CAN SLIM–style scoring (quarterly/annual EPS growth, 52-week high proximity, volume vs average, 52-week change). Returns tickers sorted by score then market cap.
+
+**dividend_aristocrats(min_years=25, min_yield=0.0, top_n=None)** (v0.3.0)
+
+Tickers with at least `min_years` consecutive calendar-year dividend increases (strict YoY on annual totals) and trailing yield ≥ `min_yield` (%). Not official S&P index membership.
+
 ---
 
 ### Portfolio
@@ -266,11 +286,20 @@ Portfolio(
 - `sortino_ratio` - Sortino ratio (v0.2.7)
 - `calmar_ratio` - Calmar ratio (annualized return / max drawdown) (v0.2.7)
 - `max_drawdown` - Max peak-to-trough drawdown % (v0.2.7)
+- `risk` - `RiskAnalyzer` for weighted daily returns, or None (v0.3.0)
 - `volatility` - Annualized volatility
 - `sector_allocation` - Allocation by sector
 - `concentration` - Portfolio concentration index
 
 #### Methods
+
+**var(confidence=0.95, method="historical")** (v0.3.0)
+
+One-day Value at Risk from weighted daily returns: `historical` (empirical quantile) or `parametric` (Gaussian). Returns typically negative daily return at the tail, or None.
+
+**monte_carlo_simulation(n=1000, horizon=252, seed=None)** (v0.3.0)
+
+Bootstrap terminal portfolio value; returns dict with `mean_final`, `median_final`, `percentile_5`, `percentile_95`, etc., or None.
 
 **beta(benchmark="SPY")** (v0.2.7)
 
@@ -440,6 +469,22 @@ from investormate import Backtest, Strategy
 
 **Methods:** `run()` returns BacktestResults with `total_return`, `sharpe_ratio`, `max_drawdown`, `win_rate`, `equity_curve`, `trades`, `summary()`.
 
+**Built-in templates (v0.3.0)** — `MomentumStrategy`, `MeanReversionStrategy`, `SMACrossoverStrategy` (import from `investormate` or `investormate.backtest`). Construct with optional parameters (e.g. `lookback`, `rsi_period`, `fast`/`slow`); `BacktestEngine` uses `Strategy()` with defaults.
+
+---
+
+### RiskAnalyzer (`investormate.analysis.risk`) (v0.3.0)
+
+Constructed from a daily return `pandas.Series`: `var_historical(confidence)`, `var_parametric(confidence)`, `monte_carlo(portfolio_value, n_simulations, horizon, random_seed)`.
+
+---
+
+### Data cache (`investormate.data.cache`) (v0.3.0)
+
+- `configure_data_cache(enabled=..., default_ttl=..., calls_per_second=...)`
+- `get_data_cache()`, `invalidate_ticker_cache(fmt_ticker)` (used by `Stock.refresh()`)
+- See [caching.md](caching.md).
+
 ---
 
 ### CustomStrategy (v0.2.0)
@@ -497,7 +542,7 @@ def analyze_stocks(tickers: List[str]) -> Dict[str, float]:
 ## Complete Example
 
 ```python
-from investormate import Investor, Stock, Screener, Portfolio, Market, Correlation, Backtest, Strategy, CustomStrategy
+from investormate import Investor, Stock, Screener, Portfolio, Market, Correlation, Backtest, Strategy, CustomStrategy, MomentumStrategy, MeanReversionStrategy, SMACrossoverStrategy
 import os
 
 # 1. Basic stock data

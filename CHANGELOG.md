@@ -5,6 +5,21 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-04-04
+
+### Added
+- **TTL cache + rate limiting (Phase 2.2)**: In-memory cache with per-category TTLs and token-bucket rate limiter for yfinance fetchers (`investormate.data.cache`). `Stock.refresh()` invalidates cached keys for the ticker. `configure_data_cache()` for tuning.
+- **Earnings & estimates (Phase 2.4)**: `Stock.earnings` → `EarningsAnalyzer` with `calendar()`, `surprise_history()`, `estimates()`, `eps_trend()`, `eps_revisions()`, `growth_estimates()`. New fetcher `get_yfinance_calendar_data`.
+- **Portfolio VaR & Monte Carlo (Phase 3.1)**: `Portfolio.var()`, `Portfolio.monte_carlo_simulation()`, `Portfolio.risk` → `RiskAnalyzer` (`investormate.analysis.risk`) with historical and Gaussian VaR.
+- **Screens (Phase 3.2)**: `Screener.can_slim()`, `Screener.dividend_aristocrats()`; `get_yfinance_dividends()` for dividend history.
+- **Strategy templates (Phase 3.5)**: `MomentumStrategy`, `MeanReversionStrategy`, `SMACrossoverStrategy` in `investormate.backtest.strategies`, re-exported from `investormate` and `investormate.backtest`.
+- **Tests**: `test_cache.py`, `test_earnings.py`, `test_risk.py`, `test_screener_canslim.py`, `test_screener_dividends.py`, `test_strategies.py`.
+- **Examples**: `caching.py`, `earnings_analysis.py`, `portfolio_var.py`, `can_slim.py`, `dividend_aristocrats.py`, `strategy_templates.py`.
+- **Docs**: `docs/caching.md`, `docs/earnings.md`, `docs/risk.md`, `docs/strategy_templates.md`.
+
+### Documentation
+- README (v0.3.0), [docs/api_reference.md](docs/api_reference.md), [docs/index.md](docs/index.md), [docs/custom_strategies.md](docs/custom_strategies.md), [ROADMAP.md](ROADMAP.md).
+
 ## [0.2.8] - 2026-03-29
 
 ### Changed

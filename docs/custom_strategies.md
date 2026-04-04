@@ -74,6 +74,24 @@ results = strategy.run(limit=10)
 - `name` - Company name
 - `price` - Current price
 
+## Institutional-style screens (Screener)
+
+Built-in universes and yfinance fields (not a replacement for a paid data terminal):
+
+```python
+from investormate import Screener
+
+screener = Screener(universe=["AAPL", "MSFT", "NVDA", "META"])
+
+# Simplified CAN SLIM scoring (growth, 52-week strength, volume, 52-week change)
+picks = screener.can_slim(top_n=10, min_score=3)
+
+# Long streak of strict annual dividend increases + minimum yield (%)
+aristocrats = screener.dividend_aristocrats(min_years=25, min_yield=2.0, top_n=20)
+```
+
+See also `examples/can_slim.py`, `examples/dividend_aristocrats.py`, and `examples/magic_formula.py`.
+
 ## Examples
 
 See `examples/custom_screening.py` for value, growth, dividend, and quality screening examples.

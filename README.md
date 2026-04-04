@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.2.8)
+**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.3.0)
 
 InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
@@ -20,10 +20,13 @@ InvestorMate is the only Python package you need for comprehensive stock analysi
 - **Advanced Financial Ratios** - 40+ ratios including ROIC, WACC, Equity Multiplier, and TTM metrics
 - **Valuation** - DCF (Discounted Cash Flow), comparable companies (P/E, EV/EBITDA, P/S), fair value summary & sensitivity table
 - **Earnings Call Transcripts** - Access earnings dates and transcript infrastructure (expandable)
-- **Stock Screening** - Value, growth, dividend, custom filters, and **Magic Formula** (ROIC + EBIT/EV ranks)
-- **Portfolio Analysis** - Value-weighted performance, Sharpe/Sortino, Calmar, max drawdown, beta vs benchmark, sector mix
+- **Stock Screening** - Value, growth, dividend, custom filters, **Magic Formula**, **CAN SLIM**-style screen, **dividend growth** (Aristocrat-style streak)
+- **Portfolio Analysis** - Value-weighted performance, Sharpe/Sortino, Calmar, max drawdown, beta, **VaR** (historical/parametric), **Monte Carlo** terminal value
+- **Fetch cache** - In-memory TTL cache + rate limiting for yfinance; `stock.refresh()` busts cache per ticker
+- **Earnings API** - `stock.earnings` for calendar, estimates, EPS surprise history, trends
 - **Beneish M-Score** - Full eight-variable model when multi-period statements are available (manipulation risk)
 - **Batch & peers** - `Stock.batch([...])` for many tickers; `stock.peers` and `stock.compare_with()` for peer tables
+- **Strategy templates** - `MomentumStrategy`, `MeanReversionStrategy`, `SMACrossoverStrategy` for the built-in backtest runner
 - **Market Summaries** - Real-time data for US, Asian, European, crypto, and commodity markets
 - **Pretty Formatting** - Beautiful CLI output for financial statements and ratios
 
@@ -83,6 +86,10 @@ You only need one API key to use the AI features.
 - [API Reference](docs/api_reference.md) - Complete API documentation
 - [Data Policy](docs/data_policy.md) - Price adjustment, NaN handling, and data provenance
 - [AI Providers Guide](docs/ai_providers.md) - OpenAI, Claude, and Gemini setup
+- [Caching](docs/caching.md) - TTL cache and rate limiting
+- [Earnings](docs/earnings.md) - Estimates and surprise history
+- [Risk](docs/risk.md) - VaR and Monte Carlo
+- [Strategy templates](docs/strategy_templates.md) - Built-in backtest strategies
 - [Examples](examples/) - Working code examples
 
 ## 🗺️ Roadmap & Contributing
@@ -146,8 +153,15 @@ print(dupont)
 # Earnings transcripts (infrastructure ready)
 transcripts_list = stock.earnings_transcripts.get_transcripts_list()
 
+# Earnings calendar, estimates, surprise history (v0.3.0)
+print(stock.earnings.calendar())
+print(stock.earnings.surprise_history()[-3:])
+
 # Historical data
 df = stock.history(period="1y", interval="1d")
+
+# Bust fetch cache for this ticker (v0.3.0)
+stock.refresh()
 ```
 
 ### AI-Powered Insights
@@ -216,6 +230,11 @@ results = screener.filter(
 # Magic Formula (ROIC + earnings yield ranks) — set your own universe
 magic = screener.magic_formula(top_n=20, min_market_cap=300_000_000)
 print(magic)
+
+# CAN SLIM-style and dividend growth screens (v0.3.0)
+can_slim = screener.can_slim(top_n=10, min_score=3)
+aristocrats = screener.dividend_aristocrats(min_years=15, min_yield=2.0, top_n=10)
+print(can_slim, aristocrats)
 ```
 
 ### Portfolio Analysis
@@ -235,6 +254,25 @@ print(f"Sharpe Ratio: {portfolio.sharpe_ratio:.2f}")
 print(f"Sortino: {portfolio.sortino_ratio}, Calmar: {portfolio.calmar_ratio}")
 print(f"Max drawdown %: {portfolio.max_drawdown}, Beta vs SPY: {portfolio.beta()}")
 print(f"Allocation: {portfolio.allocation}")
+
+# VaR and Monte Carlo (v0.3.0)
+print(portfolio.var(confidence=0.95, method="historical"))
+print(portfolio.monte_carlo_simulation(n=500, horizon=126, seed=1))
+```
+
+### Strategy templates (backtest)
+
+```python
+from investormate import Backtest, SMACrossoverStrategy
+
+bt = Backtest(
+    strategy=SMACrossoverStrategy,
+    ticker="MSFT",
+    start_date="2020-01-01",
+    end_date="2023-01-01",
+    initial_capital=10_000,
+)
+print(bt.run().summary())
 ```
 
 ### Peer comparison

@@ -9,10 +9,18 @@ from .strategy import Strategy
 from .engine import BacktestEngine
 from .results import BacktestResults
 from .backtest import Backtest
+from .strategies import (
+    MomentumStrategy,
+    MeanReversionStrategy,
+    SMACrossoverStrategy,
+)
 
 __all__ = [
     "Strategy",
     "BacktestEngine",
     "BacktestResults",
     "Backtest",
+    "MomentumStrategy",
+    "MeanReversionStrategy",
+    "SMACrossoverStrategy",
 ]

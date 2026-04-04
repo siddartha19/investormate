@@ -26,7 +26,15 @@ from .analysis.correlation import Correlation
 from .analysis.sentiment import SentimentAnalyzer
 
 # Backtesting classes
-from .backtest import Backtest, Strategy, BacktestEngine, BacktestResults
+from .backtest import (
+    Backtest,
+    Strategy,
+    BacktestEngine,
+    BacktestResults,
+    MomentumStrategy,
+    MeanReversionStrategy,
+    SMACrossoverStrategy,
+)
 
 # Data provenance (Stock.history(source_trace=True))
 from .core.history_result import HistoryResult
@@ -59,6 +67,9 @@ __all__ = [
     "Strategy",
     "BacktestEngine",
     "BacktestResults",
+    "MomentumStrategy",
+    "MeanReversionStrategy",
+    "SMACrossoverStrategy",
     "HistoryResult",
     # Exceptions
     "InvestorMateError",

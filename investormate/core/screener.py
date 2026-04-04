@@ -5,9 +5,29 @@ Stock screening based on financial criteria.
 
 from typing import Dict, List, Optional, Tuple
 
+import pandas as pd
+
 from ..data.constants import MAJOR_US_TICKERS
-from ..data.fetchers import get_yfinance_data
+from ..data.fetchers import get_yfinance_data, get_yfinance_dividends
 from ..utils.helpers import safe_divide
+
+
+def _dividend_growth_streak_years(div: pd.Series) -> int:
+    """
+    Count strict year-over-year annual dividend increases ending at the latest year.
+    """
+    if div is None or len(div) < 2:
+        return 0
+    by_year = div.groupby(div.index.year).sum().sort_index()
+    if len(by_year) < 2:
+        return 0
+    streak = 0
+    for i in range(len(by_year) - 1, 0, -1):
+        if by_year.iloc[i] > by_year.iloc[i - 1]:
+            streak += 1
+        else:
+            break
+    return streak
 
 
 class Screener:
@@ -258,6 +278,117 @@ class Screener:
         combined.sort(key=lambda x: x[1])
 
         return [t for t, _ in combined[:top_n]]
+
+    def can_slim(
+        self,
+        top_n: int = 20,
+        min_score: int = 3,
+    ) -> List[str]:
+        """
+        Simplified CAN SLIM-style screen using available yfinance fields.
+
+        Scores 0–5 from: strong quarterly EPS growth (C), annual EPS growth (A),
+        price near 52-week high (N), volume vs average (S), positive 52-week change (L).
+        ``I`` (institutional) and ``M`` (market direction) are not evaluated here.
+
+        Args:
+            top_n: Max tickers to return.
+            min_score: Minimum criteria count (out of 5) to include.
+
+        Returns:
+            Tickers sorted by score then market cap.
+        """
+        scored: List[Tuple[str, int, float]] = []
+
+        for ticker in self.universe:
+            try:
+                info = get_yfinance_data(ticker)
+                if not info:
+                    continue
+
+                c = (info.get("earningsQuarterlyGrowth") or 0) >= 0.25
+                a = (info.get("earningsGrowth") or 0) >= 0.25
+
+                price = info.get("currentPrice") or info.get("regularMarketPrice")
+                high = info.get("fiftyTwoWeekHigh")
+                n = bool(
+                    price is not None
+                    and high not in (None, 0)
+                    and float(high) > 0
+                    and float(price) / float(high) >= 0.85
+                )
+
+                vol = float(info.get("volume") or 0)
+                avg_vol = float(info.get("averageVolume") or 0)
+                s = bool(avg_vol > 0 and vol >= 0.8 * avg_vol)
+
+                ch = info.get("fiftyTwoWeekChangePercent")
+                if ch is None:
+                    ch = info.get("52WeekChange")
+                if ch is None:
+                    ch = info.get("fiftyTwoWeekChange")
+                l = ch is not None and float(ch) > 0
+
+                score = int(c) + int(a) + int(n) + int(s) + int(l)
+                if score < min_score:
+                    continue
+                mc = float(info.get("marketCap") or 0)
+                scored.append((ticker, score, mc))
+            except Exception:
+                continue
+
+        scored.sort(key=lambda x: (-x[1], -x[2]))
+        return [t for t, _, _ in scored[:top_n]]
+
+    def dividend_aristocrats(
+        self,
+        min_years: int = 25,
+        min_yield: float = 0.0,
+        top_n: Optional[int] = None,
+    ) -> List[str]:
+        """
+        Names with at least ``min_years`` consecutive annual dividend increases
+        (strict YoY on calendar-year totals) and dividend yield >= ``min_yield`` (%).
+
+        This approximates dividend-growth quality; it is not the official S&P 500
+        Dividend Aristocrats index membership.
+
+        Args:
+            min_years: Minimum streak of strict year-over-year increases.
+            min_yield: Minimum trailing dividend yield in **percent** (e.g. 2.0 for 2%).
+            top_n: Optional cap on results (after sorting by yield desc).
+
+        Returns:
+            List of tickers.
+        """
+        matches: List[Tuple[str, float]] = []
+
+        for ticker in self.universe:
+            try:
+                info = get_yfinance_data(ticker)
+                if not info:
+                    continue
+                dy = info.get("dividendYield")
+                if dy is None:
+                    continue
+                dy_pct = float(dy) * 100.0
+                if dy_pct < min_yield:
+                    continue
+
+                div = get_yfinance_dividends(ticker)
+                streak = _dividend_growth_streak_years(div)
+                if streak < min_years:
+                    continue
+
+                matches.append((ticker, dy_pct))
+            except Exception:
+                continue
+
+        matches.sort(key=lambda x: -x[1])
+        tickers = [t for t, _ in matches]
+        if top_n is not None:
+            return tickers[:top_n]
+        return tickers
 
     def _filter_by_criteria(self, criteria_func) -> List[str]:
         """

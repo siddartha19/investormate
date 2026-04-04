@@ -18,8 +18,12 @@ InvestorMate combines the best of financial data, technical analysis, and AI to 
 - **Valuation** (v0.2.3) - DCF, comparable companies (P/E, EV/EBITDA, P/S), fair value summary & sensitivity
 - **Correlation Analysis** - Portfolio diversification, find correlated pairs
 - **Sentiment Analysis** - AI-powered news sentiment
-- **Backtesting** - Test strategies on historical data
+- **Backtesting** - Test strategies on historical data; built-in **strategy templates** (momentum, mean reversion, SMA crossover)
 - **Custom Strategies** - User-defined screening logic
+- **Caching (v0.3.0)** - TTL cache and rate limiting for yfinance; `stock.refresh()`
+- **Earnings API (v0.3.0)** - Calendar, estimates, EPS surprise history
+- **Portfolio VaR / Monte Carlo (v0.3.0)** - Historical and parametric VaR, bootstrap simulation
+- **Screens (v0.3.0)** - CAN SLIM–style and dividend-growth streak screens
 
 ## Quick Links
 
@@ -30,7 +34,11 @@ InvestorMate combines the best of financial data, technical analysis, and AI to 
 - [Sentiment Analysis](sentiment.md) - News sentiment
 - [Backtesting](backtesting.md) - Strategy backtesting
 - [Valuation](valuation.md) - DCF, comps, fair value summary
-- [Custom Strategies](custom_strategies.md) - Custom screening
+- [Custom Strategies](custom_strategies.md) - Custom screening + institutional-style screens
+- [Caching](caching.md) - TTL cache and rate limits
+- [Earnings](earnings.md) - Estimates and surprises
+- [Risk](risk.md) - VaR and Monte Carlo
+- [Strategy templates](strategy_templates.md) - Built-in backtest strategies
 - [Examples](../examples/) - Code examples
 
 ## Installation

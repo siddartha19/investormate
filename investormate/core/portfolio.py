@@ -3,7 +3,7 @@ Portfolio class for InvestorMate.
 Portfolio analysis and performance tracking.
 """
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -260,6 +260,77 @@ class Portfolio:
             equity = (1 + pr).cumprod()
             peak = equity.cummax()
             return (equity - peak) / peak
+        except Exception:
+            return None
+
+    @property
+    def risk(self):
+        """
+        :class:`~investormate.analysis.risk.RiskAnalyzer` for weighted daily returns, or None.
+
+        Requires at least 5 aligned return observations.
+        """
+        from ..analysis.risk import RiskAnalyzer
+
+        pr = self._weighted_daily_returns()
+        if pr is None or len(pr) < 5:
+            return None
+        return RiskAnalyzer(pr)
+
+    def var(
+        self, confidence: float = 0.95, method: str = "historical"
+    ) -> Optional[float]:
+        """
+        One-day Value at Risk from weighted portfolio daily returns.
+
+        Args:
+            confidence: e.g. 0.95 for 95% VaR (historical left-tail quantile).
+            method: ``historical`` (empirical quantile) or ``parametric`` (Gaussian).
+
+        Returns:
+            Typically negative daily return at the tail, or None if insufficient data.
+        """
+        from ..analysis.risk import RiskAnalyzer
+
+        pr = self._weighted_daily_returns()
+        if pr is None or len(pr) < 30:
+            return None
+        ra = RiskAnalyzer(pr)
+        if method == "parametric":
+            return ra.var_parametric(confidence)
+        if method == "historical":
+            return ra.var_historical(confidence)
+        raise ValueError("method must be 'historical' or 'parametric'")
+
+    def monte_carlo_simulation(
+        self,
+        n: int = 1000,
+        horizon: int = 252,
+        seed: Optional[int] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Bootstrap terminal portfolio value using historical daily return resampling.
+
+        Args:
+            n: Number of simulated paths.
+            horizon: Trading days per path.
+            seed: Optional RNG seed.
+
+        Returns:
+            Dict with ``mean_final``, ``median_final``, ``percentile_5``, etc., or None.
+        """
+        from ..analysis.risk import RiskAnalyzer
+
+        pr = self._weighted_daily_returns()
+        if pr is None or len(pr) < 30:
+            return None
+        v = self.value
+        if v <= 0:
+            return None
+        try:
+            return RiskAnalyzer(pr).monte_carlo(
+                v, n_simulations=n, horizon=horizon, random_seed=seed
+            )
         except Exception:
             return None
 

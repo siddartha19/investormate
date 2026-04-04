@@ -17,6 +17,7 @@ from ..data.fetchers import (
     get_yfinance_ticker_news,
     get_yfinance_ticker_filings,
 )
+from ..data.cache import invalidate_ticker_cache
 from ..data.constants import MAJOR_US_TICKERS, get_ticker_format
 from ..data.parsers import extract_price_data, extract_company_info
 from ..data.earnings_transcripts import EarningsCallTranscripts
@@ -24,6 +25,7 @@ from ..analysis.ratios import RatiosCalculator
 from ..analysis.indicators import IndicatorsHelper
 from ..analysis.scores import FinancialScores
 from ..analysis.valuation import Valuation
+from ..analysis.earnings import EarningsAnalyzer
 from ..utils.validators import validate_ticker, validate_period, validate_interval
 from ..utils.exceptions import DataFetchError
 
@@ -87,7 +89,8 @@ class Stock:
         self._cash_flow = None
         self._history_cache = {}
         self._earnings_transcripts = None
-        
+        self._earnings_analyzer = None
+
     # Core Data Properties
     
     @property
@@ -426,6 +429,20 @@ class Stock:
     # Earnings Call Transcripts
     
     @property
+    def earnings(self) -> EarningsAnalyzer:
+        """
+        Earnings calendar, estimates, surprise history, and EPS trends (yfinance).
+
+        Example:
+            >>> stock = Stock("AAPL")
+            >>> stock.earnings.calendar()
+            >>> stock.earnings.surprise_history()
+        """
+        if self._earnings_analyzer is None:
+            self._earnings_analyzer = EarningsAnalyzer(self.ticker)
+        return self._earnings_analyzer
+
+    @property
     def valuation(self) -> Valuation:
         """
         Get valuation module (DCF, comparable companies, fair value summary).
@@ -482,13 +499,19 @@ class Stock:
         return helper.add_indicators(indicators)
     
     def refresh(self):
-        """Clear cached data to force refresh on next access."""
+        """
+        Clear instance caches and invalidate process-wide fetch cache for this ticker.
+
+        Next access refetches from Yahoo Finance (subject to rate limiting).
+        """
+        invalidate_ticker_cache(get_ticker_format(self.ticker))
         self._info = None
         self._balance_sheet = None
         self._income_stmt = None
         self._cash_flow = None
         self._history_cache = {}
         self._earnings_transcripts = None
+        self._earnings_analyzer = None
     
     def __repr__(self) -> str:
         """String representation."""

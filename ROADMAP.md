@@ -2,7 +2,7 @@
 
 > **Vision:** A single Python package that powers professional-grade financial research, analysis, and decision-making—the engine behind tools that rival Bloomberg Terminal in capability and depth.
 
-**Recent progress (v0.2.7):** Full eight-variable **Beneish M-Score** (when multi-period statements exist), portfolio **Sortino / Calmar / max drawdown / beta**, **Magic Formula** screen, **`Stock.batch`**, **`stock.peers`** + **`compare_with()`**. See [CHANGELOG.md](CHANGELOG.md).
+**Recent progress (v0.3.0):** In-memory **TTL cache + rate limiting** for yfinance; **`Stock.refresh()`** cache bust; **`stock.earnings`** (calendar, estimates, surprise history); portfolio **VaR** (historical/parametric) and **Monte Carlo**; **CAN SLIM**-style and **dividend growth** screens; **Momentum / Mean reversion / SMA crossover** strategy templates. See [CHANGELOG.md](CHANGELOG.md).
 
 > **Inspiration:** This roadmap incorporates best-in-class ideas from the systematic trading ecosystem — including tools like [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt), [quantstats](https://github.com/ranaroussi/quantstats), [vectorbt](https://github.com/polakowo/vectorbt), [QLib](https://github.com/microsoft/qlib), [OpenBB](https://github.com/OpenBB-finance/OpenBBTerminal), and [40+ academic trading strategies](https://github.com/paperswithbacktest/awesome-systematic-trading). The goal: one package that absorbs the best of all of them.
 
@@ -58,25 +58,26 @@ The roadmap is structured in five phases, from hardening the current release to 
 
 ## Current State & Gaps
 
-### What Exists Today (v0.2.x)
+### What Exists Today (v0.3.x)
 
 | Domain | Capability | Maturity |
 |--------|------------|----------|
-| **Data** | yfinance only, single source | ⚠️ Fragile |
+| **Data** | yfinance only; TTL cache + rate limit (v0.3.0) | ⚠️ Fragile |
 | **Fundamentals** | 40+ ratios, TTM, DuPont, ROIC, WACC | ✅ Solid |
-| **Technicals** | 60+ indicators (pandas-ta) | ✅ Solid |
+| **Technicals** | 20+ native indicators (numpy/pandas) | ✅ Solid |
 | **Scores** | Piotroski, Altman Z, Beneish M (full 8-variable when 2 periods + CF; else proxy) | ✅ Solid |
 | **AI** | Multi-provider (OpenAI, Claude, Gemini) | ✅ Solid |
-| **Screening** | Value, growth, dividend, custom, Magic Formula (v0.2.7) | ✅ Solid |
-| **Portfolio** | Allocation, value-weighted Sharpe/vol, Sortino, Calmar, max DD, beta, sector mix (v0.2.7) | ✅ Solid |
+| **Screening** | Value, growth, dividend, custom, Magic Formula, CAN SLIM–style, dividend growth streak (v0.3.0) | ✅ Solid |
+| **Portfolio** | Allocation, Sharpe/Sortino/Calmar/max DD/beta, VaR, Monte Carlo (v0.3.0), sector mix | ✅ Solid |
 | **Backtesting** | Strategy framework, RSI example | ✅ Solid |
 | **Correlation** | Matrix, pairs, diversification | ✅ Solid |
 | **Sentiment** | News sentiment via AI | ✅ Solid |
 | **Valuation** | DCF, comps, fair value, sensitivity | ✅ Solid |
+| **Earnings** | Calendar, estimates, surprise history via `stock.earnings` (v0.3.0) | ⚠️ yfinance-dependent |
 | **Transcripts** | Infrastructure only (no real data) | ❌ Placeholder |
 | **SEC/Filings** | yfinance filings list | ⚠️ Limited |
 | **Optimization** | None (no efficient frontier, HRP) | ❌ Missing |
-| **Quant Strategies** | 1 example (RSI) | ❌ Minimal |
+| **Quant Strategies** | RSI example + 3 templates (momentum, mean reversion, SMA cross) (v0.3.0) | ⚠️ Growing |
 | **Forecasting** | None | ❌ Missing |
 | **ML Signals** | None | ❌ Missing |
 | **Options** | None | ❌ Missing |
@@ -87,17 +88,17 @@ The roadmap is structured in five phases, from hardening the current release to 
 - **Data:** Single source, no fallbacks, no real-time, no macro/economic data, limited global coverage
 - **Optimization:** No portfolio optimization (efficient frontier, HRP, risk parity, Black-Litterman)
 - **Performance Metrics:** Sortino, Calmar, max drawdown, beta added (v0.2.7); still missing Omega, full tearsheets, richer drawdown analytics
-- **Strategies:** 1 example strategy vs. 40+ proven academic strategies available in the ecosystem
+- **Strategies:** Templates shipped (v0.3.0); full academic library still roadmap
 - **Regulatory:** No direct SEC Edgar, no 10-K/10-Q parsing
-- **Earnings:** No transcripts, limited surprise/estimate data
-- **Risk:** No VaR, Monte Carlo, factor exposure
-- **Screening:** Magic Formula shipped (v0.2.7); CAN SLIM and other institutional screens still open
+- **Earnings:** No transcripts; calendar/estimates/surprises via yfinance (v0.3.0)
+- **Risk:** VaR + Monte Carlo on portfolio returns (v0.3.0); factor exposure still open
+- **Screening:** Magic Formula (v0.2.7); CAN SLIM–style + dividend growth (v0.3.0); further screens open
 - **Forecasting:** No time series forecasting (Prophet, ARIMA)
 - **ML:** No factor models, alpha signals, or ML-driven predictions
 - **Options:** No pricing (Black-Scholes), Greeks, or strategy builders
 - **Visualization:** No interactive charts, tearsheets, or dashboards
 - **Output:** No report generation, exports, or dashboards
-- **Performance:** No caching, rate limiting, or async
+- **Performance:** In-memory cache + rate limit (v0.3.0); async still open
 
 ---
 
@@ -226,10 +227,10 @@ Versioned data snapshots and clear separation between "latest" and "point-in-tim
 
 | Feature | Description |
 |---------|-------------|
-| In-memory cache | TTL-based (e.g., 5 min for quotes, 1 hr for financials) |
-| Cache invalidation | Manual `stock.refresh()` or TTL |
-| Batch fetching | **Done (v0.2.7):** `Stock.batch(["AAPL","MSFT","GOOGL"])`. TTL cache / rate limiting still planned. |
-| Rate limiting | Configurable delays for API sources |
+| In-memory TTL cache | **Done (v0.3.0):** per-fetcher TTLs (quotes ~60s, financials ~1h, etc.); `Stock.refresh()` invalidates ticker keys. |
+| Cache invalidation | Manual `stock.refresh()` or TTL expiry |
+| Batch fetching | **Done (v0.2.7):** `Stock.batch(["AAPL","MSFT","GOOGL"])`. |
+| Rate limiting | **Done (v0.3.0):** token-bucket default 2/sec; `configure_data_cache(calls_per_second=...)`. |
 
 ### 2.3 SEC Edgar Integration
 
