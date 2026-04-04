@@ -1,12 +1,12 @@
-# InvestorMate Roadmap: The Full-Stack Finance Library for Python
+# InvestorMate Roadmap: The AI-Powered Full-Stack Finance Library for Python
 
-> **Vision:** The Python library that finance students use to learn, professionals use to analyze, and quants use to build — one package from Accounting 101 homework through portfolio optimization and alpha generation.
+> **Vision:** The AI-powered Python library that finance students use to learn, professionals use to analyze, and quants use to build — one package from Accounting 101 homework through portfolio optimization and alpha generation, with AI woven into every layer.
 
 **Recent progress (v0.3.0):** In-memory **TTL cache + rate limiting** for yfinance; **`Stock.refresh()`** cache bust; **`stock.earnings`** (calendar, estimates, surprise history); portfolio **VaR** (historical/parametric) and **Monte Carlo**; **CAN SLIM**-style and **dividend growth** screens; **Momentum / Mean reversion / SMA crossover** strategy templates. See [CHANGELOG.md](CHANGELOG.md).
 
-> **The "Full Stack" Strategy:** InvestorMate uniquely spans *both* the educational and professional finance ecosystem. The **inner circle** — TVM, bond pricing, common-size analysis, DuPont breakdown, `explain()`, `show_work()` — is pure math with zero API dependencies; it's the on-ramp that gets students installing InvestorMate in their first semester. The **outer circle** — portfolio optimization, ML alpha, SEC Edgar, strategy templates, tearsheets — is what those same students grow into when they get internships, join equity research teams, or start personal investing. No other Python library bridges both worlds.
+> **The "Full Stack" Strategy:** InvestorMate is built on three pillars — **Finance + AI + Education** — that no other library combines. The **educational foundation** (TVM, bond pricing, common-size analysis, `explain()`, `show_work()`) is the on-ramp that gets students installing in their first semester. The **AI engine** (multi-provider LLM: OpenAI, Claude, Gemini) turns every feature into a conversational experience — ask questions about any stock, get AI-generated explanations of your analysis, summarize 10-K filings in plain English, and receive AI-powered study feedback. The **professional toolkit** (portfolio optimization, ML alpha, SEC Edgar, strategy templates, tearsheets) is what those same students grow into on the job. No other Python library bridges all three.
 
-> **Inspiration:** This roadmap incorporates best-in-class ideas from the systematic trading ecosystem — including tools like [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt), [quantstats](https://github.com/ranaroussi/quantstats), [vectorbt](https://github.com/polakowo/vectorbt), [QLib](https://github.com/microsoft/qlib), [OpenBB](https://github.com/OpenBB-finance/OpenBBTerminal), and [40+ academic trading strategies](https://github.com/paperswithbacktest/awesome-systematic-trading) — as well as educational resources like [Tidy Finance](https://www.tidy-finance.org/python/), CFA/FRM curriculum frameworks, and the needs of Applied Accounting & Financial Analysis students worldwide.
+> **Inspiration:** This roadmap incorporates best-in-class ideas from the systematic trading ecosystem — including tools like [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt), [quantstats](https://github.com/ranaroussi/quantstats), [vectorbt](https://github.com/polakowo/vectorbt), [QLib](https://github.com/microsoft/qlib), [OpenBB](https://github.com/OpenBB-finance/OpenBBTerminal), and [40+ academic trading strategies](https://github.com/paperswithbacktest/awesome-systematic-trading) — as well as AI-native finance tools, educational resources like [Tidy Finance](https://www.tidy-finance.org/python/), CFA/FRM curriculum frameworks, and the needs of Applied Accounting & Financial Analysis students worldwide.
 
 ---
 
@@ -30,30 +30,30 @@
 
 ## Executive Summary
 
-InvestorMate aims to be the **definitive Python package for financial learning, research, and analysis** — a single dependency that serves every stage of a finance professional's journey:
+InvestorMate aims to be the **definitive AI-powered Python package for financial learning, research, and analysis** — a single dependency that serves every stage of a finance professional's journey:
 
-- **Educational toolkit** — TVM, bond pricing, financial statement analysis, ratio interpretation, CFA/FRM topic coverage, `explain()` and `show_work()` on every calculation
+- **AI-native from day one** — Multi-provider LLM engine (OpenAI, Claude, Gemini) powering Q&A (`investor.ask()`), document summarization, financial statement analysis, AI tutoring, sentiment analysis, and report generation across every module
+- **Educational toolkit** — TVM, bond pricing, financial statement analysis, ratio interpretation, CFA/FRM topic coverage, `explain()` and `show_work()` on every calculation, AI-powered study assistance
 - **Multi-source data** with fallbacks and reliability
 - **Institutional-quality analytics** (valuation, risk, screening)
 - **Portfolio optimization** (efficient frontier, HRP, Black-Litterman)
 - **Quantitative strategies** backed by academic research and proven Sharpe ratios
-- **AI-native workflows** (summaries, Q&A, report generation)
 - **ML-powered alpha signals** and time series forecasting
 - **Extensible architecture** for custom data sources, strategies, and plugins
 - **Production-ready** performance, caching, and error handling
 
-The roadmap is structured in six phases, from educational foundations through capabilities comparable to Bloomberg Terminal — while also incorporating the best ideas from the systematic/quantitative trading ecosystem. The unique differentiator: **no other Python library is designed for students AND professionals simultaneously.**
+The roadmap is structured in six phases, from educational foundations through capabilities comparable to Bloomberg Terminal — while also incorporating the best ideas from the systematic/quantitative trading ecosystem. The unique differentiator: **no other Python library combines Finance + AI + Education in a single package.**
 
 ---
 
 ## Guiding Principles
 
 1. **One package, one import** — No need to juggle yfinance, pandas-ta, Alpha Vantage, PyPortfolioOpt, quantstats, etc.
-2. **Learn → Analyze → Build** — Every feature works at three levels: educational (explain the concept), analytical (compute the number), professional (integrate into workflows). The same `stock.ratios.wacc` call can `show_work()` for a student or feed a DCF model for a PM.
-3. **Data-agnostic** — Pluggable backends; logic independent of data source.
-4. **Feature-first** — Primary job is clean, consistent feature matrices and normalized data; users can plug into any backtesting engine (vectorbt, zipline, etc.). We do not aim to be a full backtesting framework.
-5. **Modular layers** — Fundamentals, TA, and portfolio can be used independently. Optional capabilities (TA, AI, optimization) via `extras_require`; core stays minimal so you don't pull 50 deps for a few ratios.
-6. **AI-first** — Every feature designed to work with LLM summarization and Q&A.
+2. **AI-first, not AI-only** — Every feature designed to work *with and without* AI. Computations are pure math (no LLM needed); AI adds a conversational layer on top — ask questions, get explanations, summarize documents, generate reports. Multi-provider (OpenAI, Claude, Gemini) so users aren't locked in. AI is the **multiplier**, not the **dependency**.
+3. **Learn → Analyze → Build** — Every feature works at three levels: educational (explain the concept), analytical (compute the number), professional (integrate into workflows). The same `stock.ratios.wacc` call can `show_work()` for a student, feed a DCF model for a PM, or be explained in plain English by the AI engine.
+4. **Data-agnostic** — Pluggable backends; logic independent of data source.
+5. **Feature-first** — Primary job is clean, consistent feature matrices and normalized data; users can plug into any backtesting engine (vectorbt, zipline, etc.). We do not aim to be a full backtesting framework.
+6. **Modular layers** — Fundamentals, TA, and portfolio can be used independently. Optional capabilities (TA, AI, optimization) via `extras_require`; core stays minimal so you don't pull 50 deps for a few ratios.
 7. **Quant-ready** — Academic strategies, portfolio optimization, and factor models out of the box.
 8. **Professional-grade** — Suitable for quant research, fund analysis, and fintech apps.
 9. **Syllabus-ready** — A professor can put `pip install investormate` on a syllabus. Educational features cover CFA L1-L3, FRM, and Applied Accounting & Financial Analysis curricula.
@@ -70,39 +70,48 @@ The roadmap is structured in six phases, from educational foundations through ca
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    THE INVESTORMATE FUNNEL                          │
+│                  Finance  ×  AI  ×  Education                       │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  SEMESTER 1 ─── pip install investormate                           │
 │  Accounting 101   TVM calculator, common-size analysis, explain()  │
 │                   Bond pricing, loan amortization schedules         │
+│              AI:  investor.ask("AAPL", "Explain this balance sheet")│
+│                   AI tutoring on any ratio or concept               │
 │                                                                     │
 │  SEMESTER 3 ─── stock.ratios + screener + show_work()              │
 │  Financial        DuPont breakdown, Piotroski F-Score, Altman Z    │
 │  Analysis         Peer benchmarking, industry percentiles           │
+│              AI:  investor.ask("AAPL", "Is this stock undervalued?")│
+│                   AI-powered red flag detection and commentary      │
 │                                                                     │
 │  SEMESTER 5 ─── portfolio.optimize + backtest                      │
 │  Investments      CAPM regression, Fama-French factors, VaR        │
 │  Capstone         Efficient frontier, strategy templates            │
+│              AI:  AI-generated portfolio risk commentary            │
+│                   Natural-language strategy explanations             │
 │                                                                     │
 │  YEAR 1 JOB ─── Full platform                                     │
 │  Equity Research  SEC Edgar, tearsheets, ML alpha, report gen      │
 │  / Quant Desk     Academic strategies, real-time data, exports     │
+│              AI:  AI-summarized 10-K filings, earnings calls       │
+│                   Full AI-generated research reports                │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Competitive Landscape
 
-| Library | Professional Features | Educational Features |
-|---------|----------------------|---------------------|
-| **FinanceToolkit** (4.5k stars) | 150+ ratios, multi-asset | None |
-| **OpenBB** (65k stars) | Full terminal, data aggregation | None |
-| **QLib** (15k stars) | ML alpha, factor models | None |
-| **Tidy Finance** | None (it's a textbook) | Textbook-style explanations |
-| **Strategic Alpha** | DCF, technicals, risk | Web-only, not installable |
-| **InvestorMate** | 40+ ratios, DCF, VaR, MC, backtest, AI | `explain()`, `show_work()`, TVM, bonds, CAPM, common-size, CFA tags |
+| Library | Professional Features | AI Integration | Educational Features |
+|---------|----------------------|----------------|---------------------|
+| **FinanceToolkit** (4.5k stars) | 150+ ratios, multi-asset | None | None |
+| **OpenBB** (65k stars) | Full terminal, data aggregation | Copilot (closed) | None |
+| **QLib** (15k stars) | ML alpha, factor models | None | None |
+| **Tidy Finance** | None (it's a textbook) | None | Textbook-style explanations |
+| **Strategic Alpha** | DCF, technicals, risk | Experimental ML | Web-only, not installable |
+| **InvestorMate** | 40+ ratios, DCF, VaR, MC, backtest | **Multi-LLM** (OpenAI, Claude, Gemini): Q&A, sentiment, summaries, reports | `explain()`, `show_work()`, TVM, bonds, CAPM, common-size, CFA tags |
 
-**InvestorMate is the only library a professor can put on a syllabus AND a portfolio manager can use in production.**
+**InvestorMate is the only library that combines Finance + AI + Education in a single installable package.**
 
 ---
 
@@ -116,7 +125,7 @@ The roadmap is structured in six phases, from educational foundations through ca
 | **Fundamentals** | 40+ ratios, TTM, DuPont, ROIC, WACC | ✅ Solid |
 | **Technicals** | 20+ native indicators (numpy/pandas) | ✅ Solid |
 | **Scores** | Piotroski, Altman Z, Beneish M (full 8-variable when 2 periods + CF; else proxy) | ✅ Solid |
-| **AI** | Multi-provider (OpenAI, Claude, Gemini) | ✅ Solid |
+| **AI Engine** | Multi-provider LLM (OpenAI, Claude, Gemini): `investor.ask()`, document analysis, stock comparison, sentiment analysis, summary generation | ✅ Solid |
 | **Screening** | Value, growth, dividend, custom, Magic Formula, CAN SLIM–style, dividend growth streak (v0.3.0) | ✅ Solid |
 | **Portfolio** | Allocation, Sharpe/Sortino/Calmar/max DD/beta, VaR, Monte Carlo (v0.3.0), sector mix | ✅ Solid |
 | **Backtesting** | Strategy framework, RSI example | ✅ Solid |
@@ -168,6 +177,36 @@ The roadmap is structured in six phases, from educational foundations through ca
 - **Derivatives Basics:** No Black-Scholes, Greeks calculator, binomial tree, or payoff diagrams — CFA L1 weights Derivatives at 5-8%
 - **Export for Coursework:** No Excel export, Jupyter templates, or formatted comparison tables for class submissions
 
+### AI Engine — What Exists & What's Next
+
+> *InvestorMate already ships a production-ready multi-provider AI engine. This is not a future feature — it's live today.*
+
+**Shipped (v0.1.0+):**
+- `Investor` class with multi-provider support (OpenAI, Claude, Gemini)
+- `investor.ask(ticker, question)` — conversational Q&A about any stock using real data
+- `investor.analyze_document(ticker, url, question)` — AI analysis of articles and documents
+- `investor.compare(tickers, question)` — multi-stock AI comparison with structured output
+- `Stock.sentiment` — AI-powered news sentiment analysis
+- Summary generation — structured stock overviews via LLM
+- Prompt engineering — specialized prompts for analysis, comparison, document insights
+- Response parsing — structured JSON output with chart data support
+
+**Planned AI expansion across phases:**
+
+| Phase | AI Feature | Description |
+|-------|-----------|-------------|
+| 1.5 | AI financial tutor | Contextual explanations of ratios, statements, concepts using real stock data |
+| 1.5 | AI ratio commentary | Narrative analysis connecting multiple ratios into a coherent story |
+| 1.5 | AI study assistant | Conceptual Q&A ("What is duration?") grounded in library computations |
+| 1.5 | AI practice feedback | Review student analysis against actual data and flag errors |
+| 2.3 | AI filing summarization | Summarize 10-K/10-Q risk factors, MD&A sections via SEC Edgar |
+| 2.6 | AI macro commentary | Natural-language interpretation of economic data and yield curves |
+| 3.1 | AI risk commentary | Narrative explanation of VaR, Monte Carlo results, factor exposures |
+| 3.4 | AI report generation | Full AI-generated equity research reports (fundamentals + technicals + sentiment) |
+| 3.5 | AI strategy explanation | Plain-English description of what each academic strategy does and why |
+| 4.2 | AI regime commentary | Natural-language description of detected market regimes |
+| 4.3 | AI options analysis | AI-powered options strategy recommendations based on market view |
+
 ---
 
 ## Architecture Overview
@@ -189,10 +228,16 @@ The roadmap is structured in six phases, from educational foundations through ca
 │  │ & context  │ │ step calc  │ │ & Mapping  │ │ Generator  │ │ & Export   ││
 │  └────────────┘ └────────────┘ └────────────┘ └────────────┘ └────────────┘│
 ├──────────────────────────────────────────────────────────────────────────────┤
+│  AI ENGINE  ★ CORE DIFFERENTIATOR — threads through every layer             │
+│  ┌──────────────────────────────────────────────────────────────────────────┐│
+│  │  Multi-Provider LLM (OpenAI / Claude / Gemini)                          ││
+│  │  investor.ask() │ Sentiment │ Summaries │ Reports │ Tutoring │ Compare  ││
+│  └──────────────────────────────────────────────────────────────────────────┘│
+├──────────────────────────────────────────────────────────────────────────────┤
 │  ANALYTICS LAYER                                                             │
 │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐│
-│  │ Valuation  │ │ Risk &     │ │ Screening  │ │ AI/LLM     │ │ ML Alpha   ││
-│  │ DCF, Comps │ │ VaR, MC    │ │ Magic, etc │ │ Summarize  │ │ Signals    ││
+│  │ Valuation  │ │ Risk &     │ │ Screening  │ │ AI-Powered │ │ ML Alpha   ││
+│  │ DCF, Comps │ │ VaR, MC    │ │ Magic, etc │ │ Analysis   │ │ Signals    ││
 │  └────────────┘ └────────────┘ └────────────┘ └────────────┘ └────────────┘│
 │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐               │
 │  │ Portfolio  │ │ Forecasting│ │ Options    │ │ Performance│               │
@@ -365,9 +410,11 @@ The roadmap is structured in six phases, from educational foundations through ca
 | Payoff diagrams | Visual P&L at expiry for basic strategies | `options.payoff_diagram(strategy="bull_call_spread", legs=[...])` |
 | Strategy P&L | Max profit, max loss, breakeven for common strategies | `options.strategy_metrics("covered_call", S=150, K=160, premium=5)` |
 
-### 1.5.6 Educational Layer (explain / show_work / interpret)
+### 1.5.6 Educational Layer (explain / show_work / interpret) + AI Tutoring
 
-> *The differentiator. No finance library does this. This is what makes InvestorMate syllabus-ready.*
+> *The differentiator. No finance library does this. This is what makes InvestorMate syllabus-ready. The educational layer works at two levels: **deterministic** (pure-math explain/show_work — no API key needed) and **AI-powered** (conversational tutoring, natural-language explanations — requires LLM key).*
+
+#### Deterministic (No AI Key Required)
 
 | Feature | Description | API |
 |---------|-------------|-----|
@@ -380,6 +427,20 @@ The roadmap is structured in six phases, from educational foundations through ca
 | Industry percentile | Where a ratio falls vs. sector peers | `stock.ratios.percentile("pe_ratio")` → "72nd percentile of Technology sector" |
 | Historical ratio trends | Multi-year ratio trajectory | `stock.ratios.history("current_ratio", years=5)` |
 | Practice problems | Generate random problems with solutions (TVM, bond pricing, etc.) | `practice.generate("tvm", difficulty="medium")` |
+
+#### AI-Powered (Requires LLM Key — OpenAI, Claude, or Gemini)
+
+> *Leverages the existing `Investor` AI engine (multi-provider: OpenAI, Claude, Gemini) to add a conversational layer on top of every educational feature.*
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| AI financial tutor | Ask any question about a stock's financials and get a detailed, contextual explanation using real data | `investor.ask("AAPL", "Why is the current ratio declining?")` |
+| AI ratio commentary | AI-generated narrative analysis of all ratios — not just numbers, but what they mean together | `investor.explain_ratios("AAPL")` |
+| AI statement analysis | Natural-language summary of common-size / horizontal analysis results with trend insights | `investor.analyze_financials("AAPL", analysis="common_size")` |
+| AI study assistant | Ask conceptual questions — "What is duration?", "When would you use VaR vs. CVaR?" — with textbook-quality answers grounded in the library's own computations | `investor.ask_concept("Explain modified duration and why it matters")` |
+| AI-powered red flags | AI reviews all ratios, scores, and trends together to generate a narrative risk assessment | `investor.red_flag_analysis("AAPL")` |
+| AI comparison narrative | Multi-stock comparative analysis in natural language with recommendations | `investor.compare(["AAPL","MSFT","GOOGL"], question="Which is the best value?")` |
+| AI practice feedback | AI evaluates a student's analysis and provides feedback — "Your DCF assumes 15% growth, but AAPL's 5-year CAGR is 8%..." | `investor.review_analysis(student_analysis, ticker="AAPL")` |
 
 ### 1.5.7 Export & Coursework Tools
 
@@ -912,6 +973,17 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 
 | Capability | InvestorMate Equivalent | Phase |
 |------------|-------------------------|-------|
+| **AI ENGINE** | | |
+| AI Q&A about any stock | investor.ask("AAPL", "Is this undervalued?") | Done |
+| AI document analysis | investor.analyze_document(ticker, url, question) | Done |
+| AI stock comparison | investor.compare(["AAPL","MSFT"], question) | Done |
+| AI sentiment analysis | stock.sentiment (news sentiment via LLM) | Done |
+| AI summary generation | Structured stock overviews via LLM | Done |
+| Multi-provider LLM | OpenAI, Claude, Gemini — user picks | Done |
+| AI financial tutor | investor.ask_concept(), AI ratio commentary | 1.5 |
+| AI practice feedback | investor.review_analysis() | 1.5 |
+| AI filing summarization | investor.summarize_filing() (10-K/10-Q via SEC Edgar) | 2.3 |
+| AI research reports | investor.generate_report("AAPL", format="pdf") | 3.4 |
 | **EDUCATIONAL** | | |
 | TVM calculator | tvm.present_value, future_value, annuity, irr, npv | 1.5 |
 | Financial statement analysis | stock.financials.common_size, horizontal, vertical, trend | 1.5 |
@@ -999,6 +1071,6 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 
 *This roadmap is a living document. Priorities may shift based on community feedback and resource availability.*
 
-*The April 2026 update introduced the **"Full Stack" Strategy** — recognizing that InvestorMate's unique moat is serving both students and professionals with a single library. Phase 1.5 (Academic & Educational Foundation) was added to provide TVM, bond pricing, financial statement analysis, CAPM/factor models, derivatives basics, and educational features (`explain()`, `show_work()`, CFA/FRM topic tags) before expanding into professional data sources. CFA L1-L3 and FRM curriculum coverage maps were added to guide feature prioritization.*
+*The April 2026 update introduced the **"Full Stack" Strategy** — recognizing that InvestorMate's unique moat is **Finance + AI + Education** in a single library. The three pillars were articulated: AI engine (multi-provider LLM powering Q&A, sentiment, summaries, tutoring, and reports across every module), educational foundation (TVM, bonds, CAPM, statement analysis, `explain()`, `show_work()`), and professional toolkit (the existing roadmap from DCF through ML alpha). Phase 1.5 (Academic & Educational Foundation) was added with both deterministic and AI-powered educational features. AI integration points were mapped across all phases. CFA L1-L3 and FRM curriculum coverage maps were added to guide feature prioritization.*
 
 *The Feb 2026 update incorporated systematic-trading community feedback: data correctness and consistency as Phase 1 foundation, modular installs and backtest-safe data semantics in Phase 2, debug/source-trace for transparency, backtesting scoped to feature export + minimal engine (not a full vectorbt/zipline competitor), and explicit restatements / point-in-time / survivorship bias in data quality.*
