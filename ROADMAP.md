@@ -1,10 +1,12 @@
-# InvestorMate Roadmap: Building the Bloomberg Terminal of Python
+# InvestorMate Roadmap: The Full-Stack Finance Library for Python
 
-> **Vision:** A single Python package that powers professional-grade financial research, analysis, and decision-making—the engine behind tools that rival Bloomberg Terminal in capability and depth.
+> **Vision:** The Python library that finance students use to learn, professionals use to analyze, and quants use to build — one package from Accounting 101 homework through portfolio optimization and alpha generation.
 
 **Recent progress (v0.3.0):** In-memory **TTL cache + rate limiting** for yfinance; **`Stock.refresh()`** cache bust; **`stock.earnings`** (calendar, estimates, surprise history); portfolio **VaR** (historical/parametric) and **Monte Carlo**; **CAN SLIM**-style and **dividend growth** screens; **Momentum / Mean reversion / SMA crossover** strategy templates. See [CHANGELOG.md](CHANGELOG.md).
 
-> **Inspiration:** This roadmap incorporates best-in-class ideas from the systematic trading ecosystem — including tools like [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt), [quantstats](https://github.com/ranaroussi/quantstats), [vectorbt](https://github.com/polakowo/vectorbt), [QLib](https://github.com/microsoft/qlib), [OpenBB](https://github.com/OpenBB-finance/OpenBBTerminal), and [40+ academic trading strategies](https://github.com/paperswithbacktest/awesome-systematic-trading). The goal: one package that absorbs the best of all of them.
+> **The "Full Stack" Strategy:** InvestorMate uniquely spans *both* the educational and professional finance ecosystem. The **inner circle** — TVM, bond pricing, common-size analysis, DuPont breakdown, `explain()`, `show_work()` — is pure math with zero API dependencies; it's the on-ramp that gets students installing InvestorMate in their first semester. The **outer circle** — portfolio optimization, ML alpha, SEC Edgar, strategy templates, tearsheets — is what those same students grow into when they get internships, join equity research teams, or start personal investing. No other Python library bridges both worlds.
+
+> **Inspiration:** This roadmap incorporates best-in-class ideas from the systematic trading ecosystem — including tools like [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt), [quantstats](https://github.com/ranaroussi/quantstats), [vectorbt](https://github.com/polakowo/vectorbt), [QLib](https://github.com/microsoft/qlib), [OpenBB](https://github.com/OpenBB-finance/OpenBBTerminal), and [40+ academic trading strategies](https://github.com/paperswithbacktest/awesome-systematic-trading) — as well as educational resources like [Tidy Finance](https://www.tidy-finance.org/python/), CFA/FRM curriculum frameworks, and the needs of Applied Accounting & Financial Analysis students worldwide.
 
 ---
 
@@ -12,22 +14,25 @@
 
 1. [Executive Summary](#executive-summary)
 2. [Guiding Principles](#guiding-principles)
-3. [Current State & Gaps](#current-state--gaps)
-4. [Architecture Overview](#architecture-overview)
-5. [Phase 1: Foundation (v0.3–0.4)](#phase-1-foundation-v03-v04)
-6. [Phase 2: Professional Data (v0.5–0.7)](#phase-2-professional-data-v05-v07)
-7. [Phase 3: Institutional Analytics (v0.8–1.0)](#phase-3-institutional-analytics-v08-v10)
-8. [Phase 4: Terminal-Grade Features (v1.1–2.0)](#phase-4-terminal-grade-features-v11-v20)
-9. [Phase 5: Platform & Ecosystem (v2.0+)](#phase-5-platform--ecosystem-v20)
-10. [Technical Specifications](#technical-specifications)
-11. [Success Metrics](#success-metrics)
+3. [The Full-Stack User Journey](#the-full-stack-user-journey)
+4. [Current State & Gaps](#current-state--gaps)
+5. [Architecture Overview](#architecture-overview)
+6. [Phase 1: Foundation (v0.3–0.4)](#phase-1-foundation-v03-v04)
+7. [Phase 1.5: Academic & Educational Foundation (v0.4)](#phase-15-academic--educational-foundation-v04)
+8. [Phase 2: Professional Data (v0.5–0.7)](#phase-2-professional-data-v05-v07)
+9. [Phase 3: Institutional Analytics (v0.8–1.0)](#phase-3-institutional-analytics-v08-v10)
+10. [Phase 4: Terminal-Grade Features (v1.1–2.0)](#phase-4-terminal-grade-features-v11-v20)
+11. [Phase 5: Platform & Ecosystem (v2.0+)](#phase-5-platform--ecosystem-v20)
+12. [Technical Specifications](#technical-specifications)
+13. [Success Metrics](#success-metrics)
 
 ---
 
 ## Executive Summary
 
-InvestorMate aims to be the **definitive Python package for stock research and analysis**—a single dependency that delivers:
+InvestorMate aims to be the **definitive Python package for financial learning, research, and analysis** — a single dependency that serves every stage of a finance professional's journey:
 
+- **Educational toolkit** — TVM, bond pricing, financial statement analysis, ratio interpretation, CFA/FRM topic coverage, `explain()` and `show_work()` on every calculation
 - **Multi-source data** with fallbacks and reliability
 - **Institutional-quality analytics** (valuation, risk, screening)
 - **Portfolio optimization** (efficient frontier, HRP, Black-Litterman)
@@ -37,22 +42,67 @@ InvestorMate aims to be the **definitive Python package for stock research and a
 - **Extensible architecture** for custom data sources, strategies, and plugins
 - **Production-ready** performance, caching, and error handling
 
-The roadmap is structured in five phases, from hardening the current release to capabilities comparable to Bloomberg Terminal's core functionality — while also incorporating the best ideas from the systematic/quantitative trading ecosystem.
+The roadmap is structured in six phases, from educational foundations through capabilities comparable to Bloomberg Terminal — while also incorporating the best ideas from the systematic/quantitative trading ecosystem. The unique differentiator: **no other Python library is designed for students AND professionals simultaneously.**
 
 ---
 
 ## Guiding Principles
 
 1. **One package, one import** — No need to juggle yfinance, pandas-ta, Alpha Vantage, PyPortfolioOpt, quantstats, etc.
-2. **Data-agnostic** — Pluggable backends; logic independent of data source.
-3. **Feature-first** — Primary job is clean, consistent feature matrices and normalized data; users can plug into any backtesting engine (vectorbt, zipline, etc.). We do not aim to be a full backtesting framework.
-4. **Modular layers** — Fundamentals, TA, and portfolio can be used independently. Optional capabilities (TA, AI, optimization) via `extras_require`; core stays minimal so you don't pull 50 deps for a few ratios.
-5. **AI-first** — Every feature designed to work with LLM summarization and Q&A.
-6. **Quant-ready** — Academic strategies, portfolio optimization, and factor models out of the box.
-7. **Professional-grade** — Suitable for quant research, fund analysis, and fintech apps.
-8. **Open core** — Core free; premium data/features via optional integrations.
-9. **Pythonic** — Clean API, type hints, async where useful, Jupyter-friendly.
-10. **Correctness over convenience** — Prefer failing loudly on bad or ambiguous data over returning clean-looking but wrong results (e.g. no silent forward-fill on delisted tickers).
+2. **Learn → Analyze → Build** — Every feature works at three levels: educational (explain the concept), analytical (compute the number), professional (integrate into workflows). The same `stock.ratios.wacc` call can `show_work()` for a student or feed a DCF model for a PM.
+3. **Data-agnostic** — Pluggable backends; logic independent of data source.
+4. **Feature-first** — Primary job is clean, consistent feature matrices and normalized data; users can plug into any backtesting engine (vectorbt, zipline, etc.). We do not aim to be a full backtesting framework.
+5. **Modular layers** — Fundamentals, TA, and portfolio can be used independently. Optional capabilities (TA, AI, optimization) via `extras_require`; core stays minimal so you don't pull 50 deps for a few ratios.
+6. **AI-first** — Every feature designed to work with LLM summarization and Q&A.
+7. **Quant-ready** — Academic strategies, portfolio optimization, and factor models out of the box.
+8. **Professional-grade** — Suitable for quant research, fund analysis, and fintech apps.
+9. **Syllabus-ready** — A professor can put `pip install investormate` on a syllabus. Educational features cover CFA L1-L3, FRM, and Applied Accounting & Financial Analysis curricula.
+10. **Open core** — Core free; premium data/features via optional integrations.
+11. **Pythonic** — Clean API, type hints, async where useful, Jupyter-friendly.
+12. **Correctness over convenience** — Prefer failing loudly on bad or ambiguous data over returning clean-looking but wrong results (e.g. no silent forward-fill on delisted tickers).
+
+---
+
+## The Full-Stack User Journey
+
+> The key insight behind InvestorMate's product strategy: **students become professionals.** The library that teaches them in school is the library they use for the rest of their career.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    THE INVESTORMATE FUNNEL                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  SEMESTER 1 ─── pip install investormate                           │
+│  Accounting 101   TVM calculator, common-size analysis, explain()  │
+│                   Bond pricing, loan amortization schedules         │
+│                                                                     │
+│  SEMESTER 3 ─── stock.ratios + screener + show_work()              │
+│  Financial        DuPont breakdown, Piotroski F-Score, Altman Z    │
+│  Analysis         Peer benchmarking, industry percentiles           │
+│                                                                     │
+│  SEMESTER 5 ─── portfolio.optimize + backtest                      │
+│  Investments      CAPM regression, Fama-French factors, VaR        │
+│  Capstone         Efficient frontier, strategy templates            │
+│                                                                     │
+│  YEAR 1 JOB ─── Full platform                                     │
+│  Equity Research  SEC Edgar, tearsheets, ML alpha, report gen      │
+│  / Quant Desk     Academic strategies, real-time data, exports     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Competitive Landscape
+
+| Library | Professional Features | Educational Features |
+|---------|----------------------|---------------------|
+| **FinanceToolkit** (4.5k stars) | 150+ ratios, multi-asset | None |
+| **OpenBB** (65k stars) | Full terminal, data aggregation | None |
+| **QLib** (15k stars) | ML alpha, factor models | None |
+| **Tidy Finance** | None (it's a textbook) | Textbook-style explanations |
+| **Strategic Alpha** | DCF, technicals, risk | Web-only, not installable |
+| **InvestorMate** | 40+ ratios, DCF, VaR, MC, backtest, AI | `explain()`, `show_work()`, TVM, bonds, CAPM, common-size, CFA tags |
+
+**InvestorMate is the only library a professor can put on a syllabus AND a portfolio manager can use in production.**
 
 ---
 
@@ -82,6 +132,13 @@ The roadmap is structured in five phases, from hardening the current release to 
 | **ML Signals** | None | ❌ Missing |
 | **Options** | None | ❌ Missing |
 | **Reports** | None | ❌ Missing |
+| **TVM Calculator** | None (PV, FV, annuities, amortization) | ❌ Missing |
+| **Fin. Statement Analysis** | None (common-size, horizontal, vertical, trend) | ❌ Missing |
+| **Fixed Income** | None (bond pricing, duration, convexity, yield curve) | ❌ Missing |
+| **CAPM / Factor Models** | None (regression CAPM, Fama-French, SML) | ❌ Missing |
+| **Educational Layer** | None (explain, show_work, CFA tags) | ❌ Missing |
+| **Derivatives Basics** | None (Black-Scholes, Greeks, binomial tree) | ❌ Missing |
+| **Export / Coursework** | None (Excel, Jupyter templates) | ❌ Missing |
 
 ### Critical Gaps vs. Bloomberg + Quant Platforms
 
@@ -100,6 +157,17 @@ The roadmap is structured in five phases, from hardening the current release to 
 - **Output:** No report generation, exports, or dashboards
 - **Performance:** In-memory cache + rate limit (v0.3.0); async still open
 
+### Critical Gaps vs. Educational / CFA / FRM Needs
+
+- **Financial Statement Analysis:** No common-size, horizontal, vertical, or trend analysis — bread-and-butter for every accounting course
+- **Time Value of Money:** No TVM calculator (PV, FV, annuities, perpetuities, amortization) — foundation of CFA L1 and every finance class
+- **Fixed Income:** No bond pricing, duration, convexity, yield curve analysis — CFA L1 weights this at 11-14%
+- **CAPM & Factor Models:** No regression-based CAPM, Security Market Line, Fama-French 3/5 factor models — core of CFA L1-L2 Quantitative Methods
+- **Ratio Interpretation:** Ratios compute numbers but don't explain what they mean, flag red flags, or show industry percentiles
+- **Educational Layer:** No `explain()`, `show_work()`, formula documentation, or CFA topic tagging on any calculation
+- **Derivatives Basics:** No Black-Scholes, Greeks calculator, binomial tree, or payoff diagrams — CFA L1 weights Derivatives at 5-8%
+- **Export for Coursework:** No Excel export, Jupyter templates, or formatted comparison tables for class submissions
+
 ---
 
 ## Architecture Overview
@@ -114,6 +182,13 @@ The roadmap is structured in five phases, from hardening the current release to 
 │  │  API       │ │  (Future)  │ │  Widgets   │ │ PDF/Excel  │ │ Charts     ││
 │  └────────────┘ └────────────┘ └────────────┘ └────────────┘ └────────────┘│
 ├──────────────────────────────────────────────────────────────────────────────┤
+│  EDUCATIONAL LAYER  ★ NEW — Phase 1.5                                        │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐│
+│  │ explain()  │ │ show_work()│ │ CFA/FRM    │ │ Practice   │ │ Jupyter    ││
+│  │ formulas   │ │ step-by-   │ │ Topic Tags │ │ Problem    │ │ Templates  ││
+│  │ & context  │ │ step calc  │ │ & Mapping  │ │ Generator  │ │ & Export   ││
+│  └────────────┘ └────────────┘ └────────────┘ └────────────┘ └────────────┘│
+├──────────────────────────────────────────────────────────────────────────────┤
 │  ANALYTICS LAYER                                                             │
 │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐│
 │  │ Valuation  │ │ Risk &     │ │ Screening  │ │ AI/LLM     │ │ ML Alpha   ││
@@ -124,6 +199,14 @@ The roadmap is structured in five phases, from hardening the current release to 
 │  │ Optimizer  │ │ Prophet,   │ │ Pricing,   │ │ Tearsheets │               │
 │  │ HRP, MVO   │ │ ARIMA      │ │ Greeks     │ │ QuantStats │               │
 │  └────────────┘ └────────────┘ └────────────┘ └────────────┘               │
+├──────────────────────────────────────────────────────────────────────────────┤
+│  ACADEMIC FINANCE LAYER  ★ NEW — Phase 1.5                                   │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐│
+│  │ TVM        │ │ Fixed      │ │ CAPM &     │ │ Fin. Stmt  │ │ Derivatives││
+│  │ PV/FV/     │ │ Income     │ │ Factor     │ │ Analysis   │ │ Basics     ││
+│  │ Annuities  │ │ Bonds,     │ │ Models     │ │ Common-sz  │ │ BS, Greeks ││
+│  │ Amort.     │ │ Duration   │ │ FF3, FF5   │ │ Horiz/Vert │ │ Binomial   ││
+│  └────────────┘ └────────────┘ └────────────┘ └────────────┘ └────────────┘│
 ├──────────────────────────────────────────────────────────────────────────────┤
 │  CORE LAYER                                                                  │
 │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐│
@@ -193,7 +276,146 @@ The roadmap is structured in five phases, from hardening the current release to 
 
 **Principle:** Fail loudly on ambiguous or bad data rather than returning plausible-but-wrong outputs. Phase 4.7 (Data Quality & Validation) builds on this with advanced checks (confidence scores, outlier detection).
 
-**Deliverables:** v0.3 (robustness), v0.4 (valuation + data correctness foundations)
+**Deliverables:** v0.3 (robustness), v0.4 (valuation + data correctness + educational foundation)
+
+---
+
+## Phase 1.5: Academic & Educational Foundation (v0.4)
+
+**Goal:** Make InvestorMate the go-to Python library for finance students, CFA/FRM candidates, and Applied Accounting & Financial Analysis programs. Pure-math modules with zero new API dependencies — this is the on-ramp that creates the largest possible user funnel.
+
+**Timeline:** 1–2 months (all modules are self-contained, pure numpy/pandas math)
+
+**Why now (before Phase 2)?**
+1. **Market size** — Millions of finance/accounting students vs. thousands of quant traders
+2. **Stickiness** — Students who learn InvestorMate in school use it for years after
+3. **No competition** — FinanceToolkit has 150+ ratios but zero educational features; Tidy Finance is a book, not a library; Strategic Alpha is a web app, not installable
+4. **Zero dependencies** — Pure math (numpy/pandas only), no new API keys needed
+5. **Content marketing** — "The Python library for finance students" is a highly searchable niche
+
+### 1.5.1 Time Value of Money (TVM) Module
+
+> *CFA L1: Quantitative Methods (6-9% weight). Foundation of every corporate finance and investments course.*
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| Present Value | Lump sum PV with compounding | `tvm.present_value(fv=1000, rate=0.05, n=10)` |
+| Future Value | Lump sum FV with compounding | `tvm.future_value(pv=500, rate=0.08, n=5)` |
+| Annuity PV/FV | Ordinary annuity and annuity due | `tvm.annuity_pv(pmt=100, rate=0.08, n=20, due=True)` |
+| Perpetuity | Level and growing perpetuities | `tvm.perpetuity(pmt=50, rate=0.05, growth=0.02)` |
+| Net Present Value | NPV of uneven cash flows | `tvm.npv(rate=0.10, cashflows=[-1000, 300, 400, 500])` |
+| Internal Rate of Return | Solve for IRR | `tvm.irr(cashflows=[-1000, 300, 400, 500])` |
+| Loan Amortization | Full schedule with interest/principal split | `tvm.amortization_schedule(principal=100000, rate=0.04, n=30)` |
+| Effective Annual Rate | Convert between nominal/effective rates | `tvm.ear(nominal=0.08, compounding=12)` |
+
+### 1.5.2 Financial Statement Analysis Module
+
+> *CFA L1: Financial Statement Analysis (11-14% weight). Every intermediate accounting and financial analysis course assigns this.*
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| Common-size income statement | All items as % of revenue | `stock.financials.common_size("income")` |
+| Common-size balance sheet | All items as % of total assets | `stock.financials.common_size("balance_sheet")` |
+| Horizontal analysis | Year-over-year $ and % changes across all line items | `stock.financials.horizontal(periods=5)` |
+| Vertical analysis | Component breakdown within a single period | `stock.financials.vertical(period="2025")` |
+| Trend analysis | Multi-year indexed trends (base year = 100) | `stock.financials.trend(base_year=2021)` |
+| DuPont decomposition (visual) | Formatted 3-component and 5-component breakdown tree | `stock.ratios.dupont_breakdown()` |
+| Cash flow quality | Operating CF vs. net income, accruals ratio | `stock.financials.cash_flow_quality()` |
+
+### 1.5.3 Fixed Income Analytics
+
+> *CFA L1: Fixed Income (11-14% weight). Same weight as Equity — yet zero Python libraries do this well for students.*
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| Bond pricing | Clean price from coupon, YTM, maturity | `bond.price(face=1000, coupon=0.06, ytm=0.05, n=10)` |
+| Accrued interest | Dirty price = clean + accrued | `bond.accrued_interest(settlement_date, coupon, frequency)` |
+| Yield to Maturity | Solve for YTM given price | `bond.ytm(price=950, face=1000, coupon=0.06, n=10)` |
+| Current yield | Annual coupon / price | `bond.current_yield()` |
+| Macaulay duration | Weighted avg time to cash flows | `bond.duration()` |
+| Modified duration | Price sensitivity to yield changes | `bond.modified_duration()` |
+| Convexity | Second-order price sensitivity | `bond.convexity()` |
+| Price change estimate | Duration + convexity approximation | `bond.price_change(yield_change=0.01)` |
+| Yield curve (from FRED) | US Treasury term structure | `market.yield_curve()` |
+| Bond ladder builder | Construct maturity ladder | `portfolio.bond_ladder(maturities=[1,3,5,7,10])` |
+
+### 1.5.4 CAPM & Factor Models
+
+> *CFA L1-L2: Quantitative Methods + Equity Investments. Bridges textbook theory to real data.*
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| CAPM regression | Beta, alpha, R-squared vs. benchmark, with residual plots | `stock.capm(benchmark="SPY")` |
+| Security Market Line | Plot SML with multiple stocks, identify over/under-valued | `market.sml(tickers=["AAPL","MSFT","GOOGL","JPM"])` |
+| Jensen's alpha | Risk-adjusted excess return | `stock.jensen_alpha(benchmark="SPY")` |
+| Fama-French 3-factor | Market, size (SMB), value (HML) regression | `stock.factor_model(model="ff3")` |
+| Fama-French 5-factor | + profitability (RMW) + investment (CMA) | `stock.factor_model(model="ff5")` |
+| Alpha/Beta decomposition | Systematic vs. idiosyncratic risk breakdown | `stock.risk_decomposition()` |
+
+### 1.5.5 Derivatives Basics
+
+> *CFA L1: Derivatives (5-8% weight). Moved from Phase 4.3 — basic pricing is pure math, no market data needed.*
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| Black-Scholes pricing | European call/put theoretical price | `options.black_scholes(S=150, K=155, T=0.5, r=0.05, sigma=0.25)` |
+| Greeks calculator | Delta, Gamma, Theta, Vega, Rho with interpretation | `options.greeks(S=150, K=155, T=0.5, r=0.05, sigma=0.25)` |
+| Put-Call Parity | Verify / demonstrate the relationship | `options.put_call_parity(call=12, put=8, S=150, K=148, r=0.05, T=0.25)` |
+| Binomial tree | Multi-step binomial pricing with tree visualization | `options.binomial(S=100, K=105, T=1, r=0.05, sigma=0.2, steps=3)` |
+| Payoff diagrams | Visual P&L at expiry for basic strategies | `options.payoff_diagram(strategy="bull_call_spread", legs=[...])` |
+| Strategy P&L | Max profit, max loss, breakeven for common strategies | `options.strategy_metrics("covered_call", S=150, K=160, premium=5)` |
+
+### 1.5.6 Educational Layer (explain / show_work / interpret)
+
+> *The differentiator. No finance library does this. This is what makes InvestorMate syllabus-ready.*
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| Formula explanation | Returns the formula, variable definitions, and interpretation guide for any ratio or metric | `stock.ratios.explain("wacc")` |
+| Step-by-step calculation | Shows raw numbers plugged into the formula | `stock.ratios.show_work("roic")` |
+| CFA topic tags | Every ratio/concept tagged with CFA L1/L2/L3 topic area | `stock.ratios.cfa_topic("current_ratio")` → "Financial Statement Analysis (L1)" |
+| FRM topic tags | Risk metrics tagged with FRM Part I/II topic area | `portfolio.var.frm_topic()` → "Valuation and Risk Models (Part I)" |
+| Ratio interpretation | Plain-English assessment of each ratio value | `stock.ratios.interpret()` → {"current_ratio": {"value": 1.8, "assessment": "Healthy liquidity..."}} |
+| Red flag detection | Highlights concerning patterns across ratios | `stock.ratios.red_flags()` → ["Rising receivables with falling revenue", ...] |
+| Industry percentile | Where a ratio falls vs. sector peers | `stock.ratios.percentile("pe_ratio")` → "72nd percentile of Technology sector" |
+| Historical ratio trends | Multi-year ratio trajectory | `stock.ratios.history("current_ratio", years=5)` |
+| Practice problems | Generate random problems with solutions (TVM, bond pricing, etc.) | `practice.generate("tvm", difficulty="medium")` |
+
+### 1.5.7 Export & Coursework Tools
+
+| Feature | Description | API |
+|---------|-------------|-----|
+| Excel export | Formatted workbook with sheets for financials, ratios, charts | `stock.to_excel("aapl_analysis.xlsx")` |
+| Markdown report | Publication-quality report for class submissions | `stock.report(format="markdown")` |
+| Comparison tables | Formatted multi-stock comparison | `investor.compare(["AAPL","MSFT","GOOGL"]).to_table()` |
+| Jupyter templates | Pre-built notebooks for common assignments | `examples/notebooks/financial_analysis_template.ipynb` |
+| CSV export | Raw data export for further analysis | `stock.financials.to_csv("aapl_financials.csv")` |
+
+### CFA / FRM Curriculum Coverage Map
+
+> *Mapping InvestorMate features to certification exam topics.*
+
+| CFA L1 Topic | Weight | InvestorMate Coverage | Phase |
+|--------------|--------|----------------------|-------|
+| Ethical Standards | 15-20% | N/A (not a code feature) | — |
+| Quantitative Methods | 6-9% | TVM, statistics, probability, simulation | 1.5 + Done |
+| Economics | 6-9% | FRED macro data, economic calendar | 2.6 |
+| Financial Statement Analysis | 11-14% | Common-size, horizontal, vertical, trend, ratios, DuPont | 1.5 + Done |
+| Corporate Issuers | 6-9% | WACC, capital structure, dividends | Done |
+| Equity Investments | 11-14% | DCF, comps, CAPM, factor models, screening | 1.5 + Done |
+| Fixed Income | 11-14% | Bond pricing, duration, convexity, yield curve | 1.5 |
+| Derivatives | 5-8% | Black-Scholes, Greeks, binomial, payoff diagrams | 1.5 |
+| Alternative Investments | 7-10% | Crypto data (future), ETF analytics | 4.3 |
+| Portfolio Management | 8-12% | VaR, Monte Carlo, optimization, efficient frontier | Done + 3.1 |
+
+| FRM Part I Topic | Weight | InvestorMate Coverage | Phase |
+|------------------|--------|----------------------|-------|
+| Foundations of Risk Mgmt | 20% | Risk concepts, explain() | 1.5 + Done |
+| Quantitative Analysis | 20% | Statistics, VaR methods, Monte Carlo | Done |
+| Financial Markets & Products | 30% | Bonds, derivatives, equities, FRED macro | 1.5 + 2.6 |
+| Valuation & Risk Models | 30% | Black-Scholes, Greeks, VaR, duration, convexity | 1.5 + Done |
+
+**Deliverables:** v0.4.0 ("Student Edition" release)
 
 ---
 
@@ -613,18 +835,19 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 
 ### Dependency Strategy
 
-**Core install stays minimal** — `pip install investormate` pulls only pandas, numpy, requests (and default data provider). Optional capabilities via extras: `investormate[ta]`, `investormate[ai]`, `investormate[optimization]`, etc., so users don't pull 50 deps for a few ratios.
+**Core install stays minimal** — `pip install investormate` pulls only pandas, numpy, requests (and default data provider). The entire educational layer (TVM, bonds, CAPM, financial statement analysis, Black-Scholes) ships in core with **zero additional dependencies** — it's pure numpy/pandas math. Optional capabilities via extras: `investormate[ta]`, `investormate[ai]`, `investormate[optimization]`, etc., so users don't pull 50 deps for a few ratios.
 
 | Category | Approach |
 |----------|----------|
 | Core | pandas, numpy, requests (minimal) |
+| Academic (Phase 1.5) | **No extra deps** — TVM, bonds, CAPM, BS pricing, statement analysis all use numpy/pandas only |
 | Data | yfinance (default), optional: alpha-vantage, polygon-api-client, fredapi, quandl |
 | AI | Optional: openai, anthropic, google-genai |
 | TA | Optional: pandas-ta |
 | Optimization | Optional: scipy (MVO), scikit-learn (HRP) |
 | ML | Optional: scikit-learn, xgboost, lightgbm |
 | Forecasting | Optional: prophet, pmdarima, tsfresh |
-| Options | Optional: scipy (Black-Scholes), mibian |
+| Options (advanced) | Optional: scipy (advanced Greeks), mibian |
 | Visualization | Optional: plotly, mplfinance |
 | Metrics | Optional: quantstats (or native implementation) |
 | Export | Optional: weasyprint (PDF), openpyxl (Excel) |
@@ -639,6 +862,13 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 
 | Operation | Target |
 |-----------|--------|
+| TVM calculation (any) | < 5ms |
+| Bond pricing + duration + convexity | < 10ms |
+| Amortization schedule (360 periods) | < 20ms |
+| Common-size / horizontal analysis | < 100ms (after data cached) |
+| Black-Scholes + all Greeks | < 5ms |
+| Binomial tree (100 steps) | < 50ms |
+| CAPM regression (5yr daily) | < 200ms |
 | Single stock quote | < 500ms (cached < 50ms) |
 | Batch 10 stocks | < 2s |
 | Full report generation | < 30s |
@@ -662,23 +892,38 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 
 ## Success Metrics
 
-| Metric | v1.0 Target | v2.0 Target |
-|--------|-------------|------------|
-| PyPI monthly downloads | 10K+ | 50K+ |
-| GitHub stars | 500+ | 2K+ |
-| Active contributors | 5+ | 15+ |
-| Documentation completeness | 90% | 95% |
-| Test coverage | 85% | 90% |
-| Built-in strategies | 15+ | 30+ |
-| Time to first insight | < 5 min | < 2 min |
-| "Can replace my workflow" | Yes for individuals | Yes for small teams |
+| Metric | v0.4 Target | v1.0 Target | v2.0 Target |
+|--------|-------------|-------------|------------|
+| PyPI monthly downloads | 2K+ | 10K+ | 50K+ |
+| GitHub stars | 100+ | 500+ | 2K+ |
+| Active contributors | 3+ | 5+ | 15+ |
+| Documentation completeness | 80% | 90% | 95% |
+| Test coverage | 85% | 85% | 90% |
+| Built-in strategies | 4+ | 15+ | 30+ |
+| CFA L1 topic coverage | 80%+ | 90%+ | 95%+ |
+| Time to first insight | < 5 min | < 5 min | < 2 min |
+| University syllabi adoption | 1+ | 5+ | 20+ |
+| "Can do my homework with it" | Yes | Yes | Yes |
+| "Can replace my workflow" | — | Yes for individuals | Yes for small teams |
 
 ---
 
-## Appendix: Bloomberg Terminal + Quant Platform Feature Mapping
+## Appendix: Bloomberg Terminal + Quant Platform + Education Feature Mapping
 
 | Capability | InvestorMate Equivalent | Phase |
 |------------|-------------------------|-------|
+| **EDUCATIONAL** | | |
+| TVM calculator | tvm.present_value, future_value, annuity, irr, npv | 1.5 |
+| Financial statement analysis | stock.financials.common_size, horizontal, vertical, trend | 1.5 |
+| Bond pricing & analytics | bond.price, duration, convexity, ytm | 1.5 |
+| CAPM & factor models | stock.capm, factor_model, jensen_alpha | 1.5 |
+| Options basics (B-S, Greeks) | options.black_scholes, greeks, binomial | 1.5 |
+| Formula explanations | stock.ratios.explain(), show_work() | 1.5 |
+| CFA/FRM topic mapping | cfa_topic(), frm_topic() on all metrics | 1.5 |
+| Ratio interpretation | stock.ratios.interpret(), red_flags(), percentile() | 1.5 |
+| Practice problems | practice.generate("tvm", difficulty="medium") | 1.5 |
+| Coursework export | stock.to_excel(), stock.report(format="markdown") | 1.5 |
+| **PROFESSIONAL** | | |
 | Real-time quotes | Delayed (free) / WebSocket (paid) | 4.1 |
 | Historical OHLCV | Stock.history() | Done |
 | Financial statements | Stock.balance_sheet, etc. | Done |
@@ -699,7 +944,7 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 | ML alpha signals | AlphaModel, factor framework | 3.6 |
 | Backtesting | Backtest (event-driven + vectorized) | Done + 4.8 |
 | Correlation | Correlation class | Done |
-| Options analytics | stock.options (pricing, Greeks, strategies) | 4.3 |
+| Options analytics (advanced) | stock.options (chains, IV surface, strategy builder) | 4.3 |
 | Time series forecasting | stock.forecast (Prophet, ARIMA) | 4.2 |
 | Interactive charts | stock.chart, portfolio.dashboard | 4.2 |
 | Alerts | stock.alert | 4.5 |
@@ -716,12 +961,15 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 
 > These are the projects whose best ideas InvestorMate aims to absorb into a single, unified package.
 
+**Professional / Quant Ecosystem:**
+
 | Project | Stars | What We Take From It |
 |---------|-------|---------------------|
-| [OpenBB Terminal](https://github.com/OpenBB-finance/OpenBBTerminal) | 28k+ | Multi-source data aggregation, macro data, alternative data |
+| [OpenBB Terminal](https://github.com/OpenBB-finance/OpenBBTerminal) | 65k+ | Multi-source data aggregation, macro data, alternative data |
 | [QLib (Microsoft)](https://github.com/microsoft/qlib) | 15k+ | ML alpha framework, factor models, feature engineering |
 | [vectorbt](https://github.com/polakowo/vectorbt) | 4k+ | Vectorized backtesting, parameter optimization, speed |
 | [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt) | 4k+ | Efficient frontier, HRP, Black-Litterman, portfolio optimization |
+| [FinanceToolkit](https://github.com/JerBouma/FinanceToolkit) | 4.5k+ | 150+ ratios, transparent calculations, multi-asset coverage |
 | [quantstats](https://github.com/ranaroussi/quantstats) | 3k+ | 30+ performance metrics, tearsheet generation |
 | [Riskfolio-Lib](https://github.com/dcajasn/Riskfolio-Lib) | 3k+ | Advanced portfolio optimization, risk parity |
 | [pyfolio](https://github.com/quantopian/pyfolio) | 5k+ | Portfolio risk analytics, drawdown analysis |
@@ -732,8 +980,25 @@ Strategies sourced from peer-reviewed papers, each with documented Sharpe ratios
 | [D-Tale](https://github.com/man-group/dtale) | 4k+ | Interactive DataFrame exploration |
 | [paperswithbacktest](https://github.com/paperswithbacktest/awesome-systematic-trading) | 7k+ | 40+ academic strategies with Sharpe ratios |
 
+**Educational Ecosystem:**
+
+| Project / Resource | Type | What We Take From It |
+|-------------------|------|---------------------|
+| [Tidy Finance with Python](https://www.tidy-finance.org/python/) | Book + Package | Transparent, reproducible code for finance education; financial statement analysis patterns |
+| [FinancePy](https://github.com/domokane/FinancePy) | Library | Fixed income pricing, derivatives valuation, 90+ example notebooks |
+| [Rateslib](https://rateslib.com/) | Library | Bond pricing, yield curve construction, fixed income risk metrics |
+| [ratecurves](https://pypi.org/project/ratecurves/) | Library | Lightweight yield curve bootstrapping, Nelson-Siegel models, FRED integration |
+| CFA Institute Curriculum | Syllabus | 10-topic L1 structure, topic weights, learning outcomes for feature mapping |
+| FRM (GARP) Curriculum | Syllabus | Risk management focus areas, quantitative analysis requirements |
+| [Strategic Alpha](https://strategicalpha.app/) | Web App | Educational DCF tool, ML forecasting demo, risk metrics for learning |
+| DataCamp Financial Analysis | Course | Ratio computation patterns, financial health assessment workflows |
+
 ---
 
-*Last updated: February 2026*
+*Last updated: April 2026*
 
-*This roadmap is a living document. Priorities may shift based on community feedback and resource availability. The Feb 2026 update incorporated systematic-trading community feedback: data correctness and consistency as Phase 1 foundation, modular installs and backtest-safe data semantics in Phase 2, debug/source-trace for transparency, backtesting scoped to feature export + minimal engine (not a full vectorbt/zipline competitor), and explicit restatements / point-in-time / survivorship bias in data quality.*
+*This roadmap is a living document. Priorities may shift based on community feedback and resource availability.*
+
+*The April 2026 update introduced the **"Full Stack" Strategy** — recognizing that InvestorMate's unique moat is serving both students and professionals with a single library. Phase 1.5 (Academic & Educational Foundation) was added to provide TVM, bond pricing, financial statement analysis, CAPM/factor models, derivatives basics, and educational features (`explain()`, `show_work()`, CFA/FRM topic tags) before expanding into professional data sources. CFA L1-L3 and FRM curriculum coverage maps were added to guide feature prioritization.*
+
+*The Feb 2026 update incorporated systematic-trading community feedback: data correctness and consistency as Phase 1 foundation, modular installs and backtest-safe data semantics in Phase 2, debug/source-trace for transparency, backtesting scoped to feature export + minimal engine (not a full vectorbt/zipline competitor), and explicit restatements / point-in-time / survivorship bias in data quality.*
