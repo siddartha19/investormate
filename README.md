@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.3.0)
+**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.4.0)
 
 InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
@@ -14,7 +14,7 @@ InvestorMate is the only Python package you need for comprehensive stock analysi
 
 ## ✨ Features
 
-- **AI-Powered Analysis** - Ask natural language questions about any stock using OpenAI, Claude, or Gemini
+- **AI-Powered Analysis** - Ask natural language questions about any stock using OpenAI, Claude, Gemini, or OpenRouter (hundreds of models, one key)
 - **Comprehensive Stock Data** - Real-time prices, financials, news, and SEC filings via yfinance
 - **20+ Technical Indicators** - SMA, EMA, RSI, MACD, Bollinger Bands, ATR, ADX, Ichimoku, and more (native, no extra deps)
 - **Advanced Financial Ratios** - 40+ ratios including ROIC, WACC, Equity Multiplier, and TTM metrics
@@ -77,8 +77,20 @@ InvestorMate supports multiple AI providers:
 - **OpenAI**: Get your API key at https://platform.openai.com/api-keys
 - **Anthropic Claude**: Get your API key at https://console.anthropic.com/
 - **Google Gemini**: Get your API key at https://ai.google.dev/
+- **OpenRouter**: Get your API key at https://openrouter.ai/keys (one key → hundreds of models)
 
 You only need one API key to use the AI features.
+
+```python
+from investormate import Investor
+
+# OpenRouter gives access to many models via a single key
+investor = Investor(
+    openrouter_api_key="sk-or-...",
+    openrouter_model="anthropic/claude-3.5-sonnet",  # optional; defaults to openai/gpt-4o
+)
+result = investor.ask("AAPL", "Is Apple undervalued compared to its peers?")
+```
 
 ## 📚 Documentation
 
@@ -87,6 +99,7 @@ You only need one API key to use the AI features.
 - [Data Policy](docs/data_policy.md) - Price adjustment, NaN handling, and data provenance
 - [AI Providers Guide](docs/ai_providers.md) - OpenAI, Claude, and Gemini setup
 - [Caching](docs/caching.md) - TTL cache and rate limiting
+- [Data Providers](docs/data_providers.md) - Swap yfinance for a custom data source
 - [Earnings](docs/earnings.md) - Estimates and surprise history
 - [Risk](docs/risk.md) - VaR and Monte Carlo
 - [Strategy templates](docs/strategy_templates.md) - Built-in backtest strategies
@@ -105,7 +118,7 @@ New to open source? Check [CONTRIBUTING.md](CONTRIBUTING.md) for step-by-step gu
 | ------------------- | ----------------------- | ---------------------- |
 | **Simplicity**      | One package, simple API | Need 5+ packages       |
 | **AI-Powered**      | Built-in AI analysis    | Manual analysis only   |
-| **Provider Choice** | OpenAI, Claude, Gemini  | Locked to one provider |
+| **Provider Choice** | OpenAI, Claude, Gemini, OpenRouter | Locked to one provider |
 | **Setup Time**      | 2 lines of code         | Hours of configuration |
 | **Data Format**     | JSON-ready              | Raw pandas DataFrames  |
 | **Target Users**    | Everyone                | Enterprise only        |

@@ -39,6 +39,15 @@ from .backtest import (
 # Data provenance (Stock.history(source_trace=True))
 from .core.history_result import HistoryResult
 
+# Pluggable data source layer
+from .data.providers import (
+    DataProvider,
+    YFinanceProvider,
+    get_data_provider,
+    set_data_provider,
+    reset_data_provider,
+)
+
 # Exceptions
 from .utils.exceptions import (
     InvestorMateError,
@@ -71,6 +80,12 @@ __all__ = [
     "MeanReversionStrategy",
     "SMACrossoverStrategy",
     "HistoryResult",
+    # Data providers
+    "DataProvider",
+    "YFinanceProvider",
+    "get_data_provider",
+    "set_data_provider",
+    "reset_data_provider",
     # Exceptions
     "InvestorMateError",
     "InvalidTickerError",

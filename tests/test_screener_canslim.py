@@ -5,7 +5,7 @@ from unittest.mock import patch
 from investormate.core.screener import Screener
 
 
-@patch("investormate.core.screener.get_yfinance_data")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
 def test_can_slim_prefers_higher_score(mock_data):
     def info_for(sym):
         base = {
@@ -37,7 +37,7 @@ def test_can_slim_prefers_higher_score(mock_data):
     assert out[0] == "STRONG"
 
 
-@patch("investormate.core.screener.get_yfinance_data")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
 def test_can_slim_min_score_filters(mock_data):
     mock_data.return_value = {
         "marketCap": 1e9,

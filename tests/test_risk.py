@@ -34,7 +34,9 @@ def test_var_parametric():
 def test_monte_carlo_shape():
     rng = np.random.default_rng(2)
     r = pd.Series(rng.normal(0.0002, 0.01, 80))
-    out = RiskAnalyzer(r).monte_carlo(100_000.0, n_simulations=500, horizon=20, random_seed=3)
+    out = RiskAnalyzer(r).monte_carlo(
+        100_000.0, n_simulations=500, horizon=20, random_seed=3
+    )
     assert out["n_simulations"] == 500
     assert out["horizon_days"] == 20
     assert out["percentile_5"] < out["median_final"] < out["percentile_95"]

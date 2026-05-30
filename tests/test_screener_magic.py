@@ -5,7 +5,7 @@ from unittest.mock import patch
 from investormate.core.screener import Screener
 
 
-@patch("investormate.core.screener.get_yfinance_data")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
 def test_magic_formula_ranking(mock_data):
     """Combined rank: best ROIC + best EY should win."""
 
@@ -43,7 +43,7 @@ def test_magic_formula_ranking(mock_data):
     assert out[0] == "HIGH"
 
 
-@patch("investormate.core.screener.get_yfinance_data")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
 def test_magic_formula_filters_negative_ebit(mock_data):
     mock_data.return_value = {
         "marketCap": 500_000_000,

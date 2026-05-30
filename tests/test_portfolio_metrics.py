@@ -29,8 +29,8 @@ def _fake_history_dict(seed: int, n: int = 50, drift: float = 0.0002):
     return hist
 
 
-@patch("investormate.core.portfolio.get_yfinance_data")
-@patch("investormate.core.portfolio.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_portfolio_weighted_metrics(mock_hist, mock_info):
     mock_info.return_value = {"currentPrice": 100.0, "regularMarketPrice": 100.0}
 
@@ -58,8 +58,8 @@ def test_portfolio_weighted_metrics(mock_hist, mock_info):
     assert dd_series.max() <= 0
 
 
-@patch("investormate.core.portfolio.get_yfinance_data")
-@patch("investormate.core.portfolio.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_portfolio_metrics_insufficient_data(mock_hist, mock_info):
     mock_info.return_value = {"currentPrice": 100.0}
     mock_hist.return_value = {}

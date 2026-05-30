@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import threading
 import time
-from typing import Any, Callable, Dict, Optional, TypeVar
+from collections import OrderedDict
+from typing import Any, Callable, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -21,13 +22,24 @@ TTL_FILINGS = 3600
 TTL_EARNINGS = 3600
 TTL_MARKET = 300
 
+# Default maximum number of entries before LRU eviction kicks in. Bounds memory
+# growth for long-running processes (e.g. screening thousands of tickers).
+DEFAULT_MAX_SIZE = 2048
+
 
 class TTLCache:
-    """Simple thread-safe TTL cache with string keys."""
+    """
+    Thread-safe TTL cache with bounded size and LRU eviction.
 
-    def __init__(self, default_ttl: int = 300):
+    Entries expire after their TTL. When the number of live entries exceeds
+    ``maxsize``, the least-recently-used entries are evicted. A ``maxsize`` of
+    ``0`` (or negative) disables the size bound entirely.
+    """
+
+    def __init__(self, default_ttl: int = 300, maxsize: int = DEFAULT_MAX_SIZE):
         self.default_ttl = default_ttl
-        self._store: Dict[str, tuple[float, Any]] = {}
+        self.maxsize = maxsize
+        self._store: "OrderedDict[str, tuple[float, Any]]" = OrderedDict()
         self._lock = threading.Lock()
 
     def get(self, key: str) -> Optional[Any]:
@@ -40,6 +52,8 @@ class TTLCache:
             if now >= expires_at:
                 del self._store[key]
                 return None
+            # Mark as most-recently-used.
+            self._store.move_to_end(key)
             return value
 
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
@@ -47,6 +61,14 @@ class TTLCache:
         expires_at = time.monotonic() + max(0.0, float(seconds))
         with self._lock:
             self._store[key] = (expires_at, value)
+            self._store.move_to_end(key)
+            self._evict_if_needed()
+
+    def _evict_if_needed(self) -> None:
+        """Evict least-recently-used entries while over capacity. Caller holds lock."""
+        if self.maxsize and self.maxsize > 0:
+            while len(self._store) > self.maxsize:
+                self._store.popitem(last=False)
 
     def invalidate(self, key: str) -> None:
         with self._lock:
@@ -56,9 +78,7 @@ class TTLCache:
         """Remove all keys that start with ``prefix + ':'`` or equal ``prefix``."""
         with self._lock:
             to_del = [
-                k
-                for k in self._store
-                if k == prefix or k.startswith(prefix + ":")
+                k for k in self._store if k == prefix or k.startswith(prefix + ":")
             ]
             for k in to_del:
                 del self._store[k]
@@ -66,6 +86,10 @@ class TTLCache:
     def clear(self) -> None:
         with self._lock:
             self._store.clear()
+
+    def __len__(self) -> int:
+        with self._lock:
+            return len(self._store)
 
 
 class RateLimiter:
@@ -120,6 +144,7 @@ def configure_data_cache(
     enabled: Optional[bool] = None,
     default_ttl: Optional[int] = None,
     calls_per_second: Optional[float] = None,
+    maxsize: Optional[int] = None,
 ) -> None:
     """
     Configure global fetch cache and rate limiter.
@@ -128,12 +153,18 @@ def configure_data_cache(
         enabled: If False, ``cached_yfinance_call`` skips cache read/write (still rate-limits).
         default_ttl: Default TTL for :class:`TTLCache` (new entries only).
         calls_per_second: Token bucket refill rate; use 0 or a huge value to disable spacing.
+        maxsize: Maximum number of cached entries before LRU eviction. Use 0 to
+            disable the size bound.
     """
     global _cache_enabled, _data_cache, _rate_limiter
     if enabled is not None:
         _cache_enabled = bool(enabled)
     if default_ttl is not None:
         _data_cache.default_ttl = int(default_ttl)
+    if maxsize is not None:
+        _data_cache.maxsize = int(maxsize)
+        with _data_cache._lock:
+            _data_cache._evict_if_needed()
     if calls_per_second is not None:
         r = float(calls_per_second)
         _rate_limiter = RateLimiter(rate=r, capacity=1.0)
@@ -147,7 +178,7 @@ def cached_yfinance_call(key: str, ttl: int, fetcher: Callable[[], T]) -> T:
     if _cache_enabled:
         hit = _data_cache.get(key)
         if hit is not None:
-            return hit  # type: ignore[return-value]
+            return hit
     value = fetcher()
     if _cache_enabled:
         _data_cache.set(key, value, ttl=ttl)

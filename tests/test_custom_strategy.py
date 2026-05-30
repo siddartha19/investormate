@@ -20,6 +20,7 @@ class TestCustomStrategy:
 
     def test_initialization_with_args(self):
         """Test initialization with filter and rank functions."""
+
         def my_filter(stock):
             return True
 
@@ -27,9 +28,7 @@ class TestCustomStrategy:
             return 1.0
 
         strategy = CustomStrategy(
-            filter_func=my_filter,
-            rank_func=my_rank,
-            universe=["AAPL", "GOOGL"]
+            filter_func=my_filter, rank_func=my_rank, universe=["AAPL", "GOOGL"]
         )
         assert strategy.filter_func == my_filter
         assert strategy.rank_func == my_rank
@@ -68,6 +67,7 @@ class TestCustomStrategy:
 
     def test_run_with_limit(self):
         """Test run with limit parameter."""
+
         def always_pass(stock):
             return True
 
@@ -77,7 +77,7 @@ class TestCustomStrategy:
         strategy = CustomStrategy(
             filter_func=always_pass,
             rank_func=rank_one,
-            universe=["AAPL", "GOOGL", "MSFT"]
+            universe=["AAPL", "GOOGL", "MSFT"],
         )
         with patch("investormate.core.custom_strategy.Stock") as MockStock:
             mock_stock = Mock()
@@ -90,6 +90,7 @@ class TestCustomStrategy:
 
     def test_passes_filters_function_based(self):
         """Test _passes_filters with function-based filter."""
+
         def my_filter(stock):
             return stock.ticker == "AAPL"
 

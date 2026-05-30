@@ -7,6 +7,7 @@ InvestorMate supports multiple AI providers for stock analysis. Choose the one t
 - **OpenAI** (GPT-4, GPT-4o)
 - **Anthropic** (Claude 3.5 Sonnet)
 - **Google Gemini** (Gemini 1.5 Pro)
+- **OpenRouter** (one key, hundreds of models: OpenAI, Anthropic, Google, Meta, Mistral, …)
 
 ## Getting API Keys
 
@@ -37,6 +38,21 @@ InvestorMate supports multiple AI providers for stock analysis. Choose the one t
 
 **Pricing**: Free tier available, then pay-as-you-go
 
+### OpenRouter
+
+1. Visit https://openrouter.ai/keys
+2. Sign up or log in
+3. Create a new API key
+4. Copy the key (starts with `sk-or-`)
+
+OpenRouter is an OpenAI-compatible gateway that gives you a single key and
+account for hundreds of models across providers. Pick a model with the
+`vendor/model` slug format (e.g. `openai/gpt-4o`, `anthropic/claude-3.5-sonnet`,
+`google/gemini-pro-1.5`, `meta-llama/llama-3.1-70b-instruct`).
+
+**Pricing**: Pay-as-you-go per model; some free models available. No extra
+dependency — OpenRouter reuses the `openai` package.
+
 ## Usage
 
 ### Single Provider
@@ -52,6 +68,16 @@ investor = Investor(anthropic_api_key="sk-ant-...")
 
 # Gemini only
 investor = Investor(gemini_api_key="...")
+
+# OpenRouter only (defaults to openai/gpt-4o)
+investor = Investor(openrouter_api_key="sk-or-...")
+
+# OpenRouter with a specific model
+investor = Investor(
+    openrouter_api_key="sk-or-...",
+    openrouter_model="anthropic/claude-3.5-sonnet",
+)
+result = investor.ask("AAPL", "Is Apple undervalued?", provider="openrouter")
 ```
 
 ### Multiple Providers
@@ -79,13 +105,13 @@ print(investor.available_providers)
 
 ## Provider Comparison
 
-| Feature | OpenAI | Anthropic | Gemini |
-|---------|--------|-----------|--------|
-| **Model** | GPT-4o | Claude 3.5 Sonnet | Gemini 1.5 Pro |
-| **Speed** | Fast | Fast | Very Fast |
-| **Quality** | Excellent | Excellent | Very Good |
-| **Cost** | $$$ | $$$ | $ (Free tier) |
-| **Context Window** | 128K | 200K | 2M |
+| Feature | OpenAI | Anthropic | Gemini | OpenRouter |
+|---------|--------|-----------|--------|------------|
+| **Model** | GPT-4o | Claude 3.5 Sonnet | Gemini 1.5 Pro | Any (`vendor/model`) |
+| **Speed** | Fast | Fast | Very Fast | Depends on model |
+| **Quality** | Excellent | Excellent | Very Good | Depends on model |
+| **Cost** | $$$ | $$$ | $ (Free tier) | Per model (some free) |
+| **Context Window** | 128K | 200K | 2M | Depends on model |
 
 ## Best Practices
 

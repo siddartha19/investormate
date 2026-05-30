@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 import numpy as np
 import pandas as pd
 
-from ..data.fetchers import get_yfinance_data, get_yfinance_stock_history
+from ..data.providers import get_data_provider
 
 
 class Portfolio:
@@ -43,7 +43,7 @@ class Portfolio:
         total = 0.0
         for ticker, shares in self.holdings.items():
             try:
-                info = get_yfinance_data(ticker)
+                info = get_data_provider().get_info(ticker)
                 price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
                 total += price * shares
             except Exception:
@@ -60,7 +60,7 @@ class Portfolio:
         allocations = {}
         for ticker, shares in self.holdings.items():
             try:
-                info = get_yfinance_data(ticker)
+                info = get_data_provider().get_info(ticker)
                 price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
                 ticker_value = price * shares
                 allocations[ticker] = (ticker_value / total_value) * 100
@@ -95,7 +95,7 @@ class Portfolio:
 
         for ticker in self.holdings.keys():
             try:
-                history_dict = get_yfinance_stock_history(
+                history_dict = get_data_provider().get_history(
                     ticker, period="6mo", interval="1d"
                 )
                 df = pd.DataFrame.from_dict(history_dict, orient="index")
@@ -231,7 +231,7 @@ class Portfolio:
             pr = self._weighted_daily_returns()
             if pr is None or len(pr) < 30:
                 return None
-            history_dict = get_yfinance_stock_history(
+            history_dict = get_data_provider().get_history(
                 benchmark, period="6mo", interval="1d"
             )
             bdf = pd.DataFrame.from_dict(history_dict, orient="index")
@@ -361,7 +361,7 @@ class Portfolio:
 
         for ticker, shares in self.holdings.items():
             try:
-                info = get_yfinance_data(ticker)
+                info = get_data_provider().get_info(ticker)
                 sector = info.get("sector", "Unknown")
                 price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
                 ticker_value = price * shares
@@ -375,8 +375,7 @@ class Portfolio:
 
         # Convert to percentages
         return {
-            sector: (value / total_value) * 100
-            for sector, value in sectors.items()
+            sector: (value / total_value) * 100 for sector, value in sectors.items()
         }
 
     @property

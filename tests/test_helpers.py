@@ -37,6 +37,6 @@ def test_truncate_text():
     truncated = truncate_text(text, 20)
     assert len(truncated) <= 20
     assert truncated.endswith("...")
-    
+
     short_text = "Short"
     assert truncate_text(short_text, 20) == short_text

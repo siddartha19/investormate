@@ -42,8 +42,10 @@ class IndicatorsHelper:
         def _wma(window):
             return np.dot(window, weights) / weights.sum()
 
-        return self.df[column].rolling(window=period, min_periods=period).apply(
-            _wma, raw=True
+        return (
+            self.df[column]
+            .rolling(window=period, min_periods=period)
+            .apply(_wma, raw=True)
         )
 
     # ── Momentum Indicators ───────────────────────────────────────────
@@ -62,9 +64,7 @@ class IndicatorsHelper:
         rsi.name = f"RSI_{period}"
         return rsi
 
-    def macd(
-        self, fast: int = 12, slow: int = 26, signal: int = 9
-    ) -> pd.DataFrame:
+    def macd(self, fast: int = 12, slow: int = 26, signal: int = 9) -> pd.DataFrame:
         """MACD (Moving Average Convergence Divergence)."""
         ema_fast = self.df["Close"].ewm(span=fast, adjust=False).mean()
         ema_slow = self.df["Close"].ewm(span=slow, adjust=False).mean()
@@ -92,7 +92,10 @@ class IndicatorsHelper:
         slow_d = slow_k.rolling(window=d, min_periods=d).mean()
 
         return pd.DataFrame(
-            {f"STOCHk_{k}_{d}_{smooth_k}": slow_k, f"STOCHd_{k}_{d}_{smooth_k}": slow_d},
+            {
+                f"STOCHk_{k}_{d}_{smooth_k}": slow_k,
+                f"STOCHd_{k}_{d}_{smooth_k}": slow_d,
+            },
             index=self.df.index,
         )
 
@@ -131,9 +134,7 @@ class IndicatorsHelper:
 
     # ── Volatility Indicators ─────────────────────────────────────────
 
-    def bollinger_bands(
-        self, period: int = 20, std_dev: float = 2.0
-    ) -> pd.DataFrame:
+    def bollinger_bands(self, period: int = 20, std_dev: float = 2.0) -> pd.DataFrame:
         """Bollinger Bands (lower, mid, upper, bandwidth, %B)."""
         mid = self.df["Close"].rolling(window=period, min_periods=period).mean()
         std = self.df["Close"].rolling(window=period, min_periods=period).std()
@@ -168,9 +169,7 @@ class IndicatorsHelper:
         atr_val.name = f"ATR_{period}"
         return atr_val
 
-    def keltner_channels(
-        self, period: int = 20, scalar: float = 2.0
-    ) -> pd.DataFrame:
+    def keltner_channels(self, period: int = 20, scalar: float = 2.0) -> pd.DataFrame:
         """Keltner Channels."""
         mid = self.ema(period)
         atr_val = self.atr(period)
@@ -217,7 +216,9 @@ class IndicatorsHelper:
         if "Volume" not in self.df.columns:
             raise ValueError("Volume column required for A/D")
         hl_range = self.df["High"] - self.df["Low"]
-        mfm = ((self.df["Close"] - self.df["Low"]) - (self.df["High"] - self.df["Close"])) / hl_range.replace(0, np.nan)
+        mfm = (
+            (self.df["Close"] - self.df["Low"]) - (self.df["High"] - self.df["Close"])
+        ) / hl_range.replace(0, np.nan)
         mfv = mfm * self.df["Volume"]
         ad_val = mfv.fillna(0).cumsum()
         ad_val.name = "AD"
@@ -242,14 +243,22 @@ class IndicatorsHelper:
         )
 
         alpha = 1.0 / period
-        atr_val = self._true_range().ewm(alpha=alpha, min_periods=period, adjust=False).mean()
-        plus_dm_smooth = plus_dm.ewm(alpha=alpha, min_periods=period, adjust=False).mean()
-        minus_dm_smooth = minus_dm.ewm(alpha=alpha, min_periods=period, adjust=False).mean()
+        atr_val = (
+            self._true_range().ewm(alpha=alpha, min_periods=period, adjust=False).mean()
+        )
+        plus_dm_smooth = plus_dm.ewm(
+            alpha=alpha, min_periods=period, adjust=False
+        ).mean()
+        minus_dm_smooth = minus_dm.ewm(
+            alpha=alpha, min_periods=period, adjust=False
+        ).mean()
 
         plus_di = 100.0 * plus_dm_smooth / atr_val
         minus_di = 100.0 * minus_dm_smooth / atr_val
 
-        dx = 100.0 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)
+        dx = (
+            100.0 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)
+        )
         adx_val = dx.ewm(alpha=alpha, min_periods=period, adjust=False).mean()
 
         return pd.DataFrame(
@@ -274,9 +283,7 @@ class IndicatorsHelper:
 
     # ── Trend Indicators ──────────────────────────────────────────────
 
-    def supertrend(
-        self, period: int = 7, multiplier: float = 3.0
-    ) -> pd.DataFrame:
+    def supertrend(self, period: int = 7, multiplier: float = 3.0) -> pd.DataFrame:
         """SuperTrend indicator."""
         hl2 = (self.df["High"] + self.df["Low"]) / 2.0
         atr_val = self.atr(period)
@@ -306,8 +313,12 @@ class IndicatorsHelper:
 
             supertrend_arr[i] = lower[i] if direction[i] == 1 else upper[i]
 
-        st_series = pd.Series(supertrend_arr, index=self.df.index, name=f"SUPERT_{period}_{multiplier}")
-        dir_series = pd.Series(direction, index=self.df.index, name=f"SUPERTd_{period}_{multiplier}")
+        st_series = pd.Series(
+            supertrend_arr, index=self.df.index, name=f"SUPERT_{period}_{multiplier}"
+        )
+        dir_series = pd.Series(
+            direction, index=self.df.index, name=f"SUPERTd_{period}_{multiplier}"
+        )
         return pd.DataFrame({st_series.name: st_series, dir_series.name: dir_series})
 
     def ichimoku(

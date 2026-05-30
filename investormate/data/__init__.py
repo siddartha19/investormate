@@ -2,4 +2,4 @@
 
 from .earnings_transcripts import EarningsCallTranscripts
 
-__all__ = ['EarningsCallTranscripts']
+__all__ = ["EarningsCallTranscripts"]

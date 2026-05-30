@@ -57,7 +57,9 @@ class TestValuationDCF:
         assert result_mult["fair_value_per_share"] is not None
         assert result_mult["assumptions"]["terminal_multiple"] == 15
         # With terminal multiple, result can differ from perpetuity
-        assert result_mult["fair_value_per_share"] != result_perp["fair_value_per_share"]
+        assert (
+            result_mult["fair_value_per_share"] != result_perp["fair_value_per_share"]
+        )
 
 
 class TestValuationComps:
@@ -71,7 +73,7 @@ class TestValuationComps:
         assert result["peer_multiples"] == {}
         assert "message" in result
 
-    @patch("investormate.analysis.valuation.get_yfinance_data")
+    @patch("investormate.data.providers.YFinanceProvider.get_info")
     def test_comps_with_peers_returns_structure(self, mock_get):
         """Comps with peers returns median and implied values structure."""
         mock_get.return_value = {

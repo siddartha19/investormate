@@ -93,11 +93,11 @@ Return your response in clean markdown format.
 def get_stock_analysis_prompt(data: str, question: str) -> str:
     """
     Get formatted prompt for stock analysis.
-    
+
     Args:
         data: Stock data to analyze
         question: User's question
-        
+
     Returns:
         Formatted prompt
     """
@@ -114,11 +114,11 @@ Please analyze the stock data and answer the question.
 def get_document_analysis_prompt(document_content: str, question: str) -> str:
     """
     Get formatted prompt for document analysis.
-    
+
     Args:
         document_content: Document content
         question: User's question
-        
+
     Returns:
         Formatted prompt
     """
@@ -135,16 +135,18 @@ Please analyze the document and answer the question.
 def get_comparison_prompt(stocks_data: dict, question: str) -> str:
     """
     Get formatted prompt for stock comparison.
-    
+
     Args:
         stocks_data: Dictionary of ticker -> data
         question: User's question
-        
+
     Returns:
         Formatted prompt
     """
-    data_str = "\n\n".join([f"{ticker}:\n{data}" for ticker, data in stocks_data.items()])
-    
+    data_str = "\n\n".join(
+        [f"{ticker}:\n{data}" for ticker, data in stocks_data.items()]
+    )
+
     return f"""
 Stocks Data:
 {data_str}

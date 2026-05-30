@@ -12,12 +12,12 @@ from .strategy import Strategy
 class Backtest:
     """
     Main backtesting interface for users.
-    
+
     Example:
         >>> class MyStrategy(Strategy):
         ...     def initialize(self):
         ...         self.ma_period = 20
-        ...     
+        ...
         ...     def on_data(self, data):
         ...         # Strategy logic here
         ...         pass
@@ -32,7 +32,7 @@ class Backtest:
         >>> results = bt.run()
         >>> print(results.summary())
     """
-    
+
     def __init__(
         self,
         strategy: Type[Strategy],
@@ -84,17 +84,19 @@ class Backtest:
             commission=self.commission,
             adjusted=self.adjusted,
         )
-        
+
         # Run backtest
         results_dict = engine.run()
-        
+
         # Create results object
         self._results = BacktestResults(results_dict)
-        
+
         return self._results
-    
+
     def __repr__(self) -> str:
         """String representation."""
-        return (f"Backtest(strategy={self.strategy.__name__}, "
-                f"ticker='{self.ticker}', "
-                f"period='{self.start_date}' to '{self.end_date}')")
+        return (
+            f"Backtest(strategy={self.strategy.__name__}, "
+            f"ticker='{self.ticker}', "
+            f"period='{self.start_date}' to '{self.end_date}')"
+        )

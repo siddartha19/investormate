@@ -49,6 +49,7 @@ class TestCustomStrategyIntegration:
 
     def test_custom_strategy_with_stock_data(self):
         """Test CustomStrategy runs with real Stock objects."""
+
         def value_filter(stock):
             try:
                 pe = stock.ratios.pe
@@ -84,7 +85,13 @@ class TestBacktestIntegration:
 
     def test_backtest_imports(self):
         """Test all backtest components import correctly."""
-        from investormate.backtest import Backtest, Strategy, BacktestEngine, BacktestResults
+        from investormate.backtest import (
+            Backtest,
+            Strategy,
+            BacktestEngine,
+            BacktestResults,
+        )
+
         assert Backtest is not None
         assert Strategy is not None
         assert BacktestEngine is not None
@@ -101,6 +108,7 @@ class TestBacktestIntegration:
         )
         with patch("yfinance.Ticker") as mock_ticker:
             import pandas as pd
+
             dates = pd.date_range("2023-01-01", periods=100, freq="D")
             mock_hist = pd.DataFrame(
                 {

@@ -5,7 +5,7 @@ from unittest.mock import patch
 from investormate.core.stock import Stock
 
 
-@patch("investormate.core.stock.get_yfinance_data")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
 def test_peers_same_sector(mock_data):
     def side_effect(ticker):
         sector = "Technology" if ticker in ("AAPL", "MSFT") else "Energy"
@@ -23,7 +23,7 @@ def test_peers_same_sector(mock_data):
         assert "XOM" not in peers
 
 
-@patch("investormate.core.stock.get_yfinance_data")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
 def test_compare_with_explicit_peers(mock_data):
     calls = {}
 

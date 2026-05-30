@@ -22,7 +22,9 @@ class TestFetcherNullSafety:
     """Test that fetchers return safe defaults for None/empty data."""
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_data_returns_empty_dict_when_info_is_none(self, mock_ticker_cls):
+    def test_get_yfinance_data_returns_empty_dict_when_info_is_none(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.info = None
         mock_ticker_cls.return_value = mock_ticker
@@ -30,7 +32,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_data_returns_empty_dict_when_info_not_dict(self, mock_ticker_cls):
+    def test_get_yfinance_data_returns_empty_dict_when_info_not_dict(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.info = "not a dict"
         mock_ticker_cls.return_value = mock_ticker
@@ -38,7 +42,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_balance_sheet_returns_empty_dict_when_df_none(self, mock_ticker_cls):
+    def test_get_yfinance_balance_sheet_returns_empty_dict_when_df_none(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.balance_sheet = None
         mock_ticker_cls.return_value = mock_ticker
@@ -46,7 +52,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_balance_sheet_returns_empty_dict_when_df_empty(self, mock_ticker_cls):
+    def test_get_yfinance_balance_sheet_returns_empty_dict_when_df_empty(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.balance_sheet = pd.DataFrame()
         mock_ticker_cls.return_value = mock_ticker
@@ -54,7 +62,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_income_statement_returns_empty_dict_when_df_empty(self, mock_ticker_cls):
+    def test_get_yfinance_income_statement_returns_empty_dict_when_df_empty(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.incomestmt = pd.DataFrame()
         mock_ticker_cls.return_value = mock_ticker
@@ -62,7 +72,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_cash_flow_returns_empty_dict_when_df_empty(self, mock_ticker_cls):
+    def test_get_yfinance_cash_flow_returns_empty_dict_when_df_empty(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.cash_flow = pd.DataFrame()
         mock_ticker_cls.return_value = mock_ticker
@@ -70,7 +82,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_stock_history_returns_empty_dict_when_df_none(self, mock_ticker_cls):
+    def test_get_yfinance_stock_history_returns_empty_dict_when_df_none(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.history.return_value = None
         mock_ticker_cls.return_value = mock_ticker
@@ -78,7 +92,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_stock_history_returns_empty_dict_when_df_empty(self, mock_ticker_cls):
+    def test_get_yfinance_stock_history_returns_empty_dict_when_df_empty(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.history.return_value = pd.DataFrame()
         mock_ticker_cls.return_value = mock_ticker
@@ -86,7 +102,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_stock_history_returns_empty_dict_when_columns_missing(self, mock_ticker_cls):
+    def test_get_yfinance_stock_history_returns_empty_dict_when_columns_missing(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         # DataFrame with wrong columns
         mock_ticker.history.return_value = pd.DataFrame({"A": [1], "B": [2]})
@@ -95,7 +113,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_stock_history_return_trace_returns_tuple(self, mock_ticker_cls):
+    def test_get_yfinance_stock_history_return_trace_returns_tuple(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_df = pd.DataFrame(
             {
@@ -137,7 +157,9 @@ class TestFetcherNullSafety:
         assert call_kw["auto_adjust"] is False
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_ticker_news_returns_empty_list_when_news_none(self, mock_ticker_cls):
+    def test_get_yfinance_ticker_news_returns_empty_list_when_news_none(
+        self, mock_ticker_cls
+    ):
         mock_ticker = MagicMock()
         mock_ticker.news = None
         mock_ticker_cls.return_value = mock_ticker
@@ -145,7 +167,9 @@ class TestFetcherNullSafety:
         assert result == []
 
     @patch("investormate.data.fetchers.yf.Market")
-    def test_get_yfinance_market_summary_us_returns_empty_dict_when_summary_none(self, mock_market_cls):
+    def test_get_yfinance_market_summary_us_returns_empty_dict_when_summary_none(
+        self, mock_market_cls
+    ):
         mock_market = MagicMock()
         mock_market.summary = None
         mock_market_cls.return_value = mock_market
@@ -153,7 +177,9 @@ class TestFetcherNullSafety:
         assert result == {}
 
     @patch("investormate.data.fetchers.yf.Ticker")
-    def test_get_yfinance_stock_history_raises_on_network_failure(self, mock_ticker_cls):
+    def test_get_yfinance_stock_history_raises_on_network_failure(
+        self, mock_ticker_cls
+    ):
         """When Ticker.history() raises (e.g. network failure), exception propagates (Phase 1.1 P2)."""
         mock_ticker = MagicMock()
         mock_ticker.history.side_effect = Exception("network error")

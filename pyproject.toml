@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "investormate"
-version = "0.3.0"
+dynamic = ["version"]
 description = "AI-powered stock analysis package combining data, technical indicators, and multi-provider AI analysis"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -14,7 +14,8 @@ authors = [
     {name = "Chandu Siddartha"}
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
+    "Typing :: Typed",
     "Intended Audience :: Developers",
     "Intended Audience :: Financial and Insurance Industry",
     "Programming Language :: Python :: 3",
@@ -50,8 +51,10 @@ all = [
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
-    "black>=23.0.0",
+    "black==24.10.0",
     "flake8>=6.0.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.5.0",
     "build>=1.0.0",
 ]
 
@@ -62,14 +65,21 @@ Repository = "https://github.com/siddartha19/investormate"
 "Bug Tracker" = "https://github.com/siddartha19/investormate/issues"
 Author = "https://github.com/siddartha19"
 
+[tool.setuptools.dynamic]
+version = {attr = "investormate.version.__version__"}
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["investormate*"]
 namespaces = false
 
+[tool.setuptools.package-data]
+investormate = ["py.typed"]
+
 [tool.black]
 line-length = 88
 target-version = ['py39']
+# Pinned to black==24.10.0 (see dev deps) so formatting is deterministic in CI.
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -78,3 +88,18 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 # Coverage is optional: run with pytest --cov=investormate --cov-report=term-missing
 addopts = []
+
+[tool.mypy]
+python_version = "3.9"
+# Lenient baseline: typed third-party libs (yfinance/pandas stubs) are noisy, so
+# we ignore missing imports and only surface issues in our own code. Tighten over
+# time by enabling disallow_untyped_defs per-module.
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+files = ["investormate"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+ignore_errors = true

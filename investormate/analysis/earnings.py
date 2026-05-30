@@ -6,16 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from ..data.fetchers import (
-    get_yfinance_calendar_data,
-    get_yfinance_data,
-    get_yfinance_earnings_estimate,
-    get_yfinance_earnings_history,
-    get_yfinance_eps_revisions,
-    get_yfinance_eps_trend,
-    get_yfinance_growth_estimates,
-    get_yfinance_revenue_estimate,
-)
+from ..data.providers import get_data_provider
 
 
 class EarningsAnalyzer:
@@ -36,10 +27,11 @@ class EarningsAnalyzer:
             Dict with ``calendar`` (normalized table from yfinance), and optional
             ``earnings_timestamp``, ``earnings_call_timestamp`` from quote summary.
         """
-        info = get_yfinance_data(self.ticker)
+        provider = get_data_provider()
+        info = provider.get_info(self.ticker)
         return {
             "ticker": self.ticker,
-            "calendar": get_yfinance_calendar_data(self.ticker),
+            "calendar": provider.get_calendar(self.ticker),
             "earnings_timestamp": info.get("earningsTimestamp"),
             "earnings_call_timestamp": info.get("earningsCallTimestampStart"),
             "earnings_call_timestamp_end": info.get("earningsCallTimestampEnd"),
@@ -52,7 +44,7 @@ class EarningsAnalyzer:
         Returns:
             List of dicts (one per row in yfinance ``earnings_history``), sorted by period key.
         """
-        raw = get_yfinance_earnings_history(self.ticker)
+        raw = get_data_provider().get_earnings_history(self.ticker)
         if not raw:
             return []
         out: List[Dict[str, Any]] = []
@@ -62,9 +54,15 @@ class EarningsAnalyzer:
             actual = row.get("epsActual")
             estimate = row.get("epsAverage") or row.get("epsEstimate")
             surprise_pct = row.get("surprisePercent")
-            if surprise_pct is None and actual is not None and estimate not in (None, 0):
+            if (
+                surprise_pct is None
+                and actual is not None
+                and estimate not in (None, 0)
+            ):
                 try:
-                    surprise_pct = (float(actual) - float(estimate)) / abs(float(estimate)) * 100.0
+                    surprise_pct = (
+                        (float(actual) - float(estimate)) / abs(float(estimate)) * 100.0
+                    )
                 except (TypeError, ValueError, ZeroDivisionError):
                     surprise_pct = None
             out.append(
@@ -87,20 +85,21 @@ class EarningsAnalyzer:
         Returns:
             Dict with ``earnings`` and ``revenue`` keys (each a table dict or None).
         """
+        provider = get_data_provider()
         return {
             "ticker": self.ticker,
-            "earnings": get_yfinance_earnings_estimate(self.ticker),
-            "revenue": get_yfinance_revenue_estimate(self.ticker),
+            "earnings": provider.get_earnings_estimate(self.ticker),
+            "revenue": provider.get_revenue_estimate(self.ticker),
         }
 
     def eps_trend(self) -> Optional[Dict]:
         """EPS revision trend table (7d / 30d / 60d / 90d columns when present)."""
-        return get_yfinance_eps_trend(self.ticker)
+        return get_data_provider().get_eps_trend(self.ticker)
 
     def eps_revisions(self) -> Optional[Dict]:
         """EPS up/down revision counts when provided by yfinance."""
-        return get_yfinance_eps_revisions(self.ticker)
+        return get_data_provider().get_eps_revisions(self.ticker)
 
     def growth_estimates(self) -> Optional[Dict]:
         """Growth estimates vs sector / industry when provided by yfinance."""
-        return get_yfinance_growth_estimates(self.ticker)
+        return get_data_provider().get_growth_estimates(self.ticker)

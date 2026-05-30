@@ -8,7 +8,7 @@ from investormate import Stock, HistoryResult
 from investormate.core.stock import Stock as StockClass
 
 
-@patch("investormate.core.stock.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_stock_history_source_trace_returns_history_result(mock_fetcher):
     """Stock.history(source_trace=True) returns HistoryResult with .data and .trace."""
     mock_fetcher.return_value = (
@@ -33,7 +33,7 @@ def test_stock_history_source_trace_returns_history_result(mock_fetcher):
     assert "transform_steps" in result.trace
 
 
-@patch("investormate.core.stock.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_stock_history_default_returns_dataframe(mock_fetcher):
     """Stock.history() without source_trace returns DataFrame."""
     mock_fetcher.return_value = {
@@ -51,7 +51,7 @@ def test_stock_history_default_returns_dataframe(mock_fetcher):
     assert not isinstance(result, HistoryResult)
 
 
-@patch("investormate.core.stock.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_stock_history_invalid_ticker_returns_empty_dataframe(mock_fetcher):
     """Stock.history() with invalid/missing data returns empty DataFrame (Phase 1.1 P2)."""
     mock_fetcher.return_value = {}
@@ -61,8 +61,10 @@ def test_stock_history_invalid_ticker_returns_empty_dataframe(mock_fetcher):
     assert result.empty
 
 
-@patch("investormate.core.stock.get_yfinance_stock_history")
-def test_stock_history_invalid_ticker_source_trace_returns_empty_history_result(mock_fetcher):
+@patch("investormate.data.providers.YFinanceProvider.get_history")
+def test_stock_history_invalid_ticker_source_trace_returns_empty_history_result(
+    mock_fetcher,
+):
     """Stock.history(source_trace=True) with invalid/missing data returns HistoryResult with empty .data."""
     mock_fetcher.return_value = ({}, {"provider": "yfinance", "raw_shape": (0, 0)})
     stock = StockClass("NODATA")  # valid format; fetcher returns no data
@@ -72,7 +74,7 @@ def test_stock_history_invalid_ticker_source_trace_returns_empty_history_result(
     assert result.trace["provider"] == "yfinance"
 
 
-@patch("investormate.core.stock.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_stock_history_network_failure_raises_data_fetch_error(mock_fetcher):
     """Stock.history() when fetcher raises (e.g. network failure) raises DataFetchError (Phase 1.1 P2)."""
     from investormate.utils.exceptions import DataFetchError

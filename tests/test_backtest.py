@@ -40,10 +40,14 @@ class TestStrategy:
         strategy = SimpleStrategy()
         strategy.initialize()
 
-        with pytest.raises(RuntimeError, match="Strategy must be run within a backtest"):
+        with pytest.raises(
+            RuntimeError, match="Strategy must be run within a backtest"
+        ):
             strategy.buy(shares=10)
 
-        with pytest.raises(RuntimeError, match="Strategy must be run within a backtest"):
+        with pytest.raises(
+            RuntimeError, match="Strategy must be run within a backtest"
+        ):
             strategy.has_position
 
 
@@ -54,13 +58,44 @@ class TestBacktestResults:
         """Test creating results from dictionary."""
         results_dict = {
             "trades": [
-                {"date": "2023-01-15", "type": "BUY", "shares": 100, "price": 150, "commission": 0.15},
-                {"date": "2023-06-15", "type": "SELL", "shares": 100, "price": 180, "commission": 0.18, "pnl": 2982.67},
+                {
+                    "date": "2023-01-15",
+                    "type": "BUY",
+                    "shares": 100,
+                    "price": 150,
+                    "commission": 0.15,
+                },
+                {
+                    "date": "2023-06-15",
+                    "type": "SELL",
+                    "shares": 100,
+                    "price": 180,
+                    "commission": 0.18,
+                    "pnl": 2982.67,
+                },
             ],
             "equity_history": [
-                {"date": "2023-01-01", "equity": 10000, "cash": 10000, "position_value": 0, "position_size": 0},
-                {"date": "2023-01-15", "equity": 10000, "cash": 8499.85, "position_value": 15000, "position_size": 100},
-                {"date": "2023-06-15", "equity": 11482.67, "cash": 11482.49, "position_value": 0, "position_size": 0},
+                {
+                    "date": "2023-01-01",
+                    "equity": 10000,
+                    "cash": 10000,
+                    "position_value": 0,
+                    "position_size": 0,
+                },
+                {
+                    "date": "2023-01-15",
+                    "equity": 10000,
+                    "cash": 8499.85,
+                    "position_value": 15000,
+                    "position_size": 100,
+                },
+                {
+                    "date": "2023-06-15",
+                    "equity": 11482.67,
+                    "cash": 11482.49,
+                    "position_value": 0,
+                    "position_size": 0,
+                },
             ],
             "final_equity": 11482.49,
             "initial_capital": 10000,
@@ -81,8 +116,20 @@ class TestBacktestResults:
         results_dict = {
             "trades": [],
             "equity_history": [
-                {"date": "2023-01-01", "equity": 10000, "cash": 10000, "position_value": 0, "position_size": 0},
-                {"date": "2023-12-31", "equity": 10000, "cash": 10000, "position_value": 0, "position_size": 0},
+                {
+                    "date": "2023-01-01",
+                    "equity": 10000,
+                    "cash": 10000,
+                    "position_value": 0,
+                    "position_size": 0,
+                },
+                {
+                    "date": "2023-12-31",
+                    "equity": 10000,
+                    "cash": 10000,
+                    "position_value": 0,
+                    "position_size": 0,
+                },
             ],
             "final_equity": 10000,
             "initial_capital": 10000,
@@ -100,7 +147,13 @@ class TestBacktestResults:
         results_dict = {
             "trades": [],
             "equity_history": [
-                {"date": "2023-01-01", "equity": 10000, "cash": 10000, "position_value": 0, "position_size": 0},
+                {
+                    "date": "2023-01-01",
+                    "equity": 10000,
+                    "cash": 10000,
+                    "position_value": 0,
+                    "position_size": 0,
+                },
             ],
             "final_equity": 10000,
             "initial_capital": 10000,
@@ -118,8 +171,20 @@ class TestBacktestResults:
         results_dict = {
             "trades": [],
             "equity_history": [
-                {"date": "2023-01-01", "equity": 10000, "cash": 10000, "position_value": 0, "position_size": 0},
-                {"date": "2023-12-31", "equity": 11000, "cash": 11000, "position_value": 0, "position_size": 0},
+                {
+                    "date": "2023-01-01",
+                    "equity": 10000,
+                    "cash": 10000,
+                    "position_value": 0,
+                    "position_size": 0,
+                },
+                {
+                    "date": "2023-12-31",
+                    "equity": 11000,
+                    "cash": 11000,
+                    "position_value": 0,
+                    "position_size": 0,
+                },
             ],
             "final_equity": 11000,
             "initial_capital": 10000,
@@ -160,7 +225,9 @@ class TestBacktest:
 
     def test_backtest_invalid_date_range_raises(self):
         """Test Backtest raises ValidationError when start_date > end_date."""
-        with pytest.raises(ValidationError, match="start_date.*before or equal to end_date"):
+        with pytest.raises(
+            ValidationError, match="start_date.*before or equal to end_date"
+        ):
             Backtest(
                 strategy=SimpleStrategy,
                 ticker="AAPL",

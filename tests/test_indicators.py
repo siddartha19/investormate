@@ -107,8 +107,12 @@ class TestVolatility:
         assert isinstance(result, pd.DataFrame)
         assert len(result.columns) == 5
         valid_idx = result.dropna().index
-        assert (result.loc[valid_idx].iloc[:, 0] <= result.loc[valid_idx].iloc[:, 1]).all()
-        assert (result.loc[valid_idx].iloc[:, 1] <= result.loc[valid_idx].iloc[:, 2]).all()
+        assert (
+            result.loc[valid_idx].iloc[:, 0] <= result.loc[valid_idx].iloc[:, 1]
+        ).all()
+        assert (
+            result.loc[valid_idx].iloc[:, 1] <= result.loc[valid_idx].iloc[:, 2]
+        ).all()
 
     def test_atr_positive(self, helper):
         result = helper.atr(14)
@@ -133,9 +137,7 @@ class TestVolume:
         assert len(result) == 100
 
     def test_obv_no_volume_raises(self):
-        df = pd.DataFrame(
-            {"Open": [1], "High": [2], "Low": [0.5], "Close": [1.5]}
-        )
+        df = pd.DataFrame({"Open": [1], "High": [2], "Low": [0.5], "Close": [1.5]})
         h = IndicatorsHelper(df)
         with pytest.raises(ValueError, match="Volume"):
             h.obv()

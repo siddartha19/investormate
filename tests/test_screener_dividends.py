@@ -22,8 +22,8 @@ def test_dividend_growth_streak_breaks():
     assert _dividend_growth_streak_years(div) == 0
 
 
-@patch("investormate.core.screener.get_yfinance_dividends")
-@patch("investormate.core.screener.get_yfinance_data")
+@patch("investormate.data.providers.YFinanceProvider.get_dividends")
+@patch("investormate.data.providers.YFinanceProvider.get_info")
 def test_dividend_aristocrats(mock_info, mock_div):
     years = list(range(2000, 2026))
     idx = pd.to_datetime([f"{y}-06-01" for y in years])

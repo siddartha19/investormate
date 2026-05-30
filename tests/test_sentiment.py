@@ -37,7 +37,11 @@ class TestSentimentAnalyzer:
         mock_news = Mock(return_value=[])
         analyzer = SentimentAnalyzer("AAPL", mock_news)
         articles = [
-            {"title": "Apple reports strong earnings", "summary": "Q4 beat", "publisher": "Reuters"},
+            {
+                "title": "Apple reports strong earnings",
+                "summary": "Q4 beat",
+                "publisher": "Reuters",
+            },
             {"title": "AAPL stock rises", "summary": "", "publisher": "Bloomberg"},
         ]
         result = analyzer._format_news_for_analysis(articles)
@@ -49,7 +53,7 @@ class TestSentimentAnalyzer:
         """Test parsing valid JSON response."""
         mock_news = Mock(return_value=[])
         analyzer = SentimentAnalyzer("AAPL", mock_news)
-        response = '''
+        response = """
         Here is the analysis:
         {
             "overall_score": 0.75,
@@ -58,7 +62,7 @@ class TestSentimentAnalyzer:
             "bearish_signals": ["concern"],
             "summary": "Overall positive sentiment"
         }
-        '''
+        """
         result = analyzer._parse_ai_response(response)
         assert result["score"] == 0.75
         assert result["bullish_percent"] == 70
@@ -101,9 +105,9 @@ class TestSentimentAnalyzer:
     @patch.object(SentimentAnalyzer, "_get_ai_provider")
     def test_news_with_articles(self, mock_get_provider):
         """Test news() with articles calls AI provider."""
-        mock_news = Mock(return_value=[
-            {"title": "Test", "summary": "Test", "publisher": "Test"}
-        ])
+        mock_news = Mock(
+            return_value=[{"title": "Test", "summary": "Test", "publisher": "Test"}]
+        )
         mock_provider = Mock()
         mock_provider.analyze.return_value = {
             "answer": '{"overall_score": 0.5, "sentiment_distribution": {"bullish": 50, "bearish": 25, "neutral": 25}, "bullish_signals": [], "bearish_signals": [], "summary": "Mixed"}'
@@ -121,7 +125,9 @@ class TestSentimentAnalyzer:
         """Test compare_sentiment across timeframes."""
         mock_news = Mock(return_value=[])
         analyzer = SentimentAnalyzer("AAPL", mock_news)
-        with patch.object(analyzer, "news", return_value={"score": 0.5, "article_count": 5}):
+        with patch.object(
+            analyzer, "news", return_value={"score": 0.5, "article_count": 5}
+        ):
             results = analyzer.compare_sentiment([1, 7, 30])
             assert 1 in results
             assert 7 in results

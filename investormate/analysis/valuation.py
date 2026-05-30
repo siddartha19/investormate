@@ -6,7 +6,7 @@ DCF (Discounted Cash Flow), comparable companies, and fair value summary.
 from typing import Dict, List, Optional, Any
 
 from ..utils.helpers import safe_divide
-from ..data.fetchers import get_yfinance_data
+from ..data.providers import get_data_provider
 from ..data.constants import get_ticker_format
 
 
@@ -43,7 +43,7 @@ class Valuation:
         """
         self.ticker = ticker
         if info is None:
-            info = get_yfinance_data(get_ticker_format(ticker))
+            info = get_data_provider().get_info(get_ticker_format(ticker))
         self._info = info or {}
         self._ratios = ratios
         self._balance_sheet = balance_sheet or {}
@@ -57,7 +57,9 @@ class Valuation:
             return float(fcf)
         # Fallback: operating cash flow - cap ex (from cash flow statement or info)
         ocf = self._info.get("operatingCashflow")
-        cap_ex = self._info.get("capitalExpenditure") or self._info.get("capitalExpenditures")
+        cap_ex = self._info.get("capitalExpenditure") or self._info.get(
+            "capitalExpenditures"
+        )
         if cap_ex is not None:
             cap_ex = abs(float(cap_ex))
         if ocf is not None:
@@ -186,7 +188,7 @@ class Valuation:
 
         def get_peer_data(t: str) -> Dict[str, Optional[float]]:
             try:
-                data = get_yfinance_data(get_ticker_format(t))
+                data = get_data_provider().get_info(get_ticker_format(t))
                 if not data:
                     return {}
                 pe = data.get("trailingPE") or data.get("forwardPE")
@@ -201,16 +203,26 @@ class Valuation:
         for t in all_tickers:
             peer_multiples[t] = get_peer_data(t)
 
-        pes = [peer_multiples[t]["pe"] for t in peer_multiples if peer_multiples[t].get("pe") is not None]
+        pes = [
+            peer_multiples[t]["pe"]
+            for t in peer_multiples
+            if peer_multiples[t].get("pe") is not None
+        ]
         ev_ebitdas = [
             peer_multiples[t]["ev_ebitda"]
             for t in peer_multiples
             if peer_multiples[t].get("ev_ebitda") is not None
         ]
-        pss = [peer_multiples[t]["ps"] for t in peer_multiples if peer_multiples[t].get("ps") is not None]
+        pss = [
+            peer_multiples[t]["ps"]
+            for t in peer_multiples
+            if peer_multiples[t].get("ps") is not None
+        ]
 
         median_pe = float(sorted(pes)[len(pes) // 2]) if pes else None
-        median_ev_ebitda = float(sorted(ev_ebitdas)[len(ev_ebitdas) // 2]) if ev_ebitdas else None
+        median_ev_ebitda = (
+            float(sorted(ev_ebitdas)[len(ev_ebitdas) // 2]) if ev_ebitdas else None
+        )
         median_ps = float(sorted(pss)[len(pss) // 2]) if pss else None
 
         # Implied value = multiple * metric (for this stock)
@@ -224,14 +236,26 @@ class Valuation:
             implied_value_pe = round(median_pe * ttm_eps, 2)
 
         implied_value_ev_ebitda = None
-        if median_ev_ebitda is not None and ebitda is not None and ebitda > 0 and shares is not None and shares > 0:
+        if (
+            median_ev_ebitda is not None
+            and ebitda is not None
+            and ebitda > 0
+            and shares is not None
+            and shares > 0
+        ):
             # EV = median_ev_ebitda * ebitda; equity value ≈ EV - net_debt (simplified: use EV/shares as proxy)
             ev_implied = median_ev_ebitda * ebitda
             # Approximate equity value (simplified: ignore net debt for per-share)
             implied_value_ev_ebitda = round(safe_divide(ev_implied, shares) or 0, 2)
 
         implied_value_ps = None
-        if median_ps is not None and revenue is not None and revenue > 0 and shares is not None and shares > 0:
+        if (
+            median_ps is not None
+            and revenue is not None
+            and revenue > 0
+            and shares is not None
+            and shares > 0
+        ):
             # Market cap = P/S * revenue => price = (P/S * revenue) / shares
             implied_mcap = median_ps * revenue
             implied_value_ps = round(safe_divide(implied_mcap, shares) or 0, 2)
@@ -270,7 +294,9 @@ class Valuation:
             Dict with dcf_result, comps_result, fair_value_low, fair_value_high,
             current_price, and recommendation (undervalued/fair/overvalued).
         """
-        dcf_result = self.dcf(growth_rate=growth_rate, terminal_growth=terminal_growth, years=years)
+        dcf_result = self.dcf(
+            growth_rate=growth_rate, terminal_growth=terminal_growth, years=years
+        )
         comps_result = self.comps(peers=peers or [])
 
         current = self._info.get("currentPrice")
@@ -289,7 +315,11 @@ class Valuation:
         fair_value_high = max(values) if values else None
 
         recommendation = None
-        if current is not None and fair_value_low is not None and fair_value_high is not None:
+        if (
+            current is not None
+            and fair_value_low is not None
+            and fair_value_high is not None
+        ):
             if current < fair_value_low:
                 recommendation = "undervalued"
             elif current > fair_value_high:
@@ -348,7 +378,9 @@ class Valuation:
         for g in growth_rates:
             table[g] = {}
             for w in wacc_rates:
-                dcf = self.dcf(growth_rate=g, wacc=w, years=years, terminal_growth=terminal_growth)
+                dcf = self.dcf(
+                    growth_rate=g, wacc=w, years=years, terminal_growth=terminal_growth
+                )
                 fv = dcf.get("fair_value_per_share")
                 table[g][w] = fv
                 if fv is not None:

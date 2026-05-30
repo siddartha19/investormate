@@ -101,7 +101,11 @@ def _beneish_compute_indices(
         "Selling General And Administrative Expense",
         "Selling, General & Administration",
     )
-    NI = ("Net Income", "Net Income Common Stockholders", "Net Income From Continuing Operations")
+    NI = (
+        "Net Income",
+        "Net Income Common Stockholders",
+        "Net Income From Continuing Operations",
+    )
     OCF = (
         "Operating Cash Flow",
         "Total Cash From Operating Activities",
@@ -159,10 +163,7 @@ def _beneish_compute_indices(
         indices["GMI"] = 1.0
 
     # AQI: [1 - (CA+PPE)/TA] ratio year over year
-    if all(
-        x is not None
-        for x in (ca_t, ppe_t, ta_t, ca_tm1, ppe_tm1, ta_tm1)
-    ):
+    if all(x is not None for x in (ca_t, ppe_t, ta_t, ca_tm1, ppe_tm1, ta_tm1)):
         aqi_t = 1.0 - (ca_t + ppe_t) / ta_t
         aqi_tm1 = 1.0 - (ca_tm1 + ppe_tm1) / ta_tm1
         indices["AQI"] = safe_divide(aqi_t, aqi_tm1, default=1.0) or 1.0
@@ -191,9 +192,9 @@ def _beneish_compute_indices(
 
     # SGAI
     if sga_t is not None and sga_tm1 is not None and sales_t and sales_tm1:
-        indices["SGAI"] = safe_divide(
-            (sga_t / sales_t), (sga_tm1 / sales_tm1), default=1.0
-        ) or 1.0
+        indices["SGAI"] = (
+            safe_divide((sga_t / sales_t), (sga_tm1 / sales_tm1), default=1.0) or 1.0
+        )
     else:
         indices["SGAI"] = 1.0
 
@@ -295,7 +296,9 @@ class FinancialScores:
 
         # 7. No new shares issued
         # (simplified: assume yes if shares outstanding is stable)
-        breakdown["no_dilution"] = 1  # Default to 1, hard to calculate from single point
+        breakdown["no_dilution"] = (
+            1  # Default to 1, hard to calculate from single point
+        )
 
         # Operating Efficiency (2 points)
         # 8. Higher gross margin this year
@@ -306,7 +309,9 @@ class FinancialScores:
         revenue = self.info.get("totalRevenue", 0)
         total_assets = self.info.get("totalAssets", 1)
         asset_turnover = safe_divide(revenue, total_assets, 0)
-        breakdown["asset_turnover"] = 1 if asset_turnover and asset_turnover > 0.5 else 0
+        breakdown["asset_turnover"] = (
+            1 if asset_turnover and asset_turnover > 0.5 else 0
+        )
 
         total_score = sum(breakdown.values())
         return total_score, breakdown
@@ -334,7 +339,9 @@ class FinancialScores:
         market_cap = self.info.get("marketCap")
 
         # Check if we have enough data
-        if not all([total_assets, total_liabilities, current_assets, current_liabilities]):
+        if not all(
+            [total_assets, total_liabilities, current_assets, current_liabilities]
+        ):
             return None, "Insufficient data for Z-Score calculation"
 
         # Calculate working capital
@@ -398,7 +405,9 @@ class FinancialScores:
         if m_score < -2.22:
             interpretation = "Low risk of earnings manipulation (M < -2.22)"
         else:
-            interpretation = "Possible earnings manipulation — investigate further (M > -2.22)"
+            interpretation = (
+                "Possible earnings manipulation — investigate further (M > -2.22)"
+            )
 
         common = sorted(
             set(self.balance_sheet.keys()) & set(self.income_stmt.keys()), reverse=True
@@ -453,9 +462,13 @@ class FinancialScores:
 
         m_score = -3.0 + (risk_score * 0.5)
         if m_score < -2.22:
-            interpretation = "Low risk (proxy — add multi-period statements for full Beneish)"
+            interpretation = (
+                "Low risk (proxy — add multi-period statements for full Beneish)"
+            )
         else:
-            interpretation = "Elevated proxy risk — use full statements for Beneish M-Score"
+            interpretation = (
+                "Elevated proxy risk — use full statements for Beneish M-Score"
+            )
 
         return m_score, interpretation
 

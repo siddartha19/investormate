@@ -44,7 +44,7 @@ def _df_from_dict(d: dict) -> pd.DataFrame:
 
 
 @patch.object(BacktestEngine, "_fetch_data")
-@patch("investormate.core.stock.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_momentum_strategy_runs(mock_hist, mock_engine_fetch):
     d = _ohlcv_dict(400, drift=0.001)
     mock_hist.return_value = d
@@ -62,7 +62,7 @@ def test_momentum_strategy_runs(mock_hist, mock_engine_fetch):
 
 
 @patch.object(BacktestEngine, "_fetch_data")
-@patch("investormate.core.stock.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_mean_reversion_strategy_runs(mock_hist, mock_engine_fetch):
     d = _ohlcv_dict(300, drift=0.0005)
     mock_hist.return_value = d
@@ -84,7 +84,7 @@ class _FastSMA(SMACrossoverStrategy):
 
 
 @patch.object(BacktestEngine, "_fetch_data")
-@patch("investormate.core.stock.get_yfinance_stock_history")
+@patch("investormate.data.providers.YFinanceProvider.get_history")
 def test_sma_crossover_strategy_runs(mock_hist, mock_engine_fetch):
     d = _ohlcv_dict(120, drift=0.003)
     mock_hist.return_value = d

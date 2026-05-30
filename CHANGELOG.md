@@ -5,6 +5,30 @@ All notable changes to InvestorMate will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.4.0] - 2026-05-30
+
+### Added
+- **OpenRouter AI provider** (`investormate.ai.openrouter_provider.OpenRouterProvider`): one API key for hundreds of models (OpenAI, Anthropic, Google, Meta, Mistral, …) via OpenRouter's OpenAI-compatible gateway. Enable with `Investor(openrouter_api_key="sk-or-...", openrouter_model="anthropic/claude-3.5-sonnet")`. Supports optional `site_url`/`site_name` ranking headers and reuses the existing `openai` dependency (no new package). See `docs/ai_providers.md`.
+- **Pluggable data sources** (`investormate.data.providers`): new `DataProvider` interface with a default `YFinanceProvider`. Swap the active source process-wide via `set_data_provider()` / `reset_data_provider()` (exported from the top-level package). All consumers (`Stock`, `Portfolio`, `Screener`, `Market`, `Valuation`, `EarningsAnalyzer`, `Investor`) now route data access through the active provider, so alternate APIs, recorded fixtures, or test doubles can be dropped in without touching call sites. See `docs/data_providers.md`.
+- **Centralized logging** (`investormate.utils.logging`): package logger with a `NullHandler` so the library is silent by default and fully controllable by consumers. Diagnostic `print()` calls in `Investor`, `Correlation`, `CustomStrategy`, and the backtest engine now use `logging`.
+- **SSRF protection** (`investormate.utils.net`): `assert_safe_url()` / `is_safe_public_url()` block non-HTTP(S) schemes and hosts resolving to private, loopback, link-local, reserved, or cloud-metadata addresses. Enforced in `Investor.analyze_document` URL fetching.
+- **Configurable AI providers**: `temperature`, `max_tokens`, `timeout`, `max_retries`, and `retry_backoff` are now accepted by all providers, with exponential-backoff retries on transient errors (rate limits, timeouts, connection failures).
+- **Bounded cache**: `TTLCache` now enforces a `maxsize` (default 2048) with LRU eviction to bound memory; `configure_data_cache(maxsize=...)` to tune.
+- **Typing marker**: shipped `py.typed` so downstream users receive InvestorMate's type hints (PEP 561).
+- **Tooling**: `mypy` config + CI step (informational), pinned `black==24.10.0`, `.pre-commit-config.yaml`, and a 60% coverage floor in CI.
+- **Tests**: `test_cache_lru.py`, `test_net_safety.py`, `test_logging_util.py`, `test_investor_batch.py`, `test_data_provider.py`.
+
+### Changed
+- **Parallel AI ops**: `Investor.batch_analyze()` and `Investor.compare()` now fetch/analyze concurrently (`max_workers`), preserving input order.
+- **Single-sourced version**: `pyproject.toml` reads the version dynamically from `investormate.version` (no more drift with `version.py`).
+- **De-duplicated `data/fetchers.py`**: shared `_statement_to_dict` / `_rows_to_dict` / `_fetch_estimate` helpers remove ~130 lines of copy-pasted DataFrame→dict conversion (behavior unchanged).
+- Development status promoted to **Beta**.
+
+### Fixed
+- Removed dead/duplicate prompt construction in `Investor.ask()` and `Investor.analyze_document()` (computed but never used).
+
 ## [0.3.0] - 2026-04-04
 
 ### Added

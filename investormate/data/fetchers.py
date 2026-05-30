@@ -21,6 +21,60 @@ from .cache import (
 from .constants import get_ticker_format, get_ticker_country
 
 
+def _statement_to_dict(df: Optional[pd.DataFrame]) -> Dict:
+    """
+    Convert a period-columned financial statement DataFrame to a nested dict.
+
+    Columns are reporting periods (often ``pd.Timestamp``) and the index holds
+    line items. Returns ``{period: {line_item: float | None}}`` or ``{}`` when
+    the frame is missing or empty.
+    """
+    if df is None or (isinstance(df, pd.DataFrame) and df.empty):
+        return {}
+    result: Dict[str, Dict[str, Optional[float]]] = {}
+    for col in df.columns:
+        if isinstance(col, pd.Timestamp):
+            col_str = col.strftime("%Y-%m-%d")
+        else:
+            col_str = str(col)
+        result[col_str] = {
+            str(idx): float(val) if pd.notnull(val) else None
+            for idx, val in df[col].items()
+        }
+    return result
+
+
+def _rows_to_dict(df: Optional[pd.DataFrame]) -> Optional[Dict]:
+    """
+    Convert a row-indexed estimate DataFrame to a nested dict.
+
+    Returns ``{row_index: {column: float | None}}``. Yields ``None`` only when
+    the source frame itself is ``None`` (an empty frame returns ``{}``), matching
+    the historical contract of the estimate fetchers.
+    """
+    if df is None:
+        return None
+    return {
+        str(idx): {
+            str(col): float(val) if pd.notnull(val) else None
+            for col, val in row.items()
+        }
+        for idx, row in df.iterrows()
+    }
+
+
+def _fetch_estimate(ticker_name: str, attr: str, key_suffix: str) -> Optional[Dict]:
+    """Fetch and cache a row-indexed estimate frame exposed as ``Ticker.<attr>``."""
+    fmt = get_ticker_format(ticker_name)
+    key = f"{fmt}:{key_suffix}"
+
+    def _fetch() -> Optional[Dict]:
+        df = getattr(yf.Ticker(fmt), attr, None)
+        return _rows_to_dict(df)
+
+    return cached_yfinance_call(key, TTL_EARNINGS, _fetch)
+
+
 def get_yfinance_data(ticker_name: str) -> Dict:
     """
     Get basic stock information.
@@ -62,21 +116,7 @@ def get_yfinance_balance_sheet_data(ticker_name: str) -> Dict:
     key = f"{fmt}:balance_sheet"
 
     def _fetch() -> Dict:
-        ticker = yf.Ticker(fmt)
-        df = ticker.balance_sheet
-        if df is None or (isinstance(df, pd.DataFrame) and df.empty):
-            return {}
-        result = {}
-        for col in df.columns:
-            if isinstance(col, pd.Timestamp):
-                col_str = col.strftime("%Y-%m-%d")
-            else:
-                col_str = str(col)
-            result[col_str] = {
-                str(idx): float(val) if pd.notnull(val) else None
-                for idx, val in df[col].items()
-            }
-        return result
+        return _statement_to_dict(yf.Ticker(fmt).balance_sheet)
 
     return cached_yfinance_call(key, TTL_FINANCIALS, _fetch)
 
@@ -95,21 +135,7 @@ def get_yfinance_income_statement_data(ticker_name: str) -> Dict:
     key = f"{fmt}:income_statement"
 
     def _fetch() -> Dict:
-        ticker = yf.Ticker(fmt)
-        df = ticker.incomestmt
-        if df is None or (isinstance(df, pd.DataFrame) and df.empty):
-            return {}
-        result = {}
-        for col in df.columns:
-            if isinstance(col, pd.Timestamp):
-                col_str = col.strftime("%Y-%m-%d")
-            else:
-                col_str = str(col)
-            result[col_str] = {
-                str(idx): float(val) if pd.notnull(val) else None
-                for idx, val in df[col].items()
-            }
-        return result
+        return _statement_to_dict(yf.Ticker(fmt).incomestmt)
 
     return cached_yfinance_call(key, TTL_FINANCIALS, _fetch)
 
@@ -128,21 +154,7 @@ def get_yfinance_cash_flow_statement_data(ticker_name: str) -> Dict:
     key = f"{fmt}:cash_flow"
 
     def _fetch() -> Dict:
-        ticker = yf.Ticker(fmt)
-        df = ticker.cash_flow
-        if df is None or (isinstance(df, pd.DataFrame) and df.empty):
-            return {}
-        result = {}
-        for col in df.columns:
-            if isinstance(col, pd.Timestamp):
-                col_str = col.strftime("%Y-%m-%d")
-            else:
-                col_str = str(col)
-            result[col_str] = {
-                str(idx): float(val) if pd.notnull(val) else None
-                for idx, val in df[col].items()
-            }
-        return result
+        return _statement_to_dict(yf.Ticker(fmt).cash_flow)
 
     return cached_yfinance_call(key, TTL_FINANCIALS, _fetch)
 
@@ -170,7 +182,11 @@ def get_yfinance_calendar_data(ticker_name: str) -> Dict:
             for idx, row in cal.iterrows():
                 k = str(idx)
                 out[k] = {
-                    str(c): float(v) if pd.notnull(v) and isinstance(v, (int, float)) else str(v) if pd.notnull(v) else None
+                    str(c): (
+                        float(v)
+                        if pd.notnull(v) and isinstance(v, (int, float))
+                        else str(v) if pd.notnull(v) else None
+                    )
                     for c, v in row.items()
                 }
             return out
@@ -191,23 +207,7 @@ def get_yfinance_earnings_estimate(ticker_name: str) -> Optional[Dict]:
     Returns:
         Dictionary with earnings estimates or None
     """
-    fmt = get_ticker_format(ticker_name)
-    key = f"{fmt}:earnings_estimate"
-
-    def _fetch() -> Optional[Dict]:
-        ticker = yf.Ticker(fmt)
-        df = ticker.earnings_estimate
-        if df is not None:
-            return {
-                str(idx): {
-                    str(col): float(val) if pd.notnull(val) else None
-                    for col, val in row.items()
-                }
-                for idx, row in df.iterrows()
-            }
-        return None
-
-    return cached_yfinance_call(key, TTL_EARNINGS, _fetch)
+    return _fetch_estimate(ticker_name, "earnings_estimate", "earnings_estimate")
 
 
 def get_yfinance_earnings_history(ticker_name: str) -> Optional[Dict]:
@@ -220,23 +220,7 @@ def get_yfinance_earnings_history(ticker_name: str) -> Optional[Dict]:
     Returns:
         Dictionary with earnings history or None
     """
-    fmt = get_ticker_format(ticker_name)
-    key = f"{fmt}:earnings_history"
-
-    def _fetch() -> Optional[Dict]:
-        ticker = yf.Ticker(fmt)
-        df = ticker.earnings_history
-        if df is not None:
-            return {
-                str(idx): {
-                    str(col): float(val) if pd.notnull(val) else None
-                    for col, val in row.items()
-                }
-                for idx, row in df.iterrows()
-            }
-        return None
-
-    return cached_yfinance_call(key, TTL_EARNINGS, _fetch)
+    return _fetch_estimate(ticker_name, "earnings_history", "earnings_history")
 
 
 def get_yfinance_revenue_estimate(ticker_name: str) -> Optional[Dict]:
@@ -249,23 +233,7 @@ def get_yfinance_revenue_estimate(ticker_name: str) -> Optional[Dict]:
     Returns:
         Dictionary with revenue estimates or None
     """
-    fmt = get_ticker_format(ticker_name)
-    key = f"{fmt}:revenue_estimate"
-
-    def _fetch() -> Optional[Dict]:
-        ticker = yf.Ticker(fmt)
-        df = ticker.revenue_estimate
-        if df is not None:
-            return {
-                str(idx): {
-                    str(col): float(val) if pd.notnull(val) else None
-                    for col, val in row.items()
-                }
-                for idx, row in df.iterrows()
-            }
-        return None
-
-    return cached_yfinance_call(key, TTL_EARNINGS, _fetch)
+    return _fetch_estimate(ticker_name, "revenue_estimate", "revenue_estimate")
 
 
 def get_yfinance_eps_trend(ticker_name: str) -> Optional[Dict]:
@@ -278,23 +246,7 @@ def get_yfinance_eps_trend(ticker_name: str) -> Optional[Dict]:
     Returns:
         Dictionary with EPS trend or None
     """
-    fmt = get_ticker_format(ticker_name)
-    key = f"{fmt}:eps_trend"
-
-    def _fetch() -> Optional[Dict]:
-        ticker = yf.Ticker(fmt)
-        df = ticker.eps_trend
-        if df is not None:
-            return {
-                str(idx): {
-                    str(col): float(val) if pd.notnull(val) else None
-                    for col, val in row.items()
-                }
-                for idx, row in df.iterrows()
-            }
-        return None
-
-    return cached_yfinance_call(key, TTL_EARNINGS, _fetch)
+    return _fetch_estimate(ticker_name, "eps_trend", "eps_trend")
 
 
 def get_yfinance_eps_revisions(ticker_name: str) -> Optional[Dict]:
@@ -307,23 +259,7 @@ def get_yfinance_eps_revisions(ticker_name: str) -> Optional[Dict]:
     Returns:
         Dictionary with EPS revisions or None
     """
-    fmt = get_ticker_format(ticker_name)
-    key = f"{fmt}:eps_revisions"
-
-    def _fetch() -> Optional[Dict]:
-        ticker = yf.Ticker(fmt)
-        df = ticker.eps_revisions
-        if df is not None:
-            return {
-                str(idx): {
-                    str(col): float(val) if pd.notnull(val) else None
-                    for col, val in row.items()
-                }
-                for idx, row in df.iterrows()
-            }
-        return None
-
-    return cached_yfinance_call(key, TTL_EARNINGS, _fetch)
+    return _fetch_estimate(ticker_name, "eps_revisions", "eps_revisions")
 
 
 def get_yfinance_growth_estimates(ticker_name: str) -> Optional[Dict]:
@@ -336,23 +272,7 @@ def get_yfinance_growth_estimates(ticker_name: str) -> Optional[Dict]:
     Returns:
         Dictionary with growth estimates or None
     """
-    fmt = get_ticker_format(ticker_name)
-    key = f"{fmt}:growth_estimates"
-
-    def _fetch() -> Optional[Dict]:
-        ticker = yf.Ticker(fmt)
-        df = ticker.growth_estimates
-        if df is not None:
-            return {
-                str(idx): {
-                    str(col): float(val) if pd.notnull(val) else None
-                    for col, val in row.items()
-                }
-                for idx, row in df.iterrows()
-            }
-        return None
-
-    return cached_yfinance_call(key, TTL_EARNINGS, _fetch)
+    return _fetch_estimate(ticker_name, "growth_estimates", "growth_estimates")
 
 
 def get_yfinance_stock_history(
@@ -525,9 +445,7 @@ def get_yfinance_market_summary_crypto() -> Dict:
             "symbols": ",".join(symbols),
         }
 
-        summary = yf.Market("CRYPTOCURRENCIES")._fetch_json(
-            summary_url, summary_params
-        )
+        summary = yf.Market("CRYPTOCURRENCIES")._fetch_json(summary_url, summary_params)
         return summary if summary is not None else {}
 
     return cached_yfinance_call(key, TTL_MARKET, _fetch)

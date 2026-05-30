@@ -17,7 +17,9 @@ class MeanReversionStrategy(Strategy):
         overbought: Sell threshold (default 70).
     """
 
-    def __init__(self, rsi_period: int = 14, oversold: float = 30.0, overbought: float = 70.0):
+    def __init__(
+        self, rsi_period: int = 14, oversold: float = 30.0, overbought: float = 70.0
+    ):
         super().__init__()
         self.rsi_period = int(rsi_period)
         self.oversold = float(oversold)
