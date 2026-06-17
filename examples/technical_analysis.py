@@ -13,13 +13,9 @@ stock = Stock("AAPL")
 df = stock.history(period="6mo", interval="1d")
 
 # Add technical indicators
-df_with_indicators = stock.add_indicators(df, [
-    "sma_20",
-    "sma_50",
-    "rsi_14",
-    "macd",
-    "bbands"
-])
+df_with_indicators = stock.add_indicators(
+    df, ["sma_20", "sma_50", "rsi_14", "macd", "bbands"]
+)
 
 print("Latest data with indicators:")
 print(df_with_indicators.tail())
@@ -43,4 +39,5 @@ print(bbands.tail())
 # Check available indicators
 print(f"\nAvailable Indicators:")
 from investormate.analysis.indicators import IndicatorsHelper
+
 print(IndicatorsHelper.available_indicators())

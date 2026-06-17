@@ -2,7 +2,9 @@
 
 > **Vision:** The AI-powered Python library that finance students use to learn, professionals use to analyze, and quants use to build — one package from Accounting 101 homework through portfolio optimization and alpha generation, with AI woven into every layer.
 
-**Recent progress (v0.3.0):** In-memory **TTL cache + rate limiting** for yfinance; **`Stock.refresh()`** cache bust; **`stock.earnings`** (calendar, estimates, surprise history); portfolio **VaR** (historical/parametric) and **Monte Carlo**; **CAN SLIM**-style and **dividend growth** screens; **Momentum / Mean reversion / SMA crossover** strategy templates. See [CHANGELOG.md](CHANGELOG.md).
+**Recent progress (v0.5.0):** **Student Edition** — TVM calculator, bond pricing & duration, Black-Scholes & Greeks, financial statement analysis (common-size, horizontal, trend), CAPM regression, educational layer (`explain()`, `show_work()`, `interpret()`, CFA tags, `red_flags()`), practice problem generator, Markdown/Excel export. See [CHANGELOG.md](CHANGELOG.md).
+
+**Recent progress (v0.4.0):** Pluggable **DataProvider** layer, OpenRouter AI provider, logging, SSRF hardening. **v0.3.0:** TTL cache, earnings, VaR/Monte Carlo, strategy templates.
 
 > **The "Full Stack" Strategy:** InvestorMate is built on three pillars — **Finance + AI + Education** — that no other library combines. The **educational foundation** (TVM, bond pricing, common-size analysis, `explain()`, `show_work()`) is the on-ramp that gets students installing in their first semester. The **AI engine** (multi-provider LLM: OpenAI, Claude, Gemini) turns every feature into a conversational experience — ask questions about any stock, get AI-generated explanations of your analysis, summarize 10-K filings in plain English, and receive AI-powered study feedback. The **professional toolkit** (portfolio optimization, ML alpha, SEC Edgar, strategy templates, tearsheets) is what those same students grow into on the job. No other Python library bridges all three.
 

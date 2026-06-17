@@ -8,7 +8,18 @@ from investormate import Screener
 
 
 def main():
-    universe = ["AAPL", "MSFT", "GOOGL", "META", "NVDA", "JPM", "XOM", "KO", "PFE", "WMT"]
+    universe = [
+        "AAPL",
+        "MSFT",
+        "GOOGL",
+        "META",
+        "NVDA",
+        "JPM",
+        "XOM",
+        "KO",
+        "PFE",
+        "WMT",
+    ]
     screener = Screener(universe=universe)
     picks = screener.magic_formula(top_n=5, min_market_cap=50_000_000_000)
     print("Magic Formula top picks (demo universe):")

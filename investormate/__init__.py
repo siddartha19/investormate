@@ -6,6 +6,8 @@ InvestorMate is an all-in-one Python package for stock analysis that combines:
 - Stock data fetching (yfinance wrapper)
 - Technical indicators (20+ indicators, native numpy/pandas)
 - Financial ratios and metrics (auto-calculated)
+- Academic finance (TVM, bonds, options, CAPM, statement analysis)
+- Educational layer (explain, show_work, CFA tags, practice problems)
 - Stock screening capabilities
 - Portfolio analysis
 - Market summaries
@@ -24,6 +26,28 @@ from .core.custom_strategy import CustomStrategy
 # Analysis classes
 from .analysis.correlation import Correlation
 from .analysis.sentiment import SentimentAnalyzer
+from .analysis.financials import FinancialStatements
+from .analysis.capm import CAPMAnalyzer
+
+# Academic finance
+from .finance import (
+    present_value,
+    future_value,
+    annuity_pv,
+    annuity_fv,
+    perpetuity,
+    npv,
+    irr,
+    amortization_schedule,
+    ear,
+    Bond,
+    bond_ladder,
+    options,
+)
+
+# Education
+from .education import generate as practice_generate
+from .education import get_ratio_knowledge
 
 # Backtesting classes
 from .backtest import (
@@ -71,6 +95,24 @@ __all__ = [
     # Analysis
     "Correlation",
     "SentimentAnalyzer",
+    "FinancialStatements",
+    "CAPMAnalyzer",
+    # Academic finance
+    "present_value",
+    "future_value",
+    "annuity_pv",
+    "annuity_fv",
+    "perpetuity",
+    "npv",
+    "irr",
+    "amortization_schedule",
+    "ear",
+    "Bond",
+    "bond_ladder",
+    "options",
+    # Education
+    "practice_generate",
+    "get_ratio_knowledge",
     # Backtesting
     "Backtest",
     "Strategy",

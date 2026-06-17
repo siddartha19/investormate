@@ -38,12 +38,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+export = [
+    "openpyxl>=3.1.0",
+]
 ai = [
     "openai>=1.0.0",
     "anthropic>=0.30.0",
     "google-genai>=0.1.0",
 ]
 all = [
+    "openpyxl>=3.1.0",
     "openai>=1.0.0",
     "anthropic>=0.30.0",
     "google-genai>=0.1.0",

@@ -54,6 +54,8 @@ Construct multiple `Stock` instances. Invalid tickers emit `UserWarning` and are
 - `sentiment` - SentimentAnalyzer instance
 - `valuation` - Valuation instance (DCF, comps, summary) (v0.2.3)
 - `earnings` - EarningsAnalyzer (calendar, estimates, surprise history) (v0.3.0)
+- `financials` - FinancialStatements (common-size, horizontal, trend) (v0.5.0)
+- `capm` - CAPMAnalyzer (beta, alpha, factor models) (v0.5.0)
 
 **News & Filings:**
 - `news` - Latest news articles
@@ -518,6 +520,67 @@ from investormate import (
 ```
 
 All exceptions inherit from `InvestorMateError`.
+
+---
+
+## Academic Finance (v0.5.0)
+
+### TVM (`investormate.finance.tvm`)
+
+```python
+from investormate import present_value, future_value, annuity_pv, npv, irr, amortization_schedule
+```
+
+### Bonds (`investormate.finance.bonds`)
+
+```python
+from investormate import Bond, bond_ladder
+b = Bond(face=1000, coupon=0.06, ytm=0.05, n=10)
+b.price(); b.modified_duration(); b.solve_ytm(price=1050)
+```
+
+### Options (`investormate.finance.options`)
+
+```python
+from investormate.finance import options
+options.black_scholes(S, K, T, r, sigma, "call")
+options.greeks(S, K, T, r, sigma, "call")
+```
+
+### Financial Statements (`stock.financials`)
+
+- `common_size("income"|"balance_sheet")`
+- `horizontal(periods=5)`
+- `vertical(period=None)`
+- `trend(base_year=None)`
+- `cash_flow_quality()`
+- `to_csv(path, statement_type)`
+
+### CAPM (`stock.capm`)
+
+- `capm(benchmark="SPY", period="2y")`
+- `jensen_alpha(benchmark="SPY")`
+- `risk_decomposition(benchmark="SPY")`
+- `factor_model(factor_returns, model="ff3"|"ff5")`
+
+### Educational layer (`stock.ratios`)
+
+- `explain(name)`, `show_work(name)`, `interpret()`, `cfa_topic(name)`
+- `red_flags()`, `percentile(name, peer_values)`, `dupont_breakdown()`
+
+### Investor tutoring
+
+- `investor.ask_concept(question)`
+- `investor.explain_ratios(ticker)`
+
+### Practice & export
+
+```python
+from investormate import practice_generate
+practice_generate("tvm", difficulty="medium")
+stock.report(format="markdown")
+stock.to_excel("report.xlsx")  # requires investormate[export]
+```
 
 ---
 

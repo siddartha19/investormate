@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python** — Valuation (DCF, comps), correlation, sentiment, backtesting & custom strategies (v0.4.0)
+**AI-Powered Stock Analysis in Python** — Student Edition: TVM, bonds, Black-Scholes, CAPM, statement analysis, `explain()`/`show_work()` (v0.5.0)
 
 InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
@@ -29,6 +29,7 @@ InvestorMate is the only Python package you need for comprehensive stock analysi
 - **Strategy templates** - `MomentumStrategy`, `MeanReversionStrategy`, `SMACrossoverStrategy` for the built-in backtest runner
 - **Market Summaries** - Real-time data for US, Asian, European, crypto, and commodity markets
 - **Pretty Formatting** - Beautiful CLI output for financial statements and ratios
+- **Student Edition (v0.5.0)** - TVM calculator, bond pricing & duration, Black-Scholes & Greeks, financial statement analysis, CAPM regression, educational layer (`explain()`, `show_work()`, CFA tags), practice problems, Markdown/Excel export
 
 ## 🚀 Quick Start
 

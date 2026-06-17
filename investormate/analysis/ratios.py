@@ -3,7 +3,10 @@ Financial ratios calculator for InvestorMate.
 Auto-calculates various financial ratios from stock data.
 """
 
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
+
+from ..education.knowledge import get_ratio_knowledge, interpret_ratio_value
+from ..utils.exceptions import ValidationError
 from ..utils.helpers import safe_divide
 
 
@@ -470,4 +473,168 @@ class RatiosCalculator:
             "ttm_revenue": self.ttm_revenue,
             "ttm_net_income": self.ttm_net_income,
             "ttm_ebitda": self.ttm_ebitda,
+        }
+
+    def dupont_breakdown(self) -> Dict[str, Any]:
+        """
+        Formatted 3-component DuPont ROE decomposition tree.
+
+        ROE = Net Profit Margin × Asset Turnover × Equity Multiplier
+        """
+        dupont = self.dupont_roe
+        pm = dupont.get("profit_margin")
+        at = dupont.get("asset_turnover")
+        em = dupont.get("equity_multiplier")
+        roe = dupont.get("roe")
+        calculated = dupont.get("calculated_roe")
+
+        return {
+            "roe_reported": roe,
+            "roe_calculated": calculated,
+            "components": {
+                "profit_margin": {
+                    "value": pm,
+                    "label": "Net Profit Margin (Net Income / Revenue)",
+                },
+                "asset_turnover": {
+                    "value": at,
+                    "label": "Asset Turnover (Revenue / Total Assets)",
+                },
+                "equity_multiplier": {
+                    "value": em,
+                    "label": "Equity Multiplier (Total Assets / Equity)",
+                },
+            },
+            "formula": "ROE = Profit Margin × Asset Turnover × Equity Multiplier",
+            "tree": (
+                f"ROE ({roe}) = {pm} × {at} × {em} ≈ {calculated}"
+                if all(v is not None for v in [roe, pm, at, em, calculated])
+                else "Insufficient data for full DuPont tree"
+            ),
+        }
+
+    def explain(self, name: str) -> Dict[str, Any]:
+        """Return formula, variables, and interpretation for a ratio."""
+        key = name.lower().replace(" ", "_")
+        entry = get_ratio_knowledge(key)
+        if not entry:
+            if hasattr(self, key):
+                return {
+                    "name": key,
+                    "formula": "See property documentation",
+                    "value": getattr(self, key),
+                    "cfa_topic": "General Financial Analysis",
+                }
+            raise ValidationError(f"Unknown ratio: {name}")
+        return {
+            "name": entry["name"],
+            "formula": entry["formula"],
+            "variables": entry["variables"],
+            "interpretation": entry["interpretation"],
+            "cfa_topic": entry["cfa_topic"],
+            "current_value": getattr(self, key, None) if hasattr(self, key) else None,
+        }
+
+    def show_work(self, name: str) -> Dict[str, Any]:
+        """Show step-by-step calculation with numbers plugged in."""
+        key = name.lower().replace(" ", "_")
+        entry = self.explain(name)
+        value = getattr(self, key, None) if hasattr(self, key) else None
+        steps: List[str] = [f"Formula: {entry.get('formula', 'N/A')}"]
+
+        if key == "current_ratio":
+            ca = self.info.get("totalCurrentAssets")
+            cl = self.info.get("totalCurrentLiabilities")
+            steps.append(f"Current Assets = {ca}")
+            steps.append(f"Current Liabilities = {cl}")
+            if ca and cl:
+                steps.append(f"Current Ratio = {ca} / {cl} = {value}")
+        elif key == "roe":
+            ni = self.info.get("netIncomeToCommon")
+            eq = self.info.get("totalStockholderEquity")
+            steps.append(f"Net Income = {ni}")
+            steps.append(f"Shareholders' Equity = {eq}")
+            if ni and eq:
+                steps.append(f"ROE = {ni} / {eq} = {value}")
+        elif key == "roic":
+            steps.append(f"ROIC (computed) = {value}")
+        else:
+            steps.append(f"Computed {key} = {value}")
+
+        return {
+            "ratio": key,
+            "formula": entry.get("formula"),
+            "steps": steps,
+            "result": value,
+        }
+
+    def cfa_topic(self, name: str) -> str:
+        """CFA curriculum topic tag for a ratio."""
+        entry = get_ratio_knowledge(name.lower().replace(" ", "_"))
+        return entry["cfa_topic"] if entry else "General Financial Analysis"
+
+    def interpret(self) -> Dict[str, Dict[str, Any]]:
+        """Plain-English assessment for all available ratios."""
+        result: Dict[str, Dict[str, Any]] = {}
+        for key, val in self.all().items():
+            if val is not None:
+                result[key] = {
+                    "value": val,
+                    "assessment": interpret_ratio_value(key, val),
+                    "cfa_topic": self.cfa_topic(key),
+                }
+        return result
+
+    def red_flags(self) -> List[str]:
+        """Highlight concerning ratio patterns."""
+        flags: List[str] = []
+        if self.current_ratio is not None and self.current_ratio < 1.0:
+            flags.append("Current ratio below 1.0 — potential liquidity concern")
+        if self.debt_to_equity is not None and self.debt_to_equity > 2.0:
+            flags.append("High debt-to-equity — elevated financial leverage")
+        if self.profit_margin is not None and self.profit_margin < 0:
+            flags.append("Negative profit margin — unprofitable operations")
+        if self.revenue_growth is not None and self.revenue_growth < 0:
+            flags.append("Declining revenue growth")
+        if self.interest_coverage is not None and self.interest_coverage < 1.5:
+            flags.append("Low interest coverage — debt service risk")
+        ocf = self.info.get("operatingCashflow") or self.info.get("operatingCashFlow")
+        ni = self.info.get("netIncomeToCommon")
+        if ocf is not None and ni is not None and ni > 0 and ocf < ni * 0.7:
+            flags.append("Operating cash flow well below net income — accruals concern")
+        return flags
+
+    def percentile(
+        self,
+        name: str,
+        peer_values: Optional[List[float]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Where this ratio falls vs peer values (0–100 percentile).
+        """
+        key = name.lower().replace(" ", "_")
+        value = getattr(self, key, None) if hasattr(self, key) else None
+        if value is None:
+            return {
+                "ratio": key,
+                "value": None,
+                "percentile": None,
+                "message": "No value",
+            }
+        if not peer_values:
+            return {
+                "ratio": key,
+                "value": value,
+                "percentile": None,
+                "message": "Provide peer_values list for percentile ranking",
+            }
+        peers = sorted(peer_values)
+        below = sum(1 for p in peers if p < value)
+        pct = round(100 * below / len(peers), 1)
+        return {
+            "ratio": key,
+            "value": value,
+            "percentile": pct,
+            "peers_count": len(peers),
+            "message": f"{pct}th percentile vs {len(peers)} peers",
         }

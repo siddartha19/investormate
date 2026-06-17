@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-17
+
+### Added — Student Edition (Phase 1.5)
+- **TVM module** (`investormate.finance.tvm`): `present_value`, `future_value`, `annuity_pv`/`annuity_fv`, `perpetuity`, `npv`, `irr`, `amortization_schedule`, `ear`. Pure numpy/pandas — no API keys.
+- **Fixed income** (`investormate.finance.bonds`): `Bond` class with `price`, `solve_ytm`, `current_yield`, `accrued_interest`, `macaulay_duration`, `modified_duration`, `convexity`, `price_change`; `bond_ladder()` helper.
+- **Derivatives basics** (`investormate.finance.options`): `black_scholes`, `greeks`, `put_call_parity`, `binomial`, `payoff_diagram`, `strategy_metrics`.
+- **Financial statement analysis** (`stock.financials`): `common_size`, `horizontal`, `vertical`, `trend`, `cash_flow_quality`, `to_csv`.
+- **CAPM & factor models** (`stock.capm`): `capm`, `jensen_alpha`, `risk_decomposition`, `factor_model` (user-supplied FF factors).
+- **Educational layer** on `stock.ratios`: `explain()`, `show_work()`, `interpret()`, `cfa_topic()`, `red_flags()`, `percentile()`, `dupont_breakdown()`.
+- **AI tutoring** on `Investor`: `ask_concept()`, `explain_ratios()`.
+- **Practice problems** (`investormate.education.practice.generate`): randomized TVM, bond, and options problems with worked solutions.
+- **Coursework export**: `stock.report(format="markdown")`, `stock.to_excel()` (optional `[export]` extra with `openpyxl`).
+- **Tests**: `test_tvm`, `test_bonds`, `test_options`, `test_financials`, `test_capm`, `test_education`, `test_practice`, `test_export`.
+- **Docs**: `docs/tvm.md`, `docs/fixed_income.md`, `docs/derivatives.md`, `docs/financial_statements.md`, `docs/capm.md`, `docs/educational_layer.md`.
+- **Examples**: `tvm_basics.py`, `bond_pricing.py`, `black_scholes.py`, `statement_analysis.py`, `capm_regression.py`, `explain_ratios.py`.
+
+### Changed
+- Top-level exports expanded for academic finance and education APIs.
+- `pyproject.toml`: new optional `[export]` extra (`openpyxl`).
+
 ## [0.4.0] - 2026-05-30
 
 ### Added

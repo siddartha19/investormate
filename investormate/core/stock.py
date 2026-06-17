@@ -18,6 +18,8 @@ from ..analysis.indicators import IndicatorsHelper
 from ..analysis.scores import FinancialScores
 from ..analysis.valuation import Valuation
 from ..analysis.earnings import EarningsAnalyzer
+from ..analysis.financials import FinancialStatements
+from ..analysis.capm import CAPMAnalyzer
 from ..utils.validators import validate_ticker, validate_period, validate_interval
 from ..utils.exceptions import DataFetchError
 
@@ -82,6 +84,8 @@ class Stock:
         self._history_cache = {}
         self._earnings_transcripts = None
         self._earnings_analyzer = None
+        self._financials_analyzer = None
+        self._capm_analyzer = None
 
     # Core Data Properties
 
@@ -438,6 +442,79 @@ class Stock:
         return self._earnings_analyzer
 
     @property
+    def financials(self) -> FinancialStatements:
+        """
+        Financial statement analysis (common-size, horizontal, trend, cash flow quality).
+
+        Example:
+            >>> stock.financials.common_size("income")
+            >>> stock.financials.horizontal(periods=3)
+        """
+        if self._financials_analyzer is None:
+            self._financials_analyzer = FinancialStatements(
+                self.ticker,
+                info=self.info,
+                balance_sheet=self.balance_sheet,
+                income_stmt=self.income_statement,
+                cash_flow=self.cash_flow,
+            )
+        return self._financials_analyzer
+
+    @property
+    def capm(self) -> CAPMAnalyzer:
+        """
+        CAPM and factor model analysis for this stock.
+
+        Example:
+            >>> stock.capm.capm(benchmark="SPY")
+            >>> stock.capm.jensen_alpha()
+        """
+        if self._capm_analyzer is None:
+            self._capm_analyzer = CAPMAnalyzer(self.ticker)
+        return self._capm_analyzer
+
+    def jensen_alpha(self, benchmark: str = "SPY", **kwargs) -> Dict[str, Any]:
+        """Shortcut for ``stock.capm.jensen_alpha()``."""
+        return self.capm.jensen_alpha(benchmark, **kwargs)
+
+    def report(
+        self,
+        format: str = "markdown",
+        *,
+        sections: Optional[List[str]] = None,
+    ) -> str:
+        """
+        Generate a coursework-ready report (markdown; core stdlib only).
+        """
+        if format != "markdown":
+            raise ValidationError(f"Unsupported format: {format}. Use 'markdown'.")
+        from ..reporting.export import markdown_report
+
+        return markdown_report(
+            self.ticker,
+            self.name,
+            self.info,
+            self.ratios.all(),
+            sector=self.sector,
+            sections=sections,
+        )
+
+    def to_excel(self, path: str) -> str:
+        """
+        Export analysis workbook (requires ``pip install investormate[export]``).
+        """
+        from ..reporting.export import export_to_excel
+
+        return export_to_excel(
+            path,
+            ticker=self.ticker,
+            info=self.info,
+            ratios=self.ratios.all(),
+            income_stmt=self.income_statement,
+            balance_sheet=self.balance_sheet,
+        )
+
+    @property
     def valuation(self) -> Valuation:
         """
         Get valuation module (DCF, comparable companies, fair value summary).
@@ -507,6 +584,8 @@ class Stock:
         self._history_cache = {}
         self._earnings_transcripts = None
         self._earnings_analyzer = None
+        self._financials_analyzer = None
+        self._capm_analyzer = None
 
     def __repr__(self) -> str:
         """String representation."""

@@ -24,11 +24,18 @@ InvestorMate combines the best of financial data, technical analysis, and AI to 
 - **Earnings API (v0.3.0)** - Calendar, estimates, EPS surprise history
 - **Portfolio VaR / Monte Carlo (v0.3.0)** - Historical and parametric VaR, bootstrap simulation
 - **Screens (v0.3.0)** - CAN SLIM–style and dividend-growth streak screens
+- **Student Edition (v0.5.0)** - TVM, bonds, Black-Scholes, statement analysis, CAPM, `explain()`/`show_work()`, practice problems, Markdown/Excel export
 
 ## Quick Links
 
 - [Quickstart Guide](quickstart.md) - Get started in 5 minutes
 - [API Reference](api_reference.md) - Complete API documentation
+- [TVM Calculator](tvm.md) - Present value, annuities, IRR, amortization (v0.5.0)
+- [Fixed Income](fixed_income.md) - Bond pricing, duration, convexity (v0.5.0)
+- [Derivatives](derivatives.md) - Black-Scholes, Greeks, binomial (v0.5.0)
+- [Financial Statements](financial_statements.md) - Common-size, horizontal, trend (v0.5.0)
+- [CAPM & Factors](capm.md) - Beta, alpha, risk decomposition (v0.5.0)
+- [Educational Layer](educational_layer.md) - explain(), show_work(), practice (v0.5.0)
 - [AI Providers Guide](ai_providers.md) - Using OpenAI, Claude, and Gemini
 - [Correlation Analysis](correlation.md) - Portfolio diversification
 - [Sentiment Analysis](sentiment.md) - News sentiment

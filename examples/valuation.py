@@ -41,7 +41,9 @@ def main():
     print("\n=== Fair Value Summary ===")
     summary = stock.valuation.summary(peers=peers)
     print(f"Current price: ${summary.get('current_price')}")
-    print(f"Fair value range: ${summary.get('fair_value_low')} - ${summary.get('fair_value_high')}")
+    print(
+        f"Fair value range: ${summary.get('fair_value_low')} - ${summary.get('fair_value_high')}"
+    )
     print(f"Recommendation: {summary.get('recommendation')}")
 
     # Sensitivity table (growth vs WACC)

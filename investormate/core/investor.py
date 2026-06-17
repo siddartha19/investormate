@@ -296,6 +296,61 @@ class Investor:
             # executor.map preserves input ordering
             return list(executor.map(_run, queries))
 
+    def ask_concept(self, question: str, provider: Optional[str] = None) -> Dict:
+        """
+        Ask a conceptual finance question (textbook-style tutoring).
+
+        Example:
+            >>> investor.ask_concept("Explain modified duration and why it matters")
+        """
+        provider = provider or self.default_provider
+        if provider not in self.providers:
+            raise AIProviderError(f"Provider '{provider}' not initialized")
+
+        system_prompt = (
+            "You are a CFA-level finance tutor. Explain concepts clearly with "
+            "formulas, intuition, and a brief real-world example. Be concise but thorough."
+        )
+        ai_provider = self.providers[provider]
+        return ai_provider.analyze(
+            data="", prompt=question, system_prompt=system_prompt
+        )
+
+    def explain_ratios(self, ticker: str, provider: Optional[str] = None) -> Dict:
+        """
+        AI-generated narrative analysis of a stock's financial ratios.
+        """
+        ticker = validate_ticker(ticker)
+        provider = provider or self.default_provider
+        if provider not in self.providers:
+            raise AIProviderError(f"Provider '{provider}' not initialized")
+
+        from ..core.stock import Stock
+
+        stock = Stock(ticker)
+        ratios = stock.ratios.all()
+        interpretation = stock.ratios.interpret()
+        red_flags = stock.ratios.red_flags()
+        payload = {
+            "ticker": ticker,
+            "ratios": ratios,
+            "interpretation": interpretation,
+            "red_flags": red_flags,
+        }
+        data_str = json.dumps(payload, indent=2, default=str)
+        prompt = (
+            f"Analyze the financial ratios for {ticker}. Explain what the numbers "
+            "mean together, highlight strengths and weaknesses, and note any red flags."
+        )
+        system_prompt = (
+            "You are an equity research analyst writing for finance students. "
+            "Use plain English, connect ratios into a coherent story, and be specific."
+        )
+        ai_provider = self.providers[provider]
+        return ai_provider.analyze(
+            data=data_str, prompt=prompt, system_prompt=system_prompt
+        )
+
     @property
     def available_providers(self) -> List[str]:
         """Get list of available AI providers."""
