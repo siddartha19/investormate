@@ -62,6 +62,9 @@ dev = [
     "build>=1.0.0",
 ]
 
+[project.scripts]
+investormate = "investormate.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/siddartha19/investormate"
 Documentation = "https://github.com/siddartha19/investormate#readme"

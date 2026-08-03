@@ -6,15 +6,16 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/investormate)
 
-**AI-Powered Stock Analysis in Python** — Student Edition: TVM, bonds, Black-Scholes, CAPM, statement analysis, `explain()`/`show_work()` (v0.5.0)
+**AI-Powered Stock Analysis in Python** — Terminal CLI + Student Edition (v0.6.0)
 
-InvestorMate is the only Python package you need for comprehensive stock analysis - from data fetching to AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
+InvestorMate is the only Python package you need for comprehensive stock analysis - from a keyless terminal CLI to data fetching, AI-powered insights, portfolio diversification, news sentiment, strategy backtesting, and custom screening.
 
-> "Ask any question about any stock and get instant AI-powered insights"
+> Just want to run it: `pip install investormate` then `investormate quote AAPL`
 
 ## ✨ Features
 
-- **AI-Powered Analysis** - Ask natural language questions about any stock using OpenAI, Claude, Gemini, or OpenRouter (hundreds of models, one key)
+- **Terminal CLI (v0.6.0)** - Keyless `investormate quote` / `investormate analyze` with human and `--json` output
+- **AI-Powered Analysis** - Ask natural language questions about any stock using OpenAI, Claude, Gemini, or OpenRouter (optional `[ai]` extra)
 - **Comprehensive Stock Data** - Real-time prices, financials, news, and SEC filings via yfinance
 - **20+ Technical Indicators** - SMA, EMA, RSI, MACD, Bollinger Bands, ATR, ADX, Ichimoku, and more (native, no extra deps)
 - **Advanced Financial Ratios** - 40+ ratios including ROIC, WACC, Equity Multiplier, and TTM metrics
@@ -29,23 +30,24 @@ InvestorMate is the only Python package you need for comprehensive stock analysi
 - **Strategy templates** - `MomentumStrategy`, `MeanReversionStrategy`, `SMACrossoverStrategy` for the built-in backtest runner
 - **Market Summaries** - Real-time data for US, Asian, European, crypto, and commodity markets
 - **Pretty Formatting** - Beautiful CLI output for financial statements and ratios
-- **Student Edition (v0.5.0)** - TVM calculator, bond pricing & duration, Black-Scholes & Greeks, financial statement analysis, CAPM regression, educational layer (`explain()`, `show_work()`, CFA tags), practice problems, Markdown/Excel export
+- **Student Edition** - TVM calculator, bond pricing & duration, Black-Scholes & Greeks, financial statement analysis, CAPM regression, educational layer (`explain()`, `show_work()`, CFA tags), practice problems, Markdown/Excel export
 
 ## 🚀 Quick Start
 
+Just want to run it:
+
 ```bash
 pip install investormate
+investormate quote AAPL          # live price snapshot — no API key
+investormate analyze MSFT        # fundamentals + key ratios
+investormate analyze AAPL --json # machine-readable output for scripts
 ```
 
+Or use the Python API (same package, no extra install for stock data):
+
 ```python
-from investormate import Investor, Stock
+from investormate import Stock
 
-# AI-powered analysis
-investor = Investor(openai_api_key="sk-...")
-result = investor.ask("AAPL", "Is Apple undervalued compared to its peers?")
-print(result)
-
-# Stock data and analysis
 stock = Stock("AAPL")
 print(f"Price: ${stock.price}")
 print(f"P/E Ratio: {stock.ratios.pe}")
@@ -64,8 +66,17 @@ print(detail.get("indices"), detail.get("score"))
 ## 📦 Installation
 
 ```bash
-# Basic installation
+# Basic installation (CLI + stock data — no API key required)
 pip install investormate
+
+# With AI providers (OpenAI / Anthropic / Gemini / OpenRouter SDKs)
+pip install investormate[ai]
+
+# With Excel export support
+pip install investormate[export]
+
+# Everything
+pip install investormate[all]
 
 # With development dependencies
 pip install investormate[dev]
@@ -73,7 +84,11 @@ pip install investormate[dev]
 
 ## 🔑 API Keys
 
-InvestorMate supports multiple AI providers:
+Stock quotes and analysis work without any API keys. AI features need one provider key and the `[ai]` extra:
+
+```bash
+pip install investormate[ai]
+```
 
 - **OpenAI**: Get your API key at https://platform.openai.com/api-keys
 - **Anthropic Claude**: Get your API key at https://console.anthropic.com/
@@ -120,7 +135,7 @@ New to open source? Check [CONTRIBUTING.md](CONTRIBUTING.md) for step-by-step gu
 | **Simplicity**      | One package, simple API | Need 5+ packages       |
 | **AI-Powered**      | Built-in AI analysis    | Manual analysis only   |
 | **Provider Choice** | OpenAI, Claude, Gemini, OpenRouter | Locked to one provider |
-| **Setup Time**      | 2 lines of code         | Hours of configuration |
+| **Setup Time**      | `pip install` + one CLI command | Hours of configuration |
 | **Data Format**     | JSON-ready              | Raw pandas DataFrames  |
 | **Target Users**    | Everyone                | Enterprise only        |
 

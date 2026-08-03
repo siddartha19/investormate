@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-08-03
+
+### Added — Terminal CLI
+- **Console entry point** `investormate` via `[project.scripts]` and `python -m investormate` (`investormate/cli.py`, `investormate/__main__.py`).
+- **`investormate quote TICKER`** — keyless live price snapshot (price, previous close, change, day range, volume, market cap). Missing fields render as `N/A`.
+- **`investormate analyze TICKER`** — fast fundamentals snapshot (quote + sector/industry + key ratios from info). Does not fetch financial statements, run AI/DCF, or load indicators.
+- **`--json`** on both commands — one stable snake_case JSON object on stdout; diagnostics stay on stderr.
+- **Actionable errors** — invalid tickers and provider failures print problem / cause / fix with exit codes `2` (usage) and `1` (data).
+- **Tests**: `tests/test_cli.py` (mocked data provider, no live network).
+
+### Changed
+- README and `docs/quickstart.md` lead with the keyless CLI path; AI install examples use `investormate[ai]`.
+- Version bumped to `0.6.0`.
+
+### Deferred (not in 0.6.0)
+- `investormate ask` / interactive AI chat (needs `[ai]` and API keys).
+- `investormate dashboard` / local web UI (planned optional `[dashboard]` extra).
+- `investormate doctor` environment checks.
+
 ## [0.5.0] - 2026-06-17
 
 ### Added — Student Edition (Phase 1.5)

@@ -1,6 +1,6 @@
 # InvestorMate Quickstart Guide
 
-Get started with InvestorMate in minutes!
+Get started with InvestorMate in minutes. No API key is required for stock quotes or fundamental snapshots.
 
 ## Installation
 
@@ -8,7 +8,66 @@ Get started with InvestorMate in minutes!
 pip install investormate
 ```
 
-## Basic Stock Analysis
+For AI features later:
+
+```bash
+pip install investormate[ai]
+```
+
+## Terminal CLI (recommended first run)
+
+```bash
+investormate quote AAPL
+investormate analyze MSFT
+investormate analyze AAPL --json
+```
+
+Example human output from `investormate quote AAPL`:
+
+```text
+AAPL — Apple Inc.
+  Price:          $190.00
+  Previous close: $188.50
+  Change:         +$1.50 (+0.80%)
+  Day range:      $187.00 – $191.00
+  Volume:         55.00M
+  Market cap:     2.95T
+```
+
+Machine-readable JSON (stable snake_case keys, no decorative text):
+
+```bash
+investormate quote AAPL --json
+```
+
+```json
+{
+  "ticker": "AAPL",
+  "name": "Apple Inc.",
+  "price": 190.0,
+  "previous_close": 188.5,
+  "change": 1.5,
+  "change_pct": 0.007957,
+  "day_high": 191.0,
+  "day_low": 187.0,
+  "volume": 55000000,
+  "market_cap": 2950000000000
+}
+```
+
+Errors print to stderr with problem, cause, and fix. Exit codes:
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 2 | Usage / invalid ticker |
+| 1 | Data provider / network failure |
+
+You can also run `python -m investormate` with the same arguments.
+
+> Educational/research use only. Not financial advice. Always verify data before making investment decisions.
+
+## Equivalent Python API
 
 ```python
 from investormate import Stock
@@ -34,6 +93,8 @@ print(f"Verdict: {summary.get('recommendation')}")
 ```
 
 ## AI-Powered Analysis
+
+Requires `pip install investormate[ai]` and one provider API key.
 
 ```python
 from investormate import Investor
